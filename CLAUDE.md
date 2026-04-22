@@ -1,118 +1,88 @@
-NOME DO PROJETO — Fullstack
+Laboratório Sobral — Site institucional / catálogo de produtos
 
-Stack: [DESCREVER: ex Node.js + React + MongoDB]
+Stack: React 18 (UMD via CDN) + Babel Standalone + CSS puro
+Sem bundler, sem Node.js, sem framework de backend.
 Submodulo: .agnostic-core/
 
 ---
 
-Antes de implementar:
+REGRAS OBRIGATÓRIAS (seguir sempre):
 
-Backend:
-  REST API design:    .agnostic-core/skills/backend/rest-api-design.md
-  Error handling:     .agnostic-core/skills/backend/error-handling.md
-  Seguranca de API:   .agnostic-core/skills/security/api-hardening.md
-  OWASP checklist:    .agnostic-core/skills/security/owasp-checklist.md
-  Banco de dados:     .agnostic-core/skills/database/query-compliance.md
-  Schema design:      .agnostic-core/skills/database/schema-design.md
-  Node.js patterns:   .agnostic-core/skills/nodejs/nodejs-patterns.md
-  Express setup:      .agnostic-core/skills/nodejs/express-best-practices.md
-  OpenAPI:            .agnostic-core/skills/documentation/openapi-swagger.md
+1. Antes de qualquer alteração, consultar este CLAUDE.md e os skills relevantes do .agnostic-core/
+2. Após toda alteração de código: git add → git commit (Conventional Commits) → git push origin main
+3. Nunca commitar .claude/settings.json ou .claude/settings.local.json
+4. Idioma do projeto: pt-BR (textos da UI em português)
 
-Frontend:
+---
+
+Arquitetura do projeto:
+
+  project/
+    Site Laboratorio Sobral.html  ← entrada principal (abre no browser)
+    app.jsx                       ← roteador + componente Tweaks (tema/tipografia)
+    components.jsx                ← Header, Footer, LogoSVG, ícones compartilhados
+    styles.css                    ← design tokens, layout base, componentes globais
+    styles-app.css                ← estilos específicos de páginas e variações
+    pages/
+      catalog-data.jsx            ← array CATALOG com todos os produtos
+      home.jsx                    ← página inicial (hero, destaques, marcas)
+      quem-somos.jsx              ← institucional
+      produtos.jsx                ← listagem de produtos com filtro
+      produto.jsx                 ← detalhe de produto
+      medicamentos.jsx            ← página de medicamentos
+      fale-conosco.jsx            ← formulário de contato
+      privacidade.jsx             ← política de privacidade
+    images/                       ← logos, hero, fotos de produtos
+    uploads/                      ← assets brutos do design original
+
+Convenções do projeto:
+
+  Frontend:    React 18.3.1 (UMD) + JSX transpilado por Babel Standalone 7.29
+  CSS:         Custom CSS com variáveis CSS (--orange, --orange-dark, etc.), sem Tailwind
+  Fontes:      Nunito (padrão), DM Sans, Source Serif 4, Pacifico — via Google Fonts
+  Roteamento:  State machine em app.jsx via React.useState (sem React Router)
+  Dados:       catalog-data.jsx exporta window.CATALOG (array global, sem API)
+  Temas:       Tweaks panel em app.jsx controla paleta e tipografia via CSS vars
+  Backend:     Nenhum — site estático
+  Banco:       Nenhum
+  Auth:        Nenhum
+  Cache:       localStorage para persistência de página atual
+  Testes:      Nenhum framework configurado
+  CI/CD:       Não configurado
+  Deploy:      A definir
+  Commits:     Conventional Commits (feat:, fix:, chore:, style:, refactor:, docs:)
+  Branch:      main (único branch — sempre push para main)
+
+---
+
+Antes de implementar — skills obrigatórios por tipo de tarefa:
+
+Frontend / UI:
   HTML e CSS:          .agnostic-core/skills/frontend/html-css-audit.md
   Acessibilidade:      .agnostic-core/skills/frontend/accessibility.md
   UX Guidelines:       .agnostic-core/skills/frontend/ux-guidelines.md
   CSS Governance:      .agnostic-core/skills/frontend/css-governance.md
-  Tailwind:            .agnostic-core/skills/frontend/tailwind-patterns.md
   SEO:                 .agnostic-core/skills/frontend/seo-checklist.md
-  Design com MCP:      .agnostic-core/skills/design/paper-mcp-workflow.md
-
-Qualidade:
-  Testes unitarios:    .agnostic-core/skills/testing/unit-testing.md
-  Testes integracao:   .agnostic-core/skills/testing/integration-testing.md
-  Testes E2E:          .agnostic-core/skills/testing/e2e-testing.md
-  TDD workflow:        .agnostic-core/skills/testing/tdd-workflow.md
   Performance:         .agnostic-core/skills/performance/performance-audit.md
-  Caching:             .agnostic-core/skills/performance/caching-strategies.md
-  Validacao:           .agnostic-core/skills/audit/validation-checklist.md
+  Anti-Frankenstein:   .agnostic-core/skills/frontend/anti-frankenstein.md
 
-Operacional:
+Git / entrega:
   Commits:             .agnostic-core/skills/git/commit-conventions.md
-  Branching:           .agnostic-core/skills/git/branching-strategy.md
-  Deploy procedures:   .agnostic-core/skills/devops/deploy-procedures.md
-  Documentacao:        .agnostic-core/skills/documentation/technical-docs.md
-  Fact checking:       .agnostic-core/skills/ai/fact-checker.md
   Debugging:           .agnostic-core/skills/audit/systematic-debugging.md
+  Validação:           .agnostic-core/skills/audit/validation-checklist.md
+  Revisão de texto:    .agnostic-core/skills/audit/revisao-texto-ptbr.md
 
-AI / LLM (se aplicavel):
-  AI patterns:         .agnostic-core/skills/ai/ai-integration-patterns.md
-  Prompt engineering:  .agnostic-core/skills/ai/prompt-engineering.md
-
-Planejamento:
-  Goal-backward:       .agnostic-core/skills/workflow/goal-backward-planning.md
-  Workflow 6 fases:    .agnostic-core/skills/workflow/project-workflow.md
-  Context management:  .agnostic-core/skills/workflow/context-management.md
-  Claude Code tips:    .agnostic-core/skills/workflow/claude-code-productivity.md
-
-Antes de fazer deploy:
+Antes de deploy:
   .agnostic-core/skills/devops/pre-deploy-checklist.md
   .agnostic-core/skills/devops/deploy-procedures.md
 
 ---
 
-Todos os Agents disponiveis:
+Workflow padrão para cada alteração:
 
-Reviewers:
-  Security Reviewer:       .agnostic-core/agents/reviewers/security-reviewer.md
-  Frontend Reviewer:       .agnostic-core/agents/reviewers/frontend-reviewer.md
-  Code Inspector (SPARC):  .agnostic-core/agents/reviewers/code-inspector.md
-  Test Reviewer:           .agnostic-core/agents/reviewers/test-reviewer.md
-  Performance Reviewer:    .agnostic-core/agents/reviewers/performance-reviewer.md
-  Codebase Mapper:         .agnostic-core/agents/reviewers/codebase-mapper.md
-
-Validators:
-  Migration Validator:     .agnostic-core/agents/validators/migration-validator.md
-
-Generators:
-  Project Planner:         .agnostic-core/agents/generators/project-planner.md
-  Boilerplate Generator:   .agnostic-core/agents/generators/boilerplate-generator.md
-  Docs Generator:          .agnostic-core/agents/generators/docs-generator.md
-  UI Designer (Paper MCP): .agnostic-core/agents/generators/ui-designer.md
-
-Specialists:
-  DevOps Engineer:         .agnostic-core/agents/specialists/devops-engineer.md
-  Database Architect:      .agnostic-core/agents/specialists/database-architect.md
-  Mobile Developer:        .agnostic-core/agents/specialists/mobile-developer.md
-  SEO Specialist:          .agnostic-core/agents/specialists/seo-specialist.md
-
-Workflows:
-  Brainstorm:              .agnostic-core/commands/workflows/brainstorm.md
-  Create:                  .agnostic-core/commands/workflows/create.md
-  Debug:                   .agnostic-core/commands/workflows/debug.md
-  Deploy:                  .agnostic-core/commands/workflows/deploy.md
-
-Guia de roteamento (qual agent/skill usar):
-  .agnostic-core/docs/agent-routing-guide.md
-
----
-
-Git Auto-Push Workflow:
-  Após cada commit, o hook PostToolUse faz push automático para a branch atual.
-  Hook script:       .agnostic-core/scripts/hooks/post-tool-use-autopush
-  Configuração:      ~/.claude/settings.json (PostToolUse → Bash matcher)
-  Instalação:        scripts/install.sh configura automaticamente (passo 5/6)
-  Comportamento:     detecta "git commit" → push origin <branch> → retry 1x se falhar
-
----
-
-Convencoes do projeto (preencher):
-
-  Backend: [LINGUAGEM] [VERSAO] + [FRAMEWORK] [VERSAO]
-  Frontend: [FRAMEWORK] [VERSAO]
-  Banco: [BANCO] [VERSAO] via [ORM/DRIVER]
-  Auth: JWT / OAuth / sessao
-  Cache: Redis / in-memory / nenhum
-  Testes: [FRAMEWORK DE TESTES]
-  CI/CD: GitHub Actions / outro
-  Deploy: [PLATAFORMA]
-  Estilo de commits: Conventional Commits
+  1. Ler CLAUDE.md (este arquivo)
+  2. Ler skill(s) relevante(s) do .agnostic-core/
+  3. Implementar a mudança
+  4. git add <arquivos>
+  5. git commit -m "tipo: descrição curta"
+  6. git push origin main
