@@ -1,0 +1,116 @@
+import { useState } from 'react';
+import Breadcrumb from '../components/Breadcrumb';
+
+const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+const EMPTY_FORM = { nome: '', sobrenome: '', email: '', celular: '', endereco: '', estado: '', assunto: '', mensagem: '' };
+
+export default function FaleConoscoPage() {
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [sent, setSent] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (field) => (e) => {
+    setForm(f => ({ ...f, [field]: e.target.value }));
+    if (errors[field]) setErrors(er => ({ ...er, [field]: null }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const required = ['nome', 'sobrenome', 'email', 'celular', 'assunto', 'mensagem'];
+    const newErrors = {};
+    required.forEach(f => { if (!form[f].trim()) newErrors[f] = true; });
+    if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) newErrors.email = true;
+    if (Object.keys(newErrors).length) { setErrors(newErrors); return; }
+    setSent(true);
+    setTimeout(() => { setForm(EMPTY_FORM); setSent(false); }, 3000);
+  };
+
+  const inputClass = (field) =>
+    `w-full py-[14px] px-[18px] rounded-full border bg-white font-sans text-[14px] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-muted ${
+      errors[field]
+        ? 'border-[#E04444] shadow-[0_0_0_3px_rgba(224,68,68,.12)]'
+        : 'border-line focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)]'
+    }`;
+
+  return (
+    <>
+      <Breadcrumb trail={[{ label: '🏠 Home', to: '/' }, { label: 'Fale Conosco' }]} />
+
+      <section className="max-w-content mx-auto px-10 mt-10 pb-16">
+        <div className="grid grid-cols-[1.4fr_1fr] gap-12 mb-12">
+          <div>
+            <h2 className="text-[22px] font-[800] text-orange mb-[18px]">LABORATÓRIO SOBRAL</h2>
+            <div className="mb-[22px] text-[14.5px] leading-[1.6]">
+              <div className="font-[800] mb-1">Unidade Fabril</div>
+              <div>Rua Bento Leão, 25, Centro</div>
+              <div>Floriano | PI | CEP 64800-062.</div>
+              <div>Telefone: (89) 2101-2202</div>
+            </div>
+            <div className="text-[14.5px] leading-[1.6]">
+              <div className="font-[800] mb-1">Escritório Comercial</div>
+              <div>Avenida Elias João Tajra, 1601, Fátima</div>
+              <div>Teresina | PI | CEP 64049-300</div>
+              <div>Telefone: (89) 99921-0283</div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3.5 items-start">
+            <div className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
+              <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-1">MARKETING</div>
+              <div className="text-[14px] text-ink-light mt-1">(89) 99999-9999</div>
+              <div className="text-[14px] text-ink-light">marketing@laboratoriosobral.com.br</div>
+            </div>
+            <div className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
+              <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-1">ATENDIMENTO</div>
+              <div className="text-[14px] text-ink-light mt-1">(89) 99999-9999</div>
+            </div>
+            <div className="mt-2.5 text-[18px] font-[800] text-orange">SAC 0800 979 5040</div>
+          </div>
+        </div>
+
+        <h2 className="text-[22px] font-[800] text-orange mb-[18px]">Fale Conosco</h2>
+
+        {sent && (
+          <div className="py-[14px] px-5 mb-[18px] bg-[#E8F5E8] text-[#2D6A2D] rounded font-bold text-[14px]">
+            ✓ Mensagem enviada com sucesso! Retornaremos em breve.
+          </div>
+        )}
+
+        <form className="grid grid-cols-2 gap-[14px] bg-[#EEEEEE] p-7 rounded" onSubmit={handleSubmit}>
+          <input placeholder="Nome*" className={inputClass('nome')} value={form.nome} onChange={handleChange('nome')} />
+          <input placeholder="Sobrenome*" className={inputClass('sobrenome')} value={form.sobrenome} onChange={handleChange('sobrenome')} />
+          <input placeholder="E-mail*" type="email" className={inputClass('email')} value={form.email} onChange={handleChange('email')} />
+          <input placeholder="Celular*" className={inputClass('celular')} value={form.celular} onChange={handleChange('celular')} />
+          <input placeholder="Endereço" className={inputClass('endereco')} value={form.endereco} onChange={handleChange('endereco')} />
+          <select className={inputClass('estado')} value={form.estado} onChange={handleChange('estado')}>
+            <option value="">Estado</option>
+            {UFS.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+          </select>
+          <div className="col-span-2">
+            <input placeholder="Assunto*" className={inputClass('assunto')} value={form.assunto} onChange={handleChange('assunto')} />
+          </div>
+          <div className="col-span-2">
+            <textarea
+              placeholder="Mensagem*"
+              className={`w-full py-[14px] px-[18px] rounded-[18px] border bg-white font-sans text-[14px] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-muted min-h-[140px] resize-y ${
+                errors.mensagem
+                  ? 'border-[#E04444] shadow-[0_0_0_3px_rgba(224,68,68,.12)]'
+                  : 'border-line focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)]'
+              }`}
+              value={form.mensagem}
+              onChange={handleChange('mensagem')}
+            />
+          </div>
+          <div className="col-span-2 flex justify-end mt-1">
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center px-9 py-3 rounded-full border-none font-bold text-[14px] tracking-[.3px] text-white bg-gradient-to-b from-[#F89B4D] to-[#E85A0C] shadow-[0_2px_8px_rgba(232,90,12,.3)] transition-all hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(232,90,12,.42)]"
+            >
+              ENVIAR
+            </button>
+          </div>
+        </form>
+      </section>
+    </>
+  );
+}
