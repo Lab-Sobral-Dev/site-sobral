@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS categories (
+  id     VARCHAR(50)  PRIMARY KEY,
+  label  VARCHAR(100) NOT NULL,
+  ordem  SMALLINT     NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  filename   VARCHAR(200) PRIMARY KEY,
+  applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

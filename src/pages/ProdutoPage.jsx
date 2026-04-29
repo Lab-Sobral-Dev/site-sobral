@@ -1,19 +1,50 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { CATALOG } from '../data/catalog';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Breadcrumb from '../components/Breadcrumb';
 
 export default function ProdutoPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [openAccordion, setOpenAccordion] = useState('caracteristicas');
   const [variant, setVariant] = useState(0);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const p = CATALOG.find(x => x.id === id) || CATALOG[0];
+  useEffect(() => {
+    setLoading(true);
+    setNotFound(false);
+    fetch(`/api/products/${id}`)
+      .then(r => {
+        if (r.status === 404) { setNotFound(true); return null; }
+        return r.json();
+      })
+      .then(data => { if (data) setProduct(data); })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return <div className="py-[80px] text-center text-muted text-[15px]">Carregando produto...</div>;
+  }
+
+  if (notFound || !product) {
+    return (
+      <div className="py-[80px] text-center">
+        <p className="text-muted text-[15px] mb-4">Produto não encontrado.</p>
+        <button onClick={() => navigate('/produtos')} className="text-orange font-bold text-[14px] underline">
+          Ver todos os produtos
+        </button>
+      </div>
+    );
+  }
+
+  const p = product;
 
   const accordionData = [
     { id: 'caracteristicas', title: 'Características do produto', content: p.caracteristicas?.join(' ') || p.description },
     { id: 'apresentacao',    title: 'Apresentação',               content: p.apresentacao || '—' },
-    { id: 'modouso',         title: 'Modo de Uso',                content: p.modoUso || '—' },
+    { id: 'modouso',         title: 'Modo de Uso',                content: p.modo_uso || '—' },
     { id: 'precaucoes',      title: 'Precauções',                 content: p.precaucoes || '—' },
   ];
 
@@ -84,10 +115,10 @@ export default function ProdutoPage() {
             <p className="text-[13.5px] leading-[1.65] mb-[18px]">{p.ingredientes || 'Informações não disponíveis para este produto.'}</p>
             {p.disclaimer && <p className="text-[13.5px] leading-[1.65] font-bold">{p.disclaimer}</p>}
           </div>
-          {p.nutri ? (
+          {p.nutri_rows ? (
             <div className="border-l border-white/30 pl-12">
               <h2 className="text-[26px] font-[800] text-center mb-[22px] text-white">Informação nutricional</h2>
-              <pre className="font-sans text-[13.5px] m-0 whitespace-pre-wrap mb-[14px]">{p.nutri.porcoes}</pre>
+              {p.nutri_porcoes && <pre className="font-sans text-[13.5px] m-0 whitespace-pre-wrap mb-[14px]">{p.nutri_porcoes}</pre>}
               <table className="w-full border-collapse text-[13.5px]">
                 <thead>
                   <tr className="border-b border-white/40">
@@ -97,7 +128,7 @@ export default function ProdutoPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {p.nutri.rows.map((r, i) => (
+                  {p.nutri_rows.map((r, i) => (
                     <tr key={i} className="border-b border-white/20">
                       <td className="py-2">{r[0]}</td>
                       <td className="text-right">{r[1]}</td>

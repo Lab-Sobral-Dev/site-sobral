@@ -1,6 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CATALOG, CATEGORIES } from '../data/catalog';
 import ProductCard from '../components/ProductCard';
 
 function SearchIcon() {
@@ -16,42 +15,61 @@ const PER_PAGE = 12;
 export default function ProdutosPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [page, setPage] = useState(1);
 
-  const cat = searchParams.get('cat') || 'all';
-  const query = searchParams.get('q') || '';
+  const cat   = searchParams.get('cat') || 'all';
+  const query = searchParams.get('q')   || '';
+  const page  = Math.max(1, parseInt(searchParams.get('page')) || 1);
+
+  const [categories, setCategories] = useState([]);
+  const [products,   setProducts]   = useState([]);
+  const [total,      setTotal]      = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading,    setLoading]    = useState(true);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
+
+  const fetchProducts = useCallback(() => {
+    setLoading(true);
+    const params = new URLSearchParams({ page, per_page: PER_PAGE });
+    if (cat   && cat !== 'all') params.set('cat', cat);
+    if (query.trim())           params.set('q',   query.trim());
+
+    fetch(`/api/products?${params}`)
+      .then(r => r.json())
+      .then(json => {
+        setProducts(json.data || []);
+        setTotal(json.total || 0);
+        setTotalPages(json.totalPages || 1);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [cat, query, page]);
+
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   const setCat = (val) => {
-    const p = new URLSearchParams(searchParams);
-    if (val === 'all') p.delete('cat'); else p.set('cat', val);
-    p.delete('q');
+    const p = new URLSearchParams();
+    if (val !== 'all') p.set('cat', val);
     setSearchParams(p);
   };
 
   const setQuery = (val) => {
     const p = new URLSearchParams(searchParams);
     if (val) p.set('q', val); else p.delete('q');
+    p.delete('page');
     setSearchParams(p);
   };
 
-  useEffect(() => { setPage(1); }, [cat, query]);
-
-  const filtered = useMemo(() => {
-    let list = CATALOG;
-    if (cat !== 'all') list = list.filter(p => p.category === cat);
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      list = list.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.tag.toLowerCase().includes(q) ||
-        (p.brand || '').toLowerCase().includes(q)
-      );
-    }
-    return list;
-  }, [cat, query]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const pageItems = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const setPage = (n) => {
+    const p = new URLSearchParams(searchParams);
+    if (n === 1) p.delete('page'); else p.set('page', n);
+    setSearchParams(p);
+  };
 
   return (
     <>
@@ -74,7 +92,7 @@ export default function ProdutosPage() {
         {/* Toolbar */}
         <div className="flex justify-between items-center gap-5 mb-2.5 flex-wrap">
           <div className="flex gap-2 flex-wrap">
-            {CATEGORIES.map(c => (
+            {categories.map(c => (
               <button
                 key={c.id}
                 className={`px-[18px] py-2 rounded-full border text-[13px] font-bold transition-all ${cat === c.id ? 'bg-orange border-orange text-white' : 'bg-white border-line text-ink-light hover:border-orange hover:text-orange'}`}
@@ -97,14 +115,16 @@ export default function ProdutosPage() {
         </div>
 
         <div className="text-[13px] text-ink-light mb-[18px]">
-          {filtered.length} {filtered.length === 1 ? 'produto encontrado' : 'produtos encontrados'}
+          {loading ? 'Carregando...' : `${total} ${total === 1 ? 'produto encontrado' : 'produtos encontrados'}`}
         </div>
 
-        {pageItems.length === 0 ? (
+        {loading ? (
+          <div className="py-[60px] text-center text-muted text-[15px]">Carregando produtos...</div>
+        ) : products.length === 0 ? (
           <div className="py-[60px] text-center text-muted text-[15px]">Nenhum produto encontrado com estes filtros.</div>
         ) : (
           <div className="grid grid-cols-4 gap-5">
-            {pageItems.map(p => (
+            {products.map(p => (
               <ProductCard key={p.id} product={p} onClick={() => navigate(`/produtos/${p.id}`)} />
             ))}
           </div>
