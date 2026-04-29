@@ -9,6 +9,10 @@ const categoriesRouter = require('./routes/categories');
 const contactRouter    = require('./routes/contact');
 const authRouter       = require('./routes/auth');
 
+const adminProductsRouter   = require('./routes/admin-products');
+const adminCategoriesRouter = require('./routes/admin-categories');
+const uploadRouter          = require('./routes/upload');
+
 const app = express();
 
 app.set('trust proxy', 1);
@@ -34,6 +38,10 @@ app.use('/api/products',   productsRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/contact',    contactRouter);
 app.use('/api/auth',       authRouter);
+
+app.use('/api/admin/products',   adminProductsRouter);
+app.use('/api/admin/categories', adminCategoriesRouter);
+app.use('/api/upload',           uploadRouter);
 
 app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 
