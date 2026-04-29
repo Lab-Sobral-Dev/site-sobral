@@ -8,6 +8,7 @@ import ProdutosPage from './pages/ProdutosPage';
 import ProdutoPage from './pages/ProdutoPage';
 import FaleConoscoPage from './pages/FaleConoscoPage';
 import PrivacidadePage from './pages/PrivacidadePage';
+import MedicamentosPage from './pages/MedicamentosPage';
 
 const DEFAULTS = {
   theme: 'orange-classic',
@@ -111,7 +112,8 @@ const router = createBrowserRouter([
       { path: 'produtos',     element: <ProdutosPage /> },
       { path: 'produtos/:id', element: <ProdutoPage /> },
       { path: 'fale-conosco', element: <FaleConoscoPage /> },
-      { path: 'privacidade',  element: <PrivacidadePage /> },
+      { path: 'privacidade',   element: <PrivacidadePage /> },
+      { path: 'medicamentos',  element: <MedicamentosPage /> },
     ],
   },
 ]);
