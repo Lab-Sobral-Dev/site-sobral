@@ -1,0 +1,48 @@
+import { useEffect } from 'react';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
+export default function AdminLayout() {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) navigate('/admin/login', { replace: true });
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) return null;
+
+  const navClass = ({ isActive }) =>
+    `block px-4 py-2.5 rounded-[8px] text-[14px] font-[600] transition-colors ${
+      isActive
+        ? 'bg-orange text-white'
+        : 'text-ink-light hover:bg-[#FFF4EB] hover:text-orange'
+    }`;
+
+  return (
+    <div className="min-h-screen bg-[#F5F5F5] flex">
+      <aside className="w-[220px] bg-white border-r border-line flex flex-col flex-shrink-0">
+        <div className="p-6 border-b border-line">
+          <img src="/images/logo.png" alt="Sobral" className="w-10 h-10 rounded-full mb-2" />
+          <p className="font-[800] text-[14px] text-ink">Painel Admin</p>
+          <p className="text-[12px] text-muted">Laboratório Sobral</p>
+        </div>
+        <nav className="flex flex-col p-3 gap-1 flex-1">
+          <NavLink to="/admin" end className={navClass}>Produtos</NavLink>
+          <NavLink to="/admin/categorias" className={navClass}>Categorias</NavLink>
+        </nav>
+        <div className="p-3 border-t border-line">
+          <button
+            onClick={() => { logout(); navigate('/admin/login'); }}
+            className="w-full text-left px-4 py-2.5 rounded-[8px] text-[14px] font-[600] text-ink-light hover:bg-red-50 hover:text-red-500 transition-colors"
+          >
+            Sair
+          </button>
+        </div>
+      </aside>
+      <main className="flex-1 overflow-auto">
+        <Outlet />
+      </main>
+    </div>
+  );
+}

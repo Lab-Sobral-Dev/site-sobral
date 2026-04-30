@@ -9,6 +9,11 @@ import ProdutoPage from './pages/ProdutoPage';
 import FaleConoscoPage from './pages/FaleConoscoPage';
 import PrivacidadePage from './pages/PrivacidadePage';
 import MedicamentosPage from './pages/MedicamentosPage';
+import AdminLoginPage        from './pages/admin/AdminLoginPage';
+import AdminLayout           from './pages/admin/AdminLayout';
+import AdminDashboardPage    from './pages/admin/AdminDashboardPage';
+import AdminProductFormPage  from './pages/admin/AdminProductFormPage';
+import AdminCategoriesPage   from './pages/admin/AdminCategoriesPage';
 
 const DEFAULTS = {
   theme: 'orange-classic',
@@ -114,6 +119,17 @@ const router = createBrowserRouter([
       { path: 'fale-conosco', element: <FaleConoscoPage /> },
       { path: 'privacidade',   element: <PrivacidadePage /> },
       { path: 'medicamentos',  element: <MedicamentosPage /> },
+    ],
+  },
+  { path: '/admin/login', element: <AdminLoginPage /> },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      { index: true,                 element: <AdminDashboardPage /> },
+      { path: 'produtos/novo',       element: <AdminProductFormPage /> },
+      { path: 'produtos/:id/editar', element: <AdminProductFormPage /> },
+      { path: 'categorias',          element: <AdminCategoriesPage /> },
     ],
   },
 ]);
