@@ -16,6 +16,7 @@ const adminCategoriesRouter = require('./routes/admin-categories');
 const adminContentRouter    = require('./routes/admin-content');
 const adminHeroSlidesRouter = require('./routes/admin-hero-slides');
 const uploadRouter          = require('./routes/upload');
+const psdImportRouter       = require('./routes/psd-import');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/admin/categories',    adminCategoriesRouter);
 app.use('/api/admin/content',       adminContentRouter);
 app.use('/api/admin/hero-slides',   adminHeroSlidesRouter);
 app.use('/api/upload',              uploadRouter);
+app.use('/api/admin/psd-import',    psdImportRouter);
 
 app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 
