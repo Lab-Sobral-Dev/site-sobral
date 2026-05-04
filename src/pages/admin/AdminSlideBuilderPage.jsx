@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const ANIMATIONS = [
@@ -25,7 +25,8 @@ export default function AdminSlideBuilderPage() {
   const { id }    = useParams();
   const navigate  = useNavigate();
   const { token } = useAuth();
-  const canvasRef = useRef(null);
+  const location   = useLocation();
+  const canvasRef  = useRef(null);
   const drag      = useRef(null);
 
   const [slide,      setSlide]      = useState(null);
@@ -46,7 +47,13 @@ export default function AdminSlideBuilderPage() {
         if (!s) { navigate('/admin/hero-slides'); return; }
         setSlide(s);
         setAnimado(s.animado ?? false);
-        setLayers(s.layers && Object.keys(s.layers).length > 0 ? s.layers : DEFAULT_LAYERS);
+        const baseLayers = s.layers && Object.keys(s.layers).length > 0 ? s.layers : DEFAULT_LAYERS;
+        const psdImport  = location.state?.psdImport;
+        setLayers(psdImport ? {
+          ...baseLayers,
+          ...(psdImport.logo ? { logo: { ...baseLayers.logo, ...psdImport.logo } } : {}),
+          ...(psdImport.cta  ? { cta:  { ...baseLayers.cta,  x: psdImport.cta.x, y: psdImport.cta.y } } : {}),
+        } : baseLayers);
       })
       .catch(() => navigate('/admin/hero-slides'));
 
