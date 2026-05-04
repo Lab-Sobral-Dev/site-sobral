@@ -59,11 +59,16 @@ export default function AdminHeroSlidesPage() {
     const newIndex  = slides.findIndex(s => s.id === over.id);
     const reordered = arrayMove(slides, oldIndex, newIndex);
     setSlides(reordered);
-    await fetch('/api/admin/hero-slides/reorder', {
-      method: 'PUT',
-      headers: { ...authHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids: reordered.map(s => s.id) }),
-    });
+    try {
+      const res = await fetch('/api/admin/hero-slides/reorder', {
+        method: 'PUT',
+        headers: { ...authHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: reordered.map(s => s.id) }),
+      });
+      if (!res.ok) throw new Error('Falha ao reordenar');
+    } catch {
+      setSlides(slides);
+    }
   };
 
   const handleToggle = async (id) => {

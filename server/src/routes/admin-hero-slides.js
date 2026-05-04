@@ -33,16 +33,22 @@ router.post('/', async (req, res) => {
 router.put('/reorder', async (req, res) => {
   const { ids } = req.body;
   if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids deve ser array.' });
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
     await Promise.all(
       ids.map((id, index) =>
-        pool.query('UPDATE hero_slides SET ordem = $1 WHERE id = $2', [index + 1, id])
+        client.query('UPDATE hero_slides SET ordem = $1 WHERE id = $2', [index + 1, id])
       )
     );
+    await client.query('COMMIT');
     res.json({ ok: true });
   } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('PUT /api/admin/hero-slides/reorder:', err.message);
     res.status(500).json({ error: 'Erro interno.' });
+  } finally {
+    client.release();
   }
 });
 

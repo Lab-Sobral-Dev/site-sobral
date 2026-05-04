@@ -82,7 +82,10 @@ export default function AdminContentPage({ page }) {
 
   useEffect(() => {
     fetch(`/api/admin/content/${page}`, { headers: authHeaders })
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(rows => {
         const map = {};
         rows.forEach(r => { map[r.key] = r.value || ''; });
