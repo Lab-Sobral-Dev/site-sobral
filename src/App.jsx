@@ -8,7 +8,6 @@ import ProdutosPage from './pages/ProdutosPage';
 import ProdutoPage from './pages/ProdutoPage';
 import FaleConoscoPage from './pages/FaleConoscoPage';
 import PrivacidadePage from './pages/PrivacidadePage';
-import MedicamentosPage from './pages/MedicamentosPage';
 import AdminLoginPage        from './pages/admin/AdminLoginPage';
 import AdminLayout           from './pages/admin/AdminLayout';
 import AdminDashboardPage    from './pages/admin/AdminDashboardPage';
@@ -120,7 +119,6 @@ const router = createBrowserRouter([
       { path: 'produtos/:id', element: <ProdutoPage /> },
       { path: 'fale-conosco', element: <FaleConoscoPage /> },
       { path: 'privacidade',   element: <PrivacidadePage /> },
-      { path: 'medicamentos',  element: <MedicamentosPage /> },
     ],
   },
   { path: '/admin/login', element: <AdminLoginPage /> },
