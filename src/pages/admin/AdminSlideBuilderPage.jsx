@@ -49,6 +49,7 @@ export default function AdminSlideBuilderPage() {
         setAnimado(s.animado ?? false);
         const baseLayers = s.layers && Object.keys(s.layers).length > 0 ? s.layers : DEFAULT_LAYERS;
         const psdImport  = location.state?.psdImport;
+        if (psdImport) navigate(location.pathname, { replace: true, state: {} });
         setLayers(psdImport ? {
           ...baseLayers,
           ...(psdImport.logo ? { logo: { ...baseLayers.logo, ...psdImport.logo } } : {}),
