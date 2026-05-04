@@ -12,6 +12,7 @@ const tmpDir = path.join(__dirname, '..', '..', 'tmp');
 if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
 
 const publicImgDir = path.join(__dirname, '..', '..', '..', 'public', 'images', 'produtos');
+if (!fs.existsSync(publicImgDir)) fs.mkdirSync(publicImgDir, { recursive: true });
 
 const upload = multer({
   dest: tmpDir,
@@ -65,7 +66,7 @@ router.post('/', (req, res) => {
 
       res.json({ layers });
     } catch (e) {
-      console.error('psd-import:', e.message);
+      console.error('POST /api/admin/psd-import:', e.message);
       res.status(422).json({ error: 'Não foi possível processar o PSD.' });
     } finally {
       fs.unlink(tmpPath, () => {});
