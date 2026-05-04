@@ -110,4 +110,59 @@
     transform: translateY(20px);
     animation: fadeIn .7s ease forwards;
   }
+
+  /* ── Hero Carousel — transições entre slides ── */
+  .slide-enter-fade {
+    animation: slideEnterFade 0.6s ease forwards;
+  }
+  @keyframes slideEnterFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .slide-enter-slide {
+    animation: slideEnterSlide 0.5s ease forwards;
+  }
+  @keyframes slideEnterSlide {
+    from { transform: translateX(8%); opacity: 0; }
+    to   { transform: translateX(0);  opacity: 1; }
+  }
+
+  /* slide-enter-cut: sem animação — classe existe mas fica vazia */
+  .slide-enter-cut {}
+
+  /* ── Hero Carousel — animações de entrada das camadas ── */
+  .layer-anim-fade {
+    animation: layerFade 0.6s ease both;
+  }
+  @keyframes layerFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .layer-anim-slide-up {
+    animation: layerSlideUp 0.6s ease both;
+  }
+  @keyframes layerSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  .layer-anim-zoom {
+    animation: layerZoom 0.6s ease both;
+  }
+  @keyframes layerZoom {
+    from { opacity: 0; transform: scale(0.7); }
+    to   { opacity: 1; transform: scale(1);   }
+  }
+
+  .layer-anim-slide-left {
+    animation: layerSlideLeft 0.6s ease both;
+  }
+  @keyframes layerSlideLeft {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0);    }
+  }
+
+  .layer-anim-none {}
 }
