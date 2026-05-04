@@ -151,6 +151,7 @@ export default function AdminHeroSlidesPage() {
     const oldIndex  = slides.findIndex(s => s.id === active.id);
     const newIndex  = slides.findIndex(s => s.id === over.id);
     const reordered = arrayMove(slides, oldIndex, newIndex);
+    const previous  = slides;
     setSlides(reordered);
     try {
       const res = await fetch('/api/admin/hero-slides/reorder', {
@@ -160,18 +161,20 @@ export default function AdminHeroSlidesPage() {
       });
       if (!res.ok) throw new Error('Falha ao reordenar');
     } catch {
-      setSlides(slides);
+      setSlides(previous);
     }
   };
 
   const handleToggle = async (id) => {
-    await fetch(`/api/admin/hero-slides/${id}/ativo`, { method: 'PATCH', headers: authHeaders });
+    const res = await fetch(`/api/admin/hero-slides/${id}/ativo`, { method: 'PATCH', headers: authHeaders });
+    if (!res.ok) { alert('Erro ao alterar status.'); return; }
     fetchSlides();
   };
 
   const handleDelete = async (id, url) => {
     if (!window.confirm(`Excluir slide "${url}"?`)) return;
-    await fetch(`/api/admin/hero-slides/${id}`, { method: 'DELETE', headers: authHeaders });
+    const res = await fetch(`/api/admin/hero-slides/${id}`, { method: 'DELETE', headers: authHeaders });
+    if (!res.ok) { alert('Erro ao excluir slide.'); return; }
     fetchSlides();
   };
 
@@ -189,7 +192,9 @@ export default function AdminHeroSlidesPage() {
         body: JSON.stringify({ image_url: data.url, ordem: slides.length + 1 }),
       });
       fetchSlides();
-    } catch { /* silent */ } finally {
+    } catch (err) {
+      alert(`Erro ao enviar imagem: ${err.message}`);
+    } finally {
       setUploading(false);
     }
   };
@@ -264,11 +269,11 @@ export default function AdminHeroSlidesPage() {
         <div className="flex gap-2">
           <label className={`cursor-pointer border border-orange text-orange font-[700] px-5 py-2.5 rounded-[8px] text-[14px] transition-colors hover:bg-orange-50 ${psdUploading ? 'opacity-60 pointer-events-none' : ''}`}>
             {psdUploading ? 'Processando...' : 'Importar PSD'}
-            <input type="file" accept=".psd" className="hidden" onChange={e => e.target.files[0] && handlePsdUpload(e.target.files[0])} />
+            <input type="file" accept=".psd" className="hidden" onChange={e => { if (e.target.files[0]) { handlePsdUpload(e.target.files[0]); e.target.value = ''; } }} />
           </label>
           <label className={`cursor-pointer bg-orange hover:bg-[#E0580A] text-white font-[700] px-5 py-2.5 rounded-[8px] text-[14px] transition-colors ${uploading ? 'opacity-60 pointer-events-none' : ''}`}>
             {uploading ? 'Enviando...' : '+ Novo slide'}
-            <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={e => e.target.files[0] && handleUpload(e.target.files[0])} />
+            <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={e => { if (e.target.files[0]) { handleUpload(e.target.files[0]); e.target.value = ''; } }} />
           </label>
         </div>
       </div>
