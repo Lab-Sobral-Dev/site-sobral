@@ -5,7 +5,7 @@ const router = Router();
 router.get('/', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      'SELECT id, image_url, ordem FROM hero_slides WHERE ativo = true ORDER BY ordem ASC, id ASC'
+      'SELECT id, image_url, ordem, animado, layers FROM hero_slides WHERE ativo = true ORDER BY ordem ASC, id ASC'
     );
     res.json(rows);
   } catch (err) {
