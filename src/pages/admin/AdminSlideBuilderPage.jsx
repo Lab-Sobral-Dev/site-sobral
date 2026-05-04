@@ -40,6 +40,9 @@ export default function AdminSlideBuilderPage() {
   const authHeaders = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
+    const psdImport = location.state?.psdImport ?? null;
+    if (psdImport) navigate(location.pathname, { replace: true, state: {} });
+
     fetch('/api/admin/hero-slides', { headers: authHeaders })
       .then(r => r.json())
       .then(slides => {
@@ -48,8 +51,6 @@ export default function AdminSlideBuilderPage() {
         setSlide(s);
         setAnimado(s.animado ?? false);
         const baseLayers = s.layers && Object.keys(s.layers).length > 0 ? s.layers : DEFAULT_LAYERS;
-        const psdImport  = location.state?.psdImport;
-        if (psdImport) navigate(location.pathname, { replace: true, state: {} });
         setLayers(psdImport ? {
           ...baseLayers,
           ...(psdImport.logo ? { logo: { ...baseLayers.logo, ...psdImport.logo } } : {}),

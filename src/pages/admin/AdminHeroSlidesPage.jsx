@@ -234,11 +234,12 @@ export default function AdminHeroSlidesPage() {
     setCreating(true);
     try {
       const fundo = psdLayers[fundoIdx];
-      const res   = await fetch('/api/admin/hero-slides', {
+      const res = await fetch('/api/admin/hero-slides', {
         method:  'POST',
         headers: { ...authHeaders, 'Content-Type': 'application/json' },
         body:    JSON.stringify({ image_url: fundo.url, ordem: slides.length + 1 }),
       });
+      if (!res.ok) throw new Error('Falha ao criar slide');
       const slide = await res.json();
 
       const logoIdx = Object.keys(assignments).find(k => assignments[k] === 'logo');
@@ -254,6 +255,7 @@ export default function AdminHeroSlidesPage() {
         psdImport.cta = { x: c.x, y: c.y };
       }
 
+      setPsdModal(false);
       navigate(`/admin/hero-slides/${slide.id}/editar`, { state: { psdImport } });
     } catch {
       alert('Erro ao criar slide.');
