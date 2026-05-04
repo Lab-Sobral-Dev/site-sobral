@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useAuth } from '../../context/AuthContext';
 
-function SortableSlide({ slide, onToggle, onDelete }) {
+function SortableSlide({ slide, onToggle, onDelete, onEdit }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: slide.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -18,6 +19,15 @@ function SortableSlide({ slide, onToggle, onDelete }) {
         onError={e => { e.currentTarget.style.display = 'none'; }}
       />
       <div className="flex-1 text-[13px] text-ink font-[600] truncate">{slide.image_url}</div>
+      <span className={`text-[11px] font-[600] px-2 py-0.5 rounded-full flex-shrink-0 ${slide.animado ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-500'}`}>
+        {slide.animado ? 'Animado' : 'Estático'}
+      </span>
+      <button
+        onClick={() => onEdit(slide.id)}
+        className="px-3 py-1 rounded-full text-[12px] font-[600] bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors flex-shrink-0"
+      >
+        Editar
+      </button>
       <button
         onClick={() => onToggle(slide.id)}
         className={`px-3 py-1 rounded-full text-[12px] font-[600] transition-colors flex-shrink-0 ${
@@ -35,6 +45,7 @@ function SortableSlide({ slide, onToggle, onDelete }) {
 
 export default function AdminHeroSlidesPage() {
   const { token } = useAuth();
+  const navigate   = useNavigate();
   const [slides,    setSlides]    = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -110,7 +121,7 @@ export default function AdminHeroSlidesPage() {
           <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={e => e.target.files[0] && handleUpload(e.target.files[0])} />
         </label>
       </div>
-      <p className="text-[13px] text-muted mb-6">Arraste para reordenar. Carrossel aparece com 2+ slides ativos.</p>
+      <p className="text-[13px] text-muted mb-6">Arraste para reordenar. Clique em "Editar" para abrir o builder.</p>
 
       {loading ? (
         <div className="py-10 text-center text-muted text-[14px]">Carregando...</div>
@@ -121,7 +132,13 @@ export default function AdminHeroSlidesPage() {
           <SortableContext items={slides.map(s => s.id)} strategy={verticalListSortingStrategy}>
             <div className="flex flex-col gap-2">
               {slides.map(slide => (
-                <SortableSlide key={slide.id} slide={slide} onToggle={handleToggle} onDelete={handleDelete} />
+                <SortableSlide
+                  key={slide.id}
+                  slide={slide}
+                  onToggle={handleToggle}
+                  onDelete={handleDelete}
+                  onEdit={id => navigate(`/admin/hero-slides/${id}/editar`)}
+                />
               ))}
             </div>
           </SortableContext>
