@@ -42,8 +42,8 @@ router.post('/', (req, res) => {
       const layers  = [];
 
       for (const layer of psd.layers) {
-        const w = layer.width();
-        const h = layer.height();
+        const w = typeof layer.width  === 'function' ? layer.width()  : layer.width;
+        const h = typeof layer.height === 'function' ? layer.height() : layer.height;
         if (!w || !h) continue;
         const slug     = slugify(layer.name);
         const filename = `psd-${slug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
@@ -59,8 +59,8 @@ router.post('/', (req, res) => {
           url:    `/images/produtos/${filename}`,
           x:      Math.round((layer.left / canvasW) * 1000) / 10,
           y:      Math.round((layer.top  / canvasH) * 1000) / 10,
-          width:  w,
-          height: h,
+          width:  Math.round(w),
+          height: Math.round(h),
         });
       }
 
