@@ -52,6 +52,23 @@ router.put('/reorder', async (req, res) => {
   }
 });
 
+router.put('/:id', async (req, res) => {
+  const { animado, layers } = req.body;
+  if (typeof animado !== 'boolean') return res.status(400).json({ error: 'animado deve ser boolean.' });
+  if (typeof layers !== 'object' || layers === null) return res.status(400).json({ error: 'layers deve ser objeto.' });
+  try {
+    const { rows } = await pool.query(
+      'UPDATE hero_slides SET animado = $1, layers = $2 WHERE id = $3 RETURNING *',
+      [animado, JSON.stringify(layers), req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('PUT /api/admin/hero-slides/:id:', err.message);
+    res.status(500).json({ error: 'Erro interno.' });
+  }
+});
+
 router.patch('/:id/ativo', async (req, res) => {
   try {
     const { rows } = await pool.query(
