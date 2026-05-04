@@ -4,13 +4,17 @@ const helmet     = require('helmet');
 const cors       = require('cors');
 const rateLimit  = require('express-rate-limit');
 
-const productsRouter   = require('./routes/products');
-const categoriesRouter = require('./routes/categories');
-const contactRouter    = require('./routes/contact');
-const authRouter       = require('./routes/auth');
+const productsRouter        = require('./routes/products');
+const categoriesRouter      = require('./routes/categories');
+const contactRouter         = require('./routes/contact');
+const authRouter            = require('./routes/auth');
+const contentRouter         = require('./routes/content');
+const heroSlidesRouter      = require('./routes/hero-slides');
 
 const adminProductsRouter   = require('./routes/admin-products');
 const adminCategoriesRouter = require('./routes/admin-categories');
+const adminContentRouter    = require('./routes/admin-content');
+const adminHeroSlidesRouter = require('./routes/admin-hero-slides');
 const uploadRouter          = require('./routes/upload');
 
 const app = express();
@@ -34,14 +38,18 @@ app.use(rateLimit({
   message: { error: 'Muitas requisições. Tente novamente em breve.' },
 }));
 
-app.use('/api/products',   productsRouter);
-app.use('/api/categories', categoriesRouter);
-app.use('/api/contact',    contactRouter);
-app.use('/api/auth',       authRouter);
+app.use('/api/products',            productsRouter);
+app.use('/api/categories',          categoriesRouter);
+app.use('/api/contact',             contactRouter);
+app.use('/api/auth',                authRouter);
+app.use('/api/content',             contentRouter);
+app.use('/api/hero-slides',         heroSlidesRouter);
 
-app.use('/api/admin/products',   adminProductsRouter);
-app.use('/api/admin/categories', adminCategoriesRouter);
-app.use('/api/upload',           uploadRouter);
+app.use('/api/admin/products',      adminProductsRouter);
+app.use('/api/admin/categories',    adminCategoriesRouter);
+app.use('/api/admin/content',       adminContentRouter);
+app.use('/api/admin/hero-slides',   adminHeroSlidesRouter);
+app.use('/api/upload',              uploadRouter);
 
 app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 
