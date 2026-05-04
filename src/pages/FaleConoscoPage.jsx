@@ -1,5 +1,15 @@
 import { useState } from 'react';
 import Breadcrumb from '../components/Breadcrumb';
+import { usePageContent } from '../hooks/usePageContent';
+
+const CONTATO_DEFAULTS = {
+  unidade_fabril:       '<p><strong>Rua Bento Leão, 25, Centro</strong><br>Floriano | PI | CEP 64800-062.<br>Telefone: (89) 2101-2202</p>',
+  escritorio_comercial: '<p><strong>Avenida Elias João Tajra, 1601, Fátima</strong><br>Teresina | PI | CEP 64049-300<br>Telefone: (89) 99921-0283</p>',
+  marketing_telefone:   '(89) 99999-9999',
+  marketing_email:      'marketing@laboratoriosobral.com.br',
+  atendimento_telefone: '(89) 99999-9999',
+  sac:                  '0800 979 5040',
+};
 
 const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 const EMPTY_FORM = { nome: '', sobrenome: '', email: '', celular: '', endereco: '', estado: '', assunto: '', mensagem: '' };
@@ -8,6 +18,8 @@ export default function FaleConoscoPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [sent, setSent] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const content = usePageContent('contato', CONTATO_DEFAULTS);
 
   const handleChange = (field) => (e) => {
     setForm(f => ({ ...f, [field]: e.target.value }));
@@ -42,29 +54,25 @@ export default function FaleConoscoPage() {
             <h2 className="text-[22px] font-[800] text-orange mb-[18px]">LABORATÓRIO SOBRAL</h2>
             <div className="mb-[22px] text-[14.5px] leading-[1.6]">
               <div className="font-[800] mb-1">Unidade Fabril</div>
-              <div>Rua Bento Leão, 25, Centro</div>
-              <div>Floriano | PI | CEP 64800-062.</div>
-              <div>Telefone: (89) 2101-2202</div>
+              <div dangerouslySetInnerHTML={{ __html: content.unidade_fabril }} />
             </div>
             <div className="text-[14.5px] leading-[1.6]">
               <div className="font-[800] mb-1">Escritório Comercial</div>
-              <div>Avenida Elias João Tajra, 1601, Fátima</div>
-              <div>Teresina | PI | CEP 64049-300</div>
-              <div>Telefone: (89) 99921-0283</div>
+              <div dangerouslySetInnerHTML={{ __html: content.escritorio_comercial }} />
             </div>
           </div>
 
           <div className="flex flex-col gap-3.5 items-start">
             <div className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
               <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-1">MARKETING</div>
-              <div className="text-[14px] text-ink-light mt-1">(89) 99999-9999</div>
-              <div className="text-[14px] text-ink-light">marketing@laboratoriosobral.com.br</div>
+              <div className="text-[14px] text-ink-light mt-1">{content.marketing_telefone}</div>
+              <div className="text-[14px] text-ink-light">{content.marketing_email}</div>
             </div>
             <div className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
               <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-1">ATENDIMENTO</div>
-              <div className="text-[14px] text-ink-light mt-1">(89) 99999-9999</div>
+              <div className="text-[14px] text-ink-light mt-1">{content.atendimento_telefone}</div>
             </div>
-            <div className="mt-2.5 text-[18px] font-[800] text-orange">SAC 0800 979 5040</div>
+            <div className="mt-2.5 text-[18px] font-[800] text-orange">SAC {content.sac}</div>
           </div>
         </div>
 

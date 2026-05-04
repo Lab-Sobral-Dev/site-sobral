@@ -14,6 +14,8 @@ import AdminLayout           from './pages/admin/AdminLayout';
 import AdminDashboardPage    from './pages/admin/AdminDashboardPage';
 import AdminProductFormPage  from './pages/admin/AdminProductFormPage';
 import AdminCategoriesPage   from './pages/admin/AdminCategoriesPage';
+import AdminContentPage    from './pages/admin/AdminContentPage';
+import AdminHeroSlidesPage from './pages/admin/AdminHeroSlidesPage';
 
 const DEFAULTS = {
   theme: 'orange-classic',
@@ -130,6 +132,10 @@ const router = createBrowserRouter([
       { path: 'produtos/novo',       element: <AdminProductFormPage /> },
       { path: 'produtos/:id/editar', element: <AdminProductFormPage /> },
       { path: 'categorias',          element: <AdminCategoriesPage /> },
+      { path: 'conteudo/home',    element: <AdminContentPage page="home" /> },
+      { path: 'conteudo/sobre',   element: <AdminContentPage page="sobre" /> },
+      { path: 'conteudo/contato', element: <AdminContentPage page="contato" /> },
+      { path: 'hero-slides',      element: <AdminHeroSlidesPage /> },
     ],
   },
 ]);

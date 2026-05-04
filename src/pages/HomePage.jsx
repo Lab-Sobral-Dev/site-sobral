@@ -2,48 +2,51 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CATALOG } from '../data/catalog';
 import ProductCard from '../components/ProductCard';
+import HeroCarousel from '../components/HeroCarousel';
+import { usePageContent } from '../hooks/usePageContent';
 
 const FEATURED_IDS = ['aqualema','calciolax-articule','saludoz','propolis-verde','movimex','calciolax-kids','rosa-mosqueta-spray','propzinco'];
 
-const BRANDS = [
-  { img: '/images/brand-tradicionais.png', label: 'Linha Tradicionais' },
-  { img: '/images/brand-calciolax.png',    label: 'Família Calciolax'  },
-  { img: '/images/brand-movimex.png',      label: 'Movimex'            },
-  { img: '/images/brand-oleos.png',        label: 'Óleos Sobral'       },
-];
+const BRAND_LABELS = ['Linha Tradicionais', 'Família Calciolax', 'Movimex', 'Óleos Sobral'];
+const BRAND_KEYS   = ['marca_tradicionais_imagem', 'marca_calciolax_imagem', 'marca_movimex_imagem', 'marca_oleos_imagem'];
+
+const HOME_DEFAULTS = {
+  historia_titulo:    'Conheça a história do',
+  historia_subtitulo: 'Laboratório Sobral',
+  historia_texto_1:   '<p>Há mais de 100 anos, o Laboratório Sobral faz parte da vida dos brasileiros. Estamos nas casas das famílias levando mais saúde e proporcionando leveza e bem-estar ao dia a dia. Mais que uma indústria, somos um símbolo da luta do povo brasileiro. Essa é nossa essência e isso nunca vai mudar.</p>',
+  historia_imagem:             '/images/fachada.png',
+  marca_tradicionais_imagem:   '/images/brand-tradicionais.png',
+  marca_calciolax_imagem:      '/images/brand-calciolax.png',
+  marca_movimex_imagem:        '/images/brand-movimex.png',
+  marca_oleos_imagem:          '/images/brand-oleos.png',
+};
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [carouselIdx, setCarouselIdx] = useState(0);
+  const content = usePageContent('home', HOME_DEFAULTS);
 
   const featured = CATALOG.filter(p => FEATURED_IDS.includes(p.id));
-  const visible = featured.slice(carouselIdx, carouselIdx + 4);
+  const visible  = featured.slice(carouselIdx, carouselIdx + 4);
 
   return (
     <>
-      {/* HERO */}
-      <section className="w-full bg-bg leading-[0]">
-        <img
-          src="/images/hero-banner.png"
-          alt="Laboratório Sobral — há mais de 100 anos cuidando da saúde das famílias brasileiras"
-          className="w-full h-auto block"
-        />
-      </section>
+      <HeroCarousel />
 
       {/* NOSSAS LINHAS */}
       <section className="max-w-content mx-auto px-10 mt-[60px]">
         <h2 className="text-[28px] font-[800] text-center mt-10 mb-7">Nossas Linhas</h2>
         <div className="grid grid-cols-4 gap-5 max-w-[960px] mx-auto">
-          {BRANDS.map((b, i) => (
+          {BRAND_KEYS.map((key, i) => (
             <div
-              key={i}
+              key={key}
               className="bg-white rounded p-5 flex flex-col items-center justify-between gap-3 cursor-pointer shadow-sm h-[220px] transition-[transform,box-shadow] duration-[220ms] hover:-translate-y-1 hover:shadow"
               onClick={() => navigate('/produtos')}
             >
               <div className="flex-1 w-full flex items-center justify-center min-h-0">
-                <img src={b.img} alt={b.label} className="max-w-full max-h-full w-auto h-auto object-contain block" />
+                <img src={content[key]} alt={BRAND_LABELS[i]} className="max-w-full max-h-full w-auto h-auto object-contain block" />
               </div>
-              <div className="font-[800] text-[13.5px] text-ink text-center flex-shrink-0">{b.label}</div>
+              <div className="font-[800] text-[13.5px] text-ink text-center flex-shrink-0">{BRAND_LABELS[i]}</div>
             </div>
           ))}
         </div>
@@ -77,17 +80,15 @@ export default function HomePage() {
           <div>
             <div className="mt-12 mb-6">
               <h2 className="text-[36px] font-[800] leading-[1.15] mb-2.5">
-                Conheça a história do
-                <span className="text-orange block">Laboratório Sobral</span>
+                {content.historia_titulo}
+                <span className="text-orange block">{content.historia_subtitulo}</span>
               </h2>
               <div className="h-[2px] bg-gradient-to-r from-orange to-transparent mt-2.5" />
             </div>
-            <p className="text-[15.5px] leading-[1.7] text-ink-light mb-7">
-              Há mais de 100 anos, o Laboratório Sobral faz parte da vida dos brasileiros.
-              Estamos nas casas das famílias levando mais saúde e proporcionando leveza e
-              bem-estar ao dia a dia. Mais que uma indústria, somos um símbolo da luta do
-              povo brasileiro. Essa é nossa essência e isso nunca vai mudar.
-            </p>
+            <div
+              className="text-[15.5px] leading-[1.7] text-ink-light mb-7"
+              dangerouslySetInnerHTML={{ __html: content.historia_texto_1 }}
+            />
             <button
               className="inline-flex items-center justify-center px-6 py-2.5 rounded-full border-none font-bold text-[14px] tracking-[.3px] text-white bg-gradient-to-b from-[#F89B4D] to-[#E85A0C] shadow-[0_2px_8px_rgba(232,90,12,.3)] transition-all hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(232,90,12,.42)]"
               onClick={() => navigate('/quem-somos')}
@@ -96,7 +97,7 @@ export default function HomePage() {
             </button>
           </div>
           <div className="aspect-[4/3] rounded overflow-hidden shadow">
-            <img src="/images/fachada.png" alt="Fachada do Laboratório Sobral" className="w-full h-full object-cover" />
+            <img src={content.historia_imagem} alt="Fachada do Laboratório Sobral" className="w-full h-full object-cover" />
           </div>
         </div>
       </section>

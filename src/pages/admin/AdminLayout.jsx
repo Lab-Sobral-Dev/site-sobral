@@ -28,8 +28,14 @@ export default function AdminLayout() {
           <p className="text-[12px] text-muted">Laboratório Sobral</p>
         </div>
         <nav className="flex flex-col p-3 gap-1 flex-1">
+          <div className="px-3 pt-2 pb-1 text-[10px] font-[700] text-[#aaa] uppercase tracking-[.6px]">Catálogo</div>
           <NavLink to="/admin" end className={navClass}>Produtos</NavLink>
           <NavLink to="/admin/categorias" className={navClass}>Categorias</NavLink>
+          <div className="px-3 pt-3 pb-1 text-[10px] font-[700] text-[#aaa] uppercase tracking-[.6px]">Conteúdo</div>
+          <NavLink to="/admin/conteudo/home" className={navClass}>Home</NavLink>
+          <NavLink to="/admin/conteudo/sobre" className={navClass}>Quem Somos</NavLink>
+          <NavLink to="/admin/conteudo/contato" className={navClass}>Fale Conosco</NavLink>
+          <NavLink to="/admin/hero-slides" className={navClass}>Hero Slides</NavLink>
         </nav>
         <div className="p-3 border-t border-line">
           <button
