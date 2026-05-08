@@ -1,188 +1,95 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const ANIMATIONS = [
-  { value: 'none',       label: 'Nenhuma'  },
-  { value: 'fade',       label: 'Fade'     },
-  { value: 'slide-up',   label: '↑ Up'     },
-  { value: 'zoom',       label: '⊙ Zoom'   },
-  { value: 'slide-left', label: '← Left'   },
-];
+const CANVAS_W = 1920;
+const CANVAS_H = 600;
 
-const TRANSITIONS = [
-  { value: 'fade',  label: 'Fade suave'    },
-  { value: 'slide', label: 'Deslizamento'  },
-  { value: 'cut',   label: 'Corte direto'  },
+const ANIMATION_OPTS = [
+  { value: '',            label: 'Nenhuma'     },
+  { value: 'fade',        label: 'Fade'        },
+  { value: 'slide-up',    label: '↑ Slide Up'  },
+  { value: 'slide-left',  label: '← Slide Esq.'},
+  { value: 'slide-right', label: '→ Slide Dir.'},
 ];
-
-const DEFAULT_LAYERS = {
-  logo: { image_url: '', x: 75, y: 12, width: 80, animation: 'fade',     delay: 0.3, visible: true },
-  cta:  { text: 'Ver produtos', link: '/produtos', x: 50, y: 78, animation: 'slide-up', delay: 0.5, visible: true },
-};
 
 export default function AdminSlideBuilderPage() {
   const { id }    = useParams();
   const navigate  = useNavigate();
   const { token } = useAuth();
-  const location   = useLocation();
-  const canvasRef  = useRef(null);
-  const drag      = useRef(null);
 
+  const canvasRef = useRef(null);
   const [slide,      setSlide]      = useState(null);
-  const [animado,    setAnimado]    = useState(false);
-  const [layers,     setLayers]     = useState(DEFAULT_LAYERS);
-  const [transition, setTransition] = useState('fade');
-  const [selected,   setSelected]   = useState('logo');
+  const [layers,     setLayers]     = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
   const [saving,     setSaving]     = useState(false);
-  const [uploading,  setUploading]  = useState(false);
+  const [preview,    setPreview]    = useState(false);
 
-  const authHeaders = { Authorization: `Bearer ${token}` };
+  const authHeaders = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
   useEffect(() => {
-    const psdImport = location.state?.psdImport ?? null;
-    if (psdImport) navigate(location.pathname, { replace: true, state: {} });
-
     fetch('/api/admin/hero-slides', { headers: authHeaders })
       .then(r => r.json())
       .then(slides => {
         const s = slides.find(sl => sl.id === parseInt(id));
         if (!s) { navigate('/admin/hero-slides'); return; }
         setSlide(s);
-        setAnimado(s.animado ?? false);
-        const baseLayers = s.layers && Object.keys(s.layers).length > 0 ? s.layers : DEFAULT_LAYERS;
-        setLayers(psdImport ? {
-          ...baseLayers,
-          ...(psdImport.logo ? { logo: { ...baseLayers.logo, ...psdImport.logo } } : {}),
-          ...(psdImport.cta  ? { cta:  { ...baseLayers.cta,  x: psdImport.cta.x, y: psdImport.cta.y } } : {}),
-        } : baseLayers);
+        setLayers(Array.isArray(s.layers) ? s.layers : []);
       })
       .catch(() => navigate('/admin/hero-slides'));
+  }, [id, authHeaders, navigate]);
 
-    fetch('/api/content/carousel')
-      .then(r => r.json())
-      .then(d => setTransition(d.transition ?? 'fade'))
-      .catch(() => {});
-  }, [id]);
-
-  const updateLayer = useCallback((key, field, value) =>
-    setLayers(l => ({ ...l, [key]: { ...l[key], [field]: value } })), []);
-
-  const handleLayerPointerDown = (e, layerKey) => {
-    e.stopPropagation();
-    setSelected(layerKey);
-    drag.current = {
-      layer:  layerKey,
-      startX: e.clientX,
-      startY: e.clientY,
-      origX:  layers[layerKey].x,
-      origY:  layers[layerKey].y,
-    };
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-
-  const handleCanvasPointerMove = (e) => {
-    if (!drag.current || !canvasRef.current) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    const dx = ((e.clientX - drag.current.startX) / rect.width)  * 100;
-    const dy = ((e.clientY - drag.current.startY) / rect.height) * 100;
-    const x  = Math.min(95, Math.max(5, drag.current.origX + dx));
-    const y  = Math.min(95, Math.max(5, drag.current.origY + dy));
-    setLayers(l => ({ ...l, [drag.current.layer]: { ...l[drag.current.layer], x, y } }));
-  };
-
-  const saveTransition = async (val) => {
-    setTransition(val);
-    await fetch('/api/admin/content/carousel/transition', {
-      method:  'PUT',
-      headers: { ...authHeaders, 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ value: val }),
-    }).catch(() => {});
-  };
-
-  const handleLogoUpload = async (file) => {
-    setUploading(true);
-    const fd = new FormData();
-    fd.append('image', file);
-    try {
-      const res  = await fetch('/api/upload', { method: 'POST', headers: authHeaders, body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      updateLayer('logo', 'image_url', data.url);
-    } catch { /* silent */ } finally {
-      setUploading(false);
-    }
-  };
+  const updateLayer = useCallback((layerId, patch) => {
+    setLayers(ls => ls.map(l => l.id === layerId ? { ...l, ...patch } : l));
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await fetch(`/api/admin/hero-slides/${id}`, {
+      const res = await fetch(`/api/admin/hero-slides/${id}`, {
         method:  'PUT',
         headers: { ...authHeaders, 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ animado, layers }),
+        body:    JSON.stringify({ layers }),
       });
+      if (!res.ok) throw new Error('Falha ao salvar');
       navigate('/admin/hero-slides');
-    } catch { /* silent */ } finally {
+    } catch (err) {
+      alert(`Erro ao salvar: ${err.message}`);
+    } finally {
       setSaving(false);
     }
   };
 
   if (!slide) return <div className="p-8 text-muted text-[14px]">Carregando...</div>;
 
-  const selLayer = layers[selected];
+  // Lista é exibida do topo (último do array = z-index maior) para baixo.
+  const reversedLayers = [...layers].reverse();
+  const selected = layers.find(l => l.id === selectedId) || null;
 
   return (
     <div className="flex h-full overflow-hidden">
 
-      {/* ── PAINEL ESQUERDO ── */}
-      <div className="w-[188px] bg-white border-r border-line flex flex-col flex-shrink-0">
+      {/* ── PAINEL ESQUERDO — LISTA DE CAMADAS ── */}
+      <div className="w-[220px] bg-white border-r border-line flex flex-col flex-shrink-0">
         <div className="px-4 py-3 border-b border-line text-[11px] font-[800] text-ink uppercase tracking-[.4px] bg-[#fafafa]">
-          Slide
+          Camadas ({layers.length})
         </div>
-
-        <div className="px-4 py-3 border-b border-line">
-          <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Transição global</div>
-          <select
-            value={transition}
-            onChange={e => saveTransition(e.target.value)}
-            className="w-full border border-line rounded-[6px] px-2 py-1.5 text-[12px] text-ink bg-white"
-          >
-            {TRANSITIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-          </select>
-
-          <div className="flex items-center gap-2 mt-3">
-            <button
-              onClick={() => setAnimado(a => !a)}
-              className={`w-9 h-5 rounded-full relative transition-colors flex-shrink-0 ${animado ? 'bg-orange' : 'bg-gray-300'}`}
-            >
-              <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${animado ? 'right-0.5' : 'left-0.5'}`} />
-            </button>
-            <span className="text-[12px] font-[600] text-ink">{animado ? 'Animado' : 'Estático'}</span>
-          </div>
-        </div>
-
-        <div className="px-4 py-3 flex-1">
-          <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Camadas</div>
-          {[
-            { key: 'logo', label: 'Logo',      color: '#F37021' },
-            { key: 'cta',  label: 'Botão CTA', color: '#10b981' },
-          ].map(({ key, label, color }) => (
-            <div
-              key={key}
-              onClick={() => setSelected(key)}
-              className={`flex items-center gap-2 py-2 px-2 rounded-[6px] cursor-pointer mb-1 ${selected === key ? 'bg-orange-50' : 'hover:bg-gray-50'}`}
-            >
-              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-              <span className="text-[12px] font-[600] text-ink flex-1">{label}</span>
-              <button
-                onClick={e => { e.stopPropagation(); updateLayer(key, 'visible', !layers[key].visible); }}
-                className="text-[14px] leading-none opacity-60 hover:opacity-100"
-                title={layers[key].visible ? 'Ocultar' : 'Mostrar'}
-              >
-                {layers[key].visible ? '👁' : '🙈'}
-              </button>
+        <div className="flex-1 overflow-y-auto py-2">
+          {reversedLayers.length === 0 ? (
+            <div className="px-4 py-6 text-center text-muted text-[12px]">
+              Nenhuma camada. Importe um PSD para começar.
             </div>
+          ) : reversedLayers.map(layer => (
+            <button
+              key={layer.id}
+              onClick={() => setSelectedId(layer.id)}
+              className={`w-full px-4 py-2 flex items-center gap-2 text-left ${
+                selectedId === layer.id ? 'bg-orange-50' : 'hover:bg-gray-50'
+              }`}
+            >
+              <span className="text-[14px]">{layer.type === 'button' ? '🔘' : '🖼'}</span>
+              <span className="text-[12px] font-[600] text-ink flex-1 truncate">{layer.name || 'Camada'}</span>
+            </button>
           ))}
         </div>
       </div>
@@ -190,7 +97,13 @@ export default function AdminSlideBuilderPage() {
       {/* ── CANVAS CENTRAL ── */}
       <div className="flex-1 flex flex-col bg-[#e5e7eb] min-w-0">
         <div className="bg-[#1f2937] px-4 py-2 flex items-center gap-3 flex-shrink-0">
-          <span className="text-[11px] text-white/40 flex-1 truncate">{slide.image_url}</span>
+          <span className="text-[11px] text-white/40 flex-1 truncate">Slide #{slide.id}</span>
+          <button
+            onClick={() => setPreview(true)}
+            className="text-white/80 hover:text-white border border-white/20 px-3 py-1 rounded-[6px] text-[12px] font-[600]"
+          >
+            Pré-visualizar
+          </button>
           <button
             onClick={handleSave}
             disabled={saving}
@@ -209,142 +122,63 @@ export default function AdminSlideBuilderPage() {
         <div className="flex-1 flex items-center justify-center p-6 overflow-auto">
           <div
             ref={canvasRef}
-            className="relative w-full max-w-[720px] aspect-[16/7] bg-gray-800 rounded-[8px] overflow-hidden shadow-lg select-none"
-            onPointerMove={handleCanvasPointerMove}
-            onPointerUp={() => { drag.current = null; }}
+            className="relative w-full max-w-[960px] bg-gray-800 rounded-[8px] overflow-hidden shadow-lg select-none"
+            style={{ aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
+            onPointerDown={e => { if (e.target === e.currentTarget) setSelectedId(null); }}
           >
-            <img src={slide.image_url} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+            {layers.filter(l => l.visible).map((layer) => {
+              const style = {
+                position: 'absolute',
+                left:   `${(layer.x / CANVAS_W) * 100}%`,
+                top:    `${(layer.y / CANVAS_H) * 100}%`,
+                width:  `${(layer.width  / CANVAS_W) * 100}%`,
+                height: `${(layer.height / CANVAS_H) * 100}%`,
+              };
+              const isSel = layer.id === selectedId;
+              const ringClass = isSel ? 'outline outline-2 outline-blue-500' : '';
 
-            {/* Logo layer */}
-            {layers.logo?.visible && (
-              <div
-                className={`absolute cursor-move rounded-[6px] border-2 overflow-hidden ${selected === 'logo' ? 'border-orange shadow-[0_0_0_2px_rgba(243,112,33,0.3)]' : 'border-white/50'}`}
-                style={{
-                  left:      `${layers.logo.x}%`,
-                  top:       `${layers.logo.y}%`,
-                  width:     `${layers.logo.width ?? 80}px`,
-                  height:    `${layers.logo.width ?? 80}px`,
-                  transform: 'translate(-50%,-50%)',
-                }}
-                onPointerDown={e => handleLayerPointerDown(e, 'logo')}
-              >
-                {layers.logo.image_url
-                  ? <img src={layers.logo.image_url} alt="" className="w-full h-full object-contain" draggable={false} />
-                  : <div className="w-full h-full flex items-center justify-center bg-white/20 text-white text-[9px] font-[700]">LOGO</div>
-                }
-              </div>
-            )}
-
-            {/* CTA layer */}
-            {layers.cta?.visible && (
-              <div
-                className={`absolute cursor-move rounded-full border-2 ${selected === 'cta' ? 'border-orange shadow-[0_0_0_2px_rgba(243,112,33,0.3)]' : 'border-white/50'}`}
-                style={{
-                  left:      `${layers.cta.x}%`,
-                  top:       `${layers.cta.y}%`,
-                  transform: 'translate(-50%,-50%)',
-                }}
-                onPointerDown={e => handleLayerPointerDown(e, 'cta')}
-              >
-                <div className="bg-orange text-white font-[800] text-[11px] px-4 py-2 rounded-full whitespace-nowrap">
-                  {layers.cta.text || 'Botão CTA'}
+              if (layer.type === 'image') {
+                return (
+                  <img
+                    key={layer.id}
+                    src={layer.url}
+                    alt={layer.name || ''}
+                    style={style}
+                    draggable={false}
+                    className={`cursor-move ${ringClass}`}
+                    onPointerDown={e => { e.stopPropagation(); setSelectedId(layer.id); }}
+                  />
+                );
+              }
+              return (
+                <div
+                  key={layer.id}
+                  style={{ ...style, backgroundColor: layer.bgColor, color: layer.textColor }}
+                  className={`flex items-center justify-center rounded-lg font-bold text-sm cursor-move ${ringClass}`}
+                  onPointerDown={e => { e.stopPropagation(); setSelectedId(layer.id); }}
+                >
+                  {layer.text || 'Botão'}
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* ── PAINEL DIREITO ── */}
-      <div className="w-[172px] bg-white border-l border-line flex flex-col flex-shrink-0 overflow-y-auto">
+      {/* ── PAINEL DIREITO — PROPRIEDADES (vazio nesta task) ── */}
+      <div className="w-[260px] bg-white border-l border-line flex flex-col flex-shrink-0 overflow-y-auto">
         <div className="px-4 py-3 border-b border-line text-[11px] font-[800] text-ink uppercase tracking-[.4px] bg-[#fafafa]">
-          {selected === 'logo' ? 'Logo' : 'Botão CTA'}
+          Propriedades
         </div>
-
-        {selected === 'logo' && (
-          <>
-            <div className="px-4 py-3 border-b border-line">
-              <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Imagem</div>
-              {layers.logo.image_url && (
-                <img src={layers.logo.image_url} alt="" className="w-full h-14 object-contain rounded border border-line mb-2" />
-              )}
-              <label className={`block text-center border border-dashed border-line rounded-[6px] py-2 text-[11px] text-muted cursor-pointer hover:border-orange hover:text-orange transition-colors ${uploading ? 'opacity-60 pointer-events-none' : ''}`}>
-                {uploading ? 'Enviando...' : 'Trocar imagem'}
-                <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={e => e.target.files[0] && handleLogoUpload(e.target.files[0])} />
-              </label>
-            </div>
-            <div className="px-4 py-3 border-b border-line">
-              <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Tamanho (px)</div>
-              <input
-                type="number"
-                min="20"
-                max="300"
-                value={layers.logo.width ?? 80}
-                onChange={e => updateLayer('logo', 'width', parseInt(e.target.value) || 80)}
-                className="w-full border border-line rounded-[6px] px-3 py-1.5 text-[12px] outline-none focus:border-orange"
-              />
-            </div>
-          </>
-        )}
-
-        {selected === 'cta' && (
-          <>
-            <div className="px-4 py-3 border-b border-line">
-              <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Texto</div>
-              <input
-                type="text"
-                value={layers.cta.text}
-                onChange={e => updateLayer('cta', 'text', e.target.value)}
-                className="w-full border border-line rounded-[6px] px-3 py-1.5 text-[12px] outline-none focus:border-orange"
-                placeholder="Ver produtos"
-              />
-            </div>
-            <div className="px-4 py-3 border-b border-line">
-              <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Link</div>
-              <input
-                type="text"
-                value={layers.cta.link}
-                onChange={e => updateLayer('cta', 'link', e.target.value)}
-                className="w-full border border-line rounded-[6px] px-3 py-1.5 text-[12px] outline-none focus:border-orange"
-                placeholder="/produtos"
-              />
-            </div>
-          </>
-        )}
-
-        {animado && (
-          <>
-            <div className="px-4 py-3 border-b border-line">
-              <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Animação</div>
-              <div className="flex flex-wrap gap-1">
-                {ANIMATIONS.map(a => (
-                  <button
-                    key={a.value}
-                    onClick={() => updateLayer(selected, 'animation', a.value)}
-                    className={`px-2 py-1 rounded-full text-[10px] font-[700] border transition-colors ${
-                      selLayer?.animation === a.value
-                        ? 'bg-orange text-white border-orange'
-                        : 'bg-white text-muted border-line hover:border-orange hover:text-orange'
-                    }`}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="px-4 py-3">
-              <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Delay (s)</div>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="3"
-                value={selLayer?.delay ?? 0}
-                onChange={e => updateLayer(selected, 'delay', parseFloat(e.target.value) || 0)}
-                className="w-full border border-line rounded-[6px] px-3 py-1.5 text-[12px] outline-none focus:border-orange"
-              />
-            </div>
-          </>
+        {selected ? (
+          <div className="px-4 py-3 text-[12px] text-muted">
+            <div className="font-[700] text-ink mb-1">{selected.name}</div>
+            <div>Tipo: {selected.type}</div>
+          </div>
+        ) : (
+          <div className="px-4 py-6 text-center text-muted text-[12px]">
+            Selecione uma camada.
+          </div>
         )}
       </div>
     </div>
