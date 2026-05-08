@@ -1,13 +1,15 @@
 const { Router } = require('express');
 const pool = require('../db');
 const requireAuth = require('../middleware/requireAuth');
+const { normalizeLayers } = require('../utils/normalizeLayers');
 const router = Router();
 router.use(requireAuth);
 
 router.get('/', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM hero_slides ORDER BY ordem ASC, id ASC');
-    res.json(rows);
+    const { rows } = await pool.query('SELECT id, image_url, ordem, ativo, created_at, layers FROM hero_slides ORDER BY ordem ASC, id ASC');
+    const out = rows.map(r => ({ ...r, layers: normalizeLayers(r.layers, r.image_url) }));
+    res.json(out);
   } catch (err) {
     console.error('GET /api/admin/hero-slides:', err.message);
     res.status(500).json({ error: 'Erro interno.' });
@@ -15,12 +17,13 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { image_url, ordem } = req.body;
-  if (!image_url) return res.status(400).json({ error: 'image_url obrigatório.' });
+  const { image_url, ordem, layers } = req.body;
+  if (typeof image_url !== 'string') return res.status(400).json({ error: 'image_url deve ser string.' });
+  if (layers !== undefined && !Array.isArray(layers)) return res.status(400).json({ error: 'layers deve ser array.' });
   try {
     const { rows } = await pool.query(
-      'INSERT INTO hero_slides (image_url, ordem) VALUES ($1, $2) RETURNING *',
-      [image_url, ordem ?? 99]
+      'INSERT INTO hero_slides (image_url, ordem, layers) VALUES ($1, $2, $3) RETURNING *',
+      [image_url, ordem ?? 99, JSON.stringify(layers ?? [])]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -53,13 +56,12 @@ router.put('/reorder', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  const { animado, layers } = req.body;
-  if (typeof animado !== 'boolean') return res.status(400).json({ error: 'animado deve ser boolean.' });
-  if (typeof layers !== 'object' || layers === null) return res.status(400).json({ error: 'layers deve ser objeto.' });
+  const { layers } = req.body;
+  if (!Array.isArray(layers)) return res.status(400).json({ error: 'layers deve ser array.' });
   try {
     const { rows } = await pool.query(
-      'UPDATE hero_slides SET animado = $1, layers = $2 WHERE id = $3 RETURNING *',
-      [animado, JSON.stringify(layers), req.params.id]
+      'UPDATE hero_slides SET layers = $1 WHERE id = $2 RETURNING *',
+      [JSON.stringify(layers), req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
     res.json(rows[0]);
