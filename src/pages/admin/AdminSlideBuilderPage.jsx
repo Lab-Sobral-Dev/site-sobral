@@ -13,6 +13,37 @@ const ANIMATION_OPTS = [
   { value: 'slide-right', label: '→ Slide Dir.'},
 ];
 
+const HANDLES = [
+  { dir: 'nw', x: '0%',   y: '0%',   cursor: 'nwse-resize' },
+  { dir: 'n',  x: '50%',  y: '0%',   cursor: 'ns-resize'   },
+  { dir: 'ne', x: '100%', y: '0%',   cursor: 'nesw-resize' },
+  { dir: 'e',  x: '100%', y: '50%',  cursor: 'ew-resize'   },
+  { dir: 'se', x: '100%', y: '100%', cursor: 'nwse-resize' },
+  { dir: 's',  x: '50%',  y: '100%', cursor: 'ns-resize'   },
+  { dir: 'sw', x: '0%',   y: '100%', cursor: 'nesw-resize' },
+  { dir: 'w',  x: '0%',   y: '50%',  cursor: 'ew-resize'   },
+];
+
+function ResizeHandles({ onPointerDown }) {
+  return (
+    <>
+      {HANDLES.map(h => (
+        <div
+          key={h.dir}
+          onPointerDown={e => onPointerDown(e, h.dir)}
+          className="absolute w-3 h-3 bg-white border-2 border-blue-500 rounded-[2px]"
+          style={{
+            left: h.x, top: h.y,
+            transform: 'translate(-50%, -50%)',
+            cursor: h.cursor,
+            zIndex: 10,
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
 export default function AdminSlideBuilderPage() {
   const { id }    = useParams();
   const navigate  = useNavigate();
@@ -64,18 +95,58 @@ export default function AdminSlideBuilderPage() {
     e.currentTarget.setPointerCapture(e.pointerId);
   };
 
+  const MIN_SIZE = 12;
+
   const handleCanvasPointerMove = (e) => {
     const d = dragRef.current;
     if (!d) return;
     const scale = getCanvasScale();
     const dx = (e.clientX - d.startClientX) / scale;
     const dy = (e.clientY - d.startClientY) / scale;
+
     if (d.mode === 'move') {
       updateLayer(d.layerId, {
         x: Math.round(d.origX + dx),
         y: Math.round(d.origY + dy),
       });
+      return;
     }
+
+    if (d.mode === 'resize') {
+      let { origX, origY, origW, origH } = d;
+      let x = origX, y = origY, w = origW, h = origH;
+      const dir = d.dir;
+      if (dir.includes('e')) w = Math.max(MIN_SIZE, origW + dx);
+      if (dir.includes('s')) h = Math.max(MIN_SIZE, origH + dy);
+      if (dir.includes('w')) {
+        const newW = Math.max(MIN_SIZE, origW - dx);
+        x = origX + (origW - newW);
+        w = newW;
+      }
+      if (dir.includes('n')) {
+        const newH = Math.max(MIN_SIZE, origH - dy);
+        y = origY + (origH - newH);
+        h = newH;
+      }
+      updateLayer(d.layerId, { x: Math.round(x), y: Math.round(y), width: Math.round(w), height: Math.round(h) });
+    }
+  };
+
+  const handleResizeHandlePointerDown = (e, layer, dir) => {
+    e.stopPropagation();
+    e.preventDefault();
+    dragRef.current = {
+      mode: 'resize',
+      dir,
+      layerId: layer.id,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      origX: layer.x,
+      origY: layer.y,
+      origW: layer.width,
+      origH: layer.height,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   const handleCanvasPointerUp = () => { dragRef.current = null; };
@@ -167,7 +238,7 @@ export default function AdminSlideBuilderPage() {
             onPointerCancel={handleCanvasPointerUp}
           >
             {layers.filter(l => l.visible).map((layer) => {
-              const style = {
+              const wrapStyle = {
                 position: 'absolute',
                 left:   `${(layer.x / CANVAS_W) * 100}%`,
                 top:    `${(layer.y / CANVAS_H) * 100}%`,
@@ -177,27 +248,31 @@ export default function AdminSlideBuilderPage() {
               const isSel = layer.id === selectedId;
               const ringClass = isSel ? 'outline outline-2 outline-blue-500' : '';
 
-              if (layer.type === 'image') {
-                return (
-                  <img
-                    key={layer.id}
-                    src={layer.url}
-                    alt={layer.name || ''}
-                    style={style}
-                    draggable={false}
-                    className={`cursor-move ${ringClass}`}
-                    onPointerDown={e => handleLayerPointerDown(e, layer)}
-                  />
-                );
-              }
               return (
                 <div
                   key={layer.id}
-                  style={{ ...style, backgroundColor: layer.bgColor, color: layer.textColor }}
-                  className={`flex items-center justify-center rounded-lg font-bold text-sm cursor-move ${ringClass}`}
+                  style={wrapStyle}
+                  className={`cursor-move ${ringClass}`}
                   onPointerDown={e => handleLayerPointerDown(e, layer)}
                 >
-                  {layer.text || 'Botão'}
+                  {layer.type === 'image' ? (
+                    <img
+                      src={layer.url}
+                      alt={layer.name || ''}
+                      draggable={false}
+                      className="w-full h-full pointer-events-none"
+                    />
+                  ) : (
+                    <div
+                      style={{ backgroundColor: layer.bgColor, color: layer.textColor }}
+                      className="w-full h-full flex items-center justify-center rounded-lg font-bold text-sm pointer-events-none"
+                    >
+                      {layer.text || 'Botão'}
+                    </div>
+                  )}
+                  {isSel && (
+                    <ResizeHandles onPointerDown={(e, dir) => handleResizeHandlePointerDown(e, layer, dir)} />
+                  )}
                 </div>
               );
             })}
