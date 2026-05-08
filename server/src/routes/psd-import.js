@@ -42,57 +42,67 @@ router.post('/', (req, res) => {
       const psdH = psd.header.height;
       const layers = [];
 
-      // Camada de fundo: o canvas do PSD inteiro renderizado.
-      const bgFilename = `psd-bg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
-      const bgOutPath = path.join(publicImgDir, bgFilename);
-      const tree = psd.tree();
-      const composite = typeof tree.toPng === 'function' ? tree.toPng() : null;
-      if (composite) {
-        fs.writeFileSync(bgOutPath, composite);
-        layers.push({
-          id: newId(),
-          type: 'image',
-          name: 'fundo',
-          url: `/images/produtos/${bgFilename}`,
-          x: 0, y: 0,
-          width: CANVAS_W, height: CANVAS_H,
-          visible: true,
-          animation: null,
-        });
+      // Camada de fundo: composite do PSD inteiro (requer módulo canvas).
+      try {
+        const tree = psd.tree();
+        if (typeof tree.toPng === 'function') {
+          const composite = tree.toPng();
+          if (composite) {
+            const bgFilename = `psd-bg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
+            fs.writeFileSync(path.join(publicImgDir, bgFilename), composite);
+            layers.push({
+              id: newId(),
+              type: 'image',
+              name: 'fundo',
+              url: `/images/produtos/${bgFilename}`,
+              x: 0, y: 0,
+              width: CANVAS_W, height: CANVAS_H,
+              visible: true,
+              animation: null,
+            });
+          }
+        }
+      } catch (compErr) {
+        console.warn('psd-import: composite ignorado —', compErr.message);
       }
 
       // Camadas individuais
       for (const layer of psd.layers) {
+        if (!layer.image) continue;
         const w = typeof layer.width  === 'function' ? layer.width()  : layer.width;
         const h = typeof layer.height === 'function' ? layer.height() : layer.height;
         if (!w || !h) continue;
-        const slug     = slugify(layer.name);
-        const filename = `psd-${slug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
-        const outPath  = path.join(publicImgDir, filename);
-        if (typeof layer.image.saveAsPng === 'function') {
-          await layer.image.saveAsPng(outPath);
-        } else {
-          const buf = layer.image.toPng();
-          fs.writeFileSync(outPath, buf);
+
+        try {
+          const slug     = slugify(layer.name);
+          const filename = `psd-${slug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
+          const outPath  = path.join(publicImgDir, filename);
+          if (typeof layer.image.saveAsPng === 'function') {
+            await layer.image.saveAsPng(outPath);
+          } else {
+            fs.writeFileSync(outPath, layer.image.toPng());
+          }
+          layers.push({
+            id: newId(),
+            type: 'image',
+            name: layer.name || 'Camada',
+            url: `/images/produtos/${filename}`,
+            x: Math.round((layer.left / psdW) * CANVAS_W),
+            y: Math.round((layer.top  / psdH) * CANVAS_H),
+            width: Math.round((w / psdW) * CANVAS_W),
+            height: Math.round((h / psdH) * CANVAS_H),
+            visible: true,
+            animation: null,
+          });
+        } catch (layerErr) {
+          console.warn(`psd-import: camada "${layer.name}" ignorada —`, layerErr.message);
         }
-        layers.push({
-          id: newId(),
-          type: 'image',
-          name: layer.name || 'Camada',
-          url: `/images/produtos/${filename}`,
-          x: Math.round((layer.left / psdW) * CANVAS_W),
-          y: Math.round((layer.top  / psdH) * CANVAS_H),
-          width: Math.round((w / psdW) * CANVAS_W),
-          height: Math.round((h / psdH) * CANVAS_H),
-          visible: true,
-          animation: null,
-        });
       }
 
       res.json({ layers });
     } catch (e) {
       console.error('POST /api/admin/psd-import:', e.message);
-      res.status(422).json({ error: 'Não foi possível processar o PSD.' });
+      res.status(422).json({ error: `Não foi possível processar o PSD: ${e.message}` });
     } finally {
       fs.unlink(tmpPath, () => {});
     }
