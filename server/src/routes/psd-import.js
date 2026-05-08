@@ -40,6 +40,24 @@ router.post('/', (req, res) => {
 
       const psdW = psd.header.width;
       const psdH = psd.header.height;
+
+      const targetRatio = CANVAS_W / CANVAS_H;          // 3.2  (16:5)
+      const actualRatio = psdW / psdH;
+      const deviation   = Math.abs(actualRatio - targetRatio) / targetRatio;
+      if (deviation > 0.05) {
+        return res.status(422).json({
+          error:
+            `Proporção incompatível: o PSD tem ${psdW} × ${psdH} px ` +
+            `(${(actualRatio).toFixed(2)}:1), mas o hero usa proporção 16:5 ` +
+            `(${CANVAS_W} × ${CANVAS_H} px). ` +
+            `Redimensione o PSD para ${CANVAS_W} × ${CANVAS_H} px antes de importar.`,
+          psdWidth:  psdW,
+          psdHeight: psdH,
+          expectedWidth:  CANVAS_W,
+          expectedHeight: CANVAS_H,
+        });
+      }
+
       const layers = [];
 
       // Camada de fundo: composite do PSD inteiro (requer módulo canvas).
