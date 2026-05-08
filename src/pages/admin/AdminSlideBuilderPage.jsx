@@ -352,20 +352,194 @@ export default function AdminSlideBuilderPage() {
         </div>
       </div>
 
-      {/* ── PAINEL DIREITO — PROPRIEDADES (vazio nesta task) ── */}
+      {/* ── PAINEL DIREITO — PROPRIEDADES ── */}
       <div className="w-[260px] bg-white border-l border-line flex flex-col flex-shrink-0 overflow-y-auto">
         <div className="px-4 py-3 border-b border-line text-[11px] font-[800] text-ink uppercase tracking-[.4px] bg-[#fafafa]">
           Propriedades
         </div>
-        {selected ? (
-          <div className="px-4 py-3 text-[12px] text-muted">
-            <div className="font-[700] text-ink mb-1">{selected.name}</div>
-            <div>Tipo: {selected.type}</div>
-          </div>
-        ) : (
+        {!selected ? (
           <div className="px-4 py-6 text-center text-muted text-[12px]">
             Selecione uma camada.
           </div>
+        ) : (
+          <>
+            {/* Posição/tamanho */}
+            <div className="px-4 py-3 border-b border-line">
+              <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Posição (px)</div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="text-[10px] font-[600] text-muted">
+                  X
+                  <input
+                    type="number"
+                    value={selected.x}
+                    onChange={e => updateLayer(selected.id, { x: parseInt(e.target.value) || 0 })}
+                    className="mt-1 w-full border border-line rounded-[6px] px-2 py-1 text-[12px] text-ink outline-none focus:border-orange"
+                  />
+                </label>
+                <label className="text-[10px] font-[600] text-muted">
+                  Y
+                  <input
+                    type="number"
+                    value={selected.y}
+                    onChange={e => updateLayer(selected.id, { y: parseInt(e.target.value) || 0 })}
+                    className="mt-1 w-full border border-line rounded-[6px] px-2 py-1 text-[12px] text-ink outline-none focus:border-orange"
+                  />
+                </label>
+                <label className="text-[10px] font-[600] text-muted">
+                  Largura
+                  <input
+                    type="number"
+                    value={selected.width}
+                    min={MIN_SIZE}
+                    onChange={e => updateLayer(selected.id, { width: Math.max(MIN_SIZE, parseInt(e.target.value) || MIN_SIZE) })}
+                    className="mt-1 w-full border border-line rounded-[6px] px-2 py-1 text-[12px] text-ink outline-none focus:border-orange"
+                  />
+                </label>
+                <label className="text-[10px] font-[600] text-muted">
+                  Altura
+                  <input
+                    type="number"
+                    value={selected.height}
+                    min={MIN_SIZE}
+                    onChange={e => updateLayer(selected.id, { height: Math.max(MIN_SIZE, parseInt(e.target.value) || MIN_SIZE) })}
+                    className="mt-1 w-full border border-line rounded-[6px] px-2 py-1 text-[12px] text-ink outline-none focus:border-orange"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Tipo + conversão */}
+            <div className="px-4 py-3 border-b border-line">
+              {selected.type === 'image' ? (
+                <button
+                  onClick={() => updateLayer(selected.id, {
+                    type: 'button',
+                    text: 'Ver catálogo',
+                    href: '/produtos',
+                    bgColor: '#F37021',
+                    textColor: '#FFFFFF',
+                  })}
+                  className="w-full text-[11px] font-[700] py-1.5 rounded-[6px] border border-line hover:border-orange hover:text-orange"
+                >
+                  Converter para botão
+                </button>
+              ) : (
+                <button
+                  onClick={() => updateLayer(selected.id, {
+                    type: 'image',
+                    url: selected.url || '',
+                  })}
+                  className="w-full text-[11px] font-[700] py-1.5 rounded-[6px] border border-line hover:border-orange hover:text-orange"
+                >
+                  Converter para imagem
+                </button>
+              )}
+            </div>
+
+            {/* Campos específicos */}
+            {selected.type === 'image' && (
+              <div className="px-4 py-3 border-b border-line">
+                <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">URL da imagem</div>
+                <input
+                  type="text"
+                  value={selected.url || ''}
+                  onChange={e => updateLayer(selected.id, { url: e.target.value })}
+                  className="w-full border border-line rounded-[6px] px-2 py-1 text-[11px] text-ink outline-none focus:border-orange"
+                  placeholder="/images/..."
+                />
+                {selected.url && (
+                  <img src={selected.url} alt="" className="mt-2 max-h-20 mx-auto object-contain" />
+                )}
+              </div>
+            )}
+
+            {selected.type === 'button' && (
+              <>
+                <div className="px-4 py-3 border-b border-line">
+                  <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Texto</div>
+                  <input
+                    type="text"
+                    value={selected.text || ''}
+                    onChange={e => updateLayer(selected.id, { text: e.target.value })}
+                    className="w-full border border-line rounded-[6px] px-2 py-1 text-[12px] text-ink outline-none focus:border-orange"
+                  />
+                </div>
+                <div className="px-4 py-3 border-b border-line">
+                  <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">URL (href)</div>
+                  <input
+                    type="text"
+                    value={selected.href || ''}
+                    onChange={e => updateLayer(selected.id, { href: e.target.value })}
+                    className="w-full border border-line rounded-[6px] px-2 py-1 text-[12px] text-ink outline-none focus:border-orange"
+                  />
+                </div>
+                <div className="px-4 py-3 border-b border-line grid grid-cols-2 gap-2">
+                  <label className="text-[10px] font-[600] text-muted">
+                    Cor de fundo
+                    <input
+                      type="color"
+                      value={selected.bgColor || '#F37021'}
+                      onChange={e => updateLayer(selected.id, { bgColor: e.target.value })}
+                      className="mt-1 w-full h-7 border border-line rounded-[6px] outline-none"
+                    />
+                  </label>
+                  <label className="text-[10px] font-[600] text-muted">
+                    Cor do texto
+                    <input
+                      type="color"
+                      value={selected.textColor || '#FFFFFF'}
+                      onChange={e => updateLayer(selected.id, { textColor: e.target.value })}
+                      className="mt-1 w-full h-7 border border-line rounded-[6px] outline-none"
+                    />
+                  </label>
+                </div>
+              </>
+            )}
+
+            {/* Animação */}
+            <div className="px-4 py-3 border-b border-line">
+              <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-2">Animação</div>
+              <select
+                value={selected.animation?.type || ''}
+                onChange={e => {
+                  const t = e.target.value;
+                  if (!t) updateLayer(selected.id, { animation: null });
+                  else updateLayer(selected.id, { animation: { type: t, delay: selected.animation?.delay ?? 0 } });
+                }}
+                className="w-full border border-line rounded-[6px] px-2 py-1 text-[12px] text-ink bg-white outline-none focus:border-orange"
+              >
+                {ANIMATION_OPTS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
+              </select>
+              {selected.animation && (
+                <div className="mt-2">
+                  <div className="text-[10px] font-[700] text-muted uppercase tracking-[.4px] mb-1">Delay (s)</div>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={selected.animation.delay ?? 0}
+                    onChange={e => updateLayer(selected.id, {
+                      animation: { ...selected.animation, delay: parseFloat(e.target.value) || 0 },
+                    })}
+                    className="w-full border border-line rounded-[6px] px-2 py-1 text-[12px] outline-none focus:border-orange"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Visibilidade */}
+            <div className="px-4 py-3">
+              <label className="flex items-center gap-2 text-[12px] font-[600] text-ink">
+                <input
+                  type="checkbox"
+                  checked={selected.visible}
+                  onChange={e => updateLayer(selected.id, { visible: e.target.checked })}
+                />
+                Visível
+              </label>
+            </div>
+          </>
         )}
       </div>
     </div>
