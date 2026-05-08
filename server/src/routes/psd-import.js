@@ -66,8 +66,9 @@ router.post('/', (req, res) => {
         console.warn('psd-import: composite ignorado —', compErr.message);
       }
 
-      // Camadas individuais
-      for (const layer of psd.layers) {
+      // Camadas individuais — psd.layers vem do topo para a base; invertemos
+      // para que a camada de fundo fique no início do array (z-index menor).
+      for (const layer of [...psd.layers].reverse()) {
         if (!layer.image) continue;
         const w = typeof layer.width  === 'function' ? layer.width()  : layer.width;
         const h = typeof layer.height === 'function' ? layer.height() : layer.height;
