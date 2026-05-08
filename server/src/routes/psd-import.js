@@ -4,6 +4,7 @@ const path       = require('path');
 const fs         = require('fs');
 const PSD        = require('psd');
 const requireAuth = require('../middleware/requireAuth');
+const { newId, CANVAS_W, CANVAS_H } = require('../utils/normalizeLayers');
 
 const router = Router();
 router.use(requireAuth);
@@ -37,10 +38,30 @@ router.post('/', (req, res) => {
       const psd = PSD.fromFile(tmpPath);
       await psd.parse();
 
-      const canvasW = psd.header.width;
-      const canvasH = psd.header.height;
-      const layers  = [];
+      const psdW = psd.header.width;
+      const psdH = psd.header.height;
+      const layers = [];
 
+      // Camada de fundo: o canvas do PSD inteiro renderizado.
+      const bgFilename = `psd-bg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
+      const bgOutPath = path.join(publicImgDir, bgFilename);
+      const tree = psd.tree();
+      const composite = typeof tree.toPng === 'function' ? tree.toPng() : null;
+      if (composite) {
+        fs.writeFileSync(bgOutPath, composite);
+        layers.push({
+          id: newId(),
+          type: 'image',
+          name: 'fundo',
+          url: `/images/produtos/${bgFilename}`,
+          x: 0, y: 0,
+          width: CANVAS_W, height: CANVAS_H,
+          visible: true,
+          animation: null,
+        });
+      }
+
+      // Camadas individuais
       for (const layer of psd.layers) {
         const w = typeof layer.width  === 'function' ? layer.width()  : layer.width;
         const h = typeof layer.height === 'function' ? layer.height() : layer.height;
@@ -55,12 +76,16 @@ router.post('/', (req, res) => {
           fs.writeFileSync(outPath, buf);
         }
         layers.push({
-          name:   layer.name || 'Camada',
-          url:    `/images/produtos/${filename}`,
-          x:      Math.round((layer.left / canvasW) * 1000) / 10,
-          y:      Math.round((layer.top  / canvasH) * 1000) / 10,
-          width:  Math.round(w),
-          height: Math.round(h),
+          id: newId(),
+          type: 'image',
+          name: layer.name || 'Camada',
+          url: `/images/produtos/${filename}`,
+          x: Math.round((layer.left / psdW) * CANVAS_W),
+          y: Math.round((layer.top  / psdH) * CANVAS_H),
+          width: Math.round((w / psdW) * CANVAS_W),
+          height: Math.round((h / psdH) * CANVAS_H),
+          visible: true,
+          animation: null,
         });
       }
 
