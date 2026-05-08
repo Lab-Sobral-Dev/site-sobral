@@ -48,7 +48,7 @@ function PreviewModal({ layers, onClose, onReplay, replayKey }) {
               <div
                 key={layer.id}
                 style={{ ...style, backgroundColor: layer.bgColor, color: layer.textColor }}
-                className={`flex items-center justify-center rounded-lg font-bold text-sm shadow-lg ${animClass}`}
+                className={`flex items-center justify-center rounded-lg font-bold text-sm px-4 whitespace-nowrap shadow-lg ${animClass}`}
               >
                 {layer.text}
               </div>
@@ -385,7 +385,7 @@ export default function AdminSlideBuilderPage() {
                   ) : (
                     <div
                       style={{ backgroundColor: layer.bgColor, color: layer.textColor }}
-                      className="w-full h-full flex items-center justify-center rounded-lg font-bold text-sm pointer-events-none"
+                      className="w-full h-full flex items-center justify-center rounded-lg font-bold text-sm px-4 whitespace-nowrap pointer-events-none"
                     >
                       {layer.text || 'Botão'}
                     </div>
