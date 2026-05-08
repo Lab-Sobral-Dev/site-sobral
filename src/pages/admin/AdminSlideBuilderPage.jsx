@@ -13,6 +13,53 @@ const ANIMATION_OPTS = [
   { value: 'slide-right', label: '→ Slide Dir.'},
 ];
 
+function PreviewModal({ layers, onClose, onReplay, replayKey }) {
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6">
+      <div className="relative w-full max-w-[1200px]" style={{ aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}>
+        <button
+          onClick={onClose}
+          aria-label="Fechar"
+          className="absolute -top-4 -right-4 w-9 h-9 rounded-full bg-white text-ink hover:bg-orange hover:text-white flex items-center justify-center text-[20px] leading-none shadow-lg z-10"
+        >
+          ×
+        </button>
+        <button
+          onClick={onReplay}
+          className="absolute -top-4 right-8 px-4 h-9 rounded-full bg-white text-ink hover:bg-orange hover:text-white text-[12px] font-[700] shadow-lg z-10"
+        >
+          ↻ Repetir
+        </button>
+        <div key={replayKey} className="relative w-full h-full bg-gray-800 rounded-[8px] overflow-hidden">
+          {layers.filter(l => l.visible).map((layer) => {
+            const style = {
+              position: 'absolute',
+              left:   `${(layer.x / CANVAS_W) * 100}%`,
+              top:    `${(layer.y / CANVAS_H) * 100}%`,
+              width:  `${(layer.width  / CANVAS_W) * 100}%`,
+              height: `${(layer.height / CANVAS_H) * 100}%`,
+              animationDelay: layer.animation ? `${layer.animation.delay ?? 0}s` : undefined,
+            };
+            const animClass = layer.animation ? `layer-anim-${layer.animation.type}` : '';
+            if (layer.type === 'image') {
+              return <img key={layer.id} src={layer.url} alt={layer.name || ''} style={style} className={animClass} draggable={false} />;
+            }
+            return (
+              <div
+                key={layer.id}
+                style={{ ...style, backgroundColor: layer.bgColor, color: layer.textColor }}
+                className={`flex items-center justify-center rounded-lg font-bold text-sm shadow-lg ${animClass}`}
+              >
+                {layer.text}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const HANDLES = [
   { dir: 'nw', x: '0%',   y: '0%',   cursor: 'nwse-resize' },
   { dir: 'n',  x: '50%',  y: '0%',   cursor: 'ns-resize'   },
@@ -58,6 +105,7 @@ export default function AdminSlideBuilderPage() {
   const [preview,    setPreview]    = useState(false);
   const [editingName, setEditingName] = useState(null); // layer.id em edição
   const [reorderDrag, setReorderDrag] = useState(null); // { id, overId }
+  const [previewKey,  setPreviewKey]  = useState(0);
 
   const authHeaders = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
@@ -279,7 +327,7 @@ export default function AdminSlideBuilderPage() {
         <div className="bg-[#1f2937] px-4 py-2 flex items-center gap-3 flex-shrink-0">
           <span className="text-[11px] text-white/40 flex-1 truncate">Slide #{slide.id}</span>
           <button
-            onClick={() => setPreview(true)}
+            onClick={() => { setPreview(true); setPreviewKey(k => k + 1); }}
             className="text-white/80 hover:text-white border border-white/20 px-3 py-1 rounded-[6px] text-[12px] font-[600]"
           >
             Pré-visualizar
@@ -542,6 +590,15 @@ export default function AdminSlideBuilderPage() {
           </>
         )}
       </div>
+
+      {preview && (
+        <PreviewModal
+          layers={layers}
+          onClose={() => setPreview(false)}
+          onReplay={() => setPreviewKey(k => k + 1)}
+          replayKey={previewKey}
+        />
+      )}
     </div>
   );
 }
