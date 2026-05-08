@@ -19,6 +19,7 @@ export default function AdminSlideBuilderPage() {
   const { token } = useAuth();
 
   const canvasRef = useRef(null);
+  const dragRef   = useRef(null);
   const [slide,      setSlide]      = useState(null);
   const [layers,     setLayers]     = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -42,6 +43,42 @@ export default function AdminSlideBuilderPage() {
   const updateLayer = useCallback((layerId, patch) => {
     setLayers(ls => ls.map(l => l.id === layerId ? { ...l, ...patch } : l));
   }, []);
+
+  function getCanvasScale() {
+    if (!canvasRef.current) return 1;
+    return canvasRef.current.getBoundingClientRect().width / CANVAS_W;
+  }
+
+  const handleLayerPointerDown = (e, layer) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setSelectedId(layer.id);
+    dragRef.current = {
+      mode: 'move',
+      layerId: layer.id,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      origX: layer.x,
+      origY: layer.y,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handleCanvasPointerMove = (e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const scale = getCanvasScale();
+    const dx = (e.clientX - d.startClientX) / scale;
+    const dy = (e.clientY - d.startClientY) / scale;
+    if (d.mode === 'move') {
+      updateLayer(d.layerId, {
+        x: Math.round(d.origX + dx),
+        y: Math.round(d.origY + dy),
+      });
+    }
+  };
+
+  const handleCanvasPointerUp = () => { dragRef.current = null; };
 
   const handleSave = async () => {
     setSaving(true);
@@ -125,6 +162,9 @@ export default function AdminSlideBuilderPage() {
             className="relative w-full max-w-[960px] bg-gray-800 rounded-[8px] overflow-hidden shadow-lg select-none"
             style={{ aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
             onPointerDown={e => { if (e.target === e.currentTarget) setSelectedId(null); }}
+            onPointerMove={handleCanvasPointerMove}
+            onPointerUp={handleCanvasPointerUp}
+            onPointerCancel={handleCanvasPointerUp}
           >
             {layers.filter(l => l.visible).map((layer) => {
               const style = {
@@ -146,7 +186,7 @@ export default function AdminSlideBuilderPage() {
                     style={style}
                     draggable={false}
                     className={`cursor-move ${ringClass}`}
-                    onPointerDown={e => { e.stopPropagation(); setSelectedId(layer.id); }}
+                    onPointerDown={e => handleLayerPointerDown(e, layer)}
                   />
                 );
               }
@@ -155,7 +195,7 @@ export default function AdminSlideBuilderPage() {
                   key={layer.id}
                   style={{ ...style, backgroundColor: layer.bgColor, color: layer.textColor }}
                   className={`flex items-center justify-center rounded-lg font-bold text-sm cursor-move ${ringClass}`}
-                  onPointerDown={e => { e.stopPropagation(); setSelectedId(layer.id); }}
+                  onPointerDown={e => handleLayerPointerDown(e, layer)}
                 >
                   {layer.text || 'Botão'}
                 </div>
