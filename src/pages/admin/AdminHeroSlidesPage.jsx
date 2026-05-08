@@ -64,7 +64,7 @@ export default function AdminHeroSlidesPage() {
     setLoading(true);
     fetch('/api/admin/hero-slides', { headers: authHeaders })
       .then(r => r.json())
-      .then(setSlides)
+      .then(data => setSlides(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   };
