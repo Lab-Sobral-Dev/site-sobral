@@ -1,45 +1,43 @@
 import { useState, useEffect, useCallback } from 'react';
 
-function SlideLayer({ layer, type, animado }) {
-  if (!layer?.visible) return null;
+const CANVAS_W = 1920;
+const CANVAS_H = 600;
 
-  const posStyle = {
+function Layer({ layer }) {
+  if (!layer.visible) return null;
+
+  const style = {
     position: 'absolute',
-    left: `${layer.x}%`,
-    top: `${layer.y}%`,
-    transform: 'translate(-50%, -50%)',
+    left:   `${(layer.x / CANVAS_W) * 100}%`,
+    top:    `${(layer.y / CANVAS_H) * 100}%`,
+    width:  `${(layer.width  / CANVAS_W) * 100}%`,
+    height: `${(layer.height / CANVAS_H) * 100}%`,
+    animationDelay: layer.animation ? `${layer.animation.delay ?? 0}s` : undefined,
   };
 
-  const animClass = animado && layer.animation && layer.animation !== 'none'
-    ? `layer-anim-${layer.animation}`
-    : '';
+  const animClass = layer.animation ? `layer-anim-${layer.animation.type}` : '';
 
-  const animStyle = animado ? { animationDelay: `${layer.delay ?? 0}s` } : {};
-
-  if (type === 'logo' && layer.image_url) {
+  if (layer.type === 'image') {
     return (
-      <div style={posStyle}>
-        <img
-          src={layer.image_url}
-          alt=""
-          className={animClass}
-          style={{ width: `${layer.width ?? 80}px`, display: 'block', ...animStyle }}
-        />
-      </div>
+      <img
+        src={layer.url}
+        alt={layer.name || ''}
+        style={style}
+        className={animClass}
+        draggable={false}
+      />
     );
   }
 
-  if (type === 'cta' && layer.text) {
+  if (layer.type === 'button') {
     return (
-      <div style={posStyle}>
-        <a
-          href={layer.link || '/produtos'}
-          className={`block bg-orange text-white font-[800] text-[14px] px-6 py-3 rounded-full shadow-lg whitespace-nowrap hover:bg-[#E0580A] transition-colors ${animClass}`}
-          style={animStyle}
-        >
-          {layer.text}
-        </a>
-      </div>
+      <a
+        href={layer.href || '/produtos'}
+        style={{ ...style, backgroundColor: layer.bgColor, color: layer.textColor }}
+        className={`flex items-center justify-center rounded-lg font-bold text-sm px-4 whitespace-nowrap shadow-lg ${animClass}`}
+      >
+        {layer.text}
+      </a>
     );
   }
 
@@ -81,6 +79,7 @@ export default function HeroCarousel() {
   }
 
   const slide = slides[idx];
+  const layers = Array.isArray(slide.layers) ? slide.layers : [];
 
   return (
     <section
@@ -88,19 +87,12 @@ export default function HeroCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div key={`${idx}-${animKey}`} className={`relative slide-enter-${transition}`}>
-        <img
-          src={slide.image_url}
-          alt={`Slide ${idx + 1}`}
-          className="w-full h-auto block"
-        />
-
-        {slide.layers && (
-          <>
-            <SlideLayer layer={slide.layers.logo} type="logo" animado={slide.animado} />
-            <SlideLayer layer={slide.layers.cta}  type="cta"  animado={slide.animado} />
-          </>
-        )}
+      <div
+        key={`${idx}-${animKey}`}
+        className={`relative slide-enter-${transition}`}
+        style={{ aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
+      >
+        {layers.map(layer => <Layer key={layer.id} layer={layer} />)}
       </div>
 
       {slides.length > 1 && (
