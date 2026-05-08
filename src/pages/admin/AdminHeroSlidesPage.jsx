@@ -140,6 +140,7 @@ export default function AdminHeroSlidesPage() {
     fd.append('psd', file);
     try {
       const res  = await fetch('/api/admin/psd-import', { method: 'POST', headers: authHeaders, body: fd });
+      if (res.status === 401) { navigate('/admin/login'); return; }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       const layers = data.layers || [];
