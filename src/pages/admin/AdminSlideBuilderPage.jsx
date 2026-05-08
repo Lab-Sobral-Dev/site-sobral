@@ -56,6 +56,8 @@ export default function AdminSlideBuilderPage() {
   const [selectedId, setSelectedId] = useState(null);
   const [saving,     setSaving]     = useState(false);
   const [preview,    setPreview]    = useState(false);
+  const [editingName, setEditingName] = useState(null); // layer.id em edição
+  const [reorderDrag, setReorderDrag] = useState(null); // { id, overId }
 
   const authHeaders = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
@@ -168,6 +170,33 @@ export default function AdminSlideBuilderPage() {
     }
   };
 
+  const moveLayer = (fromId, toId) => {
+    setLayers(ls => {
+      const fromIdx = ls.findIndex(l => l.id === fromId);
+      const toIdx   = ls.findIndex(l => l.id === toId);
+      if (fromIdx === -1 || toIdx === -1) return ls;
+      const next = [...ls];
+      const [m] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, m);
+      return next;
+    });
+  };
+
+  const handleListItemPointerDown = (e, layerId) => {
+    setReorderDrag({ id: layerId, overId: layerId });
+  };
+
+  const handleListItemPointerEnter = (layerId) => {
+    setReorderDrag(d => d ? { ...d, overId: layerId } : null);
+  };
+
+  const handleListPointerUp = () => {
+    if (reorderDrag && reorderDrag.id !== reorderDrag.overId) {
+      moveLayer(reorderDrag.id, reorderDrag.overId);
+    }
+    setReorderDrag(null);
+  };
+
   if (!slide) return <div className="p-8 text-muted text-[14px]">Carregando...</div>;
 
   // Lista é exibida do topo (último do array = z-index maior) para baixo.
@@ -178,27 +207,70 @@ export default function AdminSlideBuilderPage() {
     <div className="flex h-full overflow-hidden">
 
       {/* ── PAINEL ESQUERDO — LISTA DE CAMADAS ── */}
-      <div className="w-[220px] bg-white border-r border-line flex flex-col flex-shrink-0">
+      <div className="w-[240px] bg-white border-r border-line flex flex-col flex-shrink-0">
         <div className="px-4 py-3 border-b border-line text-[11px] font-[800] text-ink uppercase tracking-[.4px] bg-[#fafafa]">
           Camadas ({layers.length})
         </div>
-        <div className="flex-1 overflow-y-auto py-2">
+        <div
+          className="flex-1 overflow-y-auto py-2"
+          onPointerUp={handleListPointerUp}
+          onPointerLeave={() => setReorderDrag(null)}
+        >
           {reversedLayers.length === 0 ? (
             <div className="px-4 py-6 text-center text-muted text-[12px]">
               Nenhuma camada. Importe um PSD para começar.
             </div>
-          ) : reversedLayers.map(layer => (
-            <button
-              key={layer.id}
-              onClick={() => setSelectedId(layer.id)}
-              className={`w-full px-4 py-2 flex items-center gap-2 text-left ${
-                selectedId === layer.id ? 'bg-orange-50' : 'hover:bg-gray-50'
-              }`}
-            >
-              <span className="text-[14px]">{layer.type === 'button' ? '🔘' : '🖼'}</span>
-              <span className="text-[12px] font-[600] text-ink flex-1 truncate">{layer.name || 'Camada'}</span>
-            </button>
-          ))}
+          ) : reversedLayers.map(layer => {
+            const isOver = reorderDrag && reorderDrag.overId === layer.id && reorderDrag.id !== layer.id;
+            return (
+              <div
+                key={layer.id}
+                onPointerEnter={() => reorderDrag && handleListItemPointerEnter(layer.id)}
+                className={`relative flex items-center gap-2 px-3 py-2 mx-2 mb-1 rounded-[6px] cursor-pointer ${
+                  selectedId === layer.id ? 'bg-orange-50' : 'hover:bg-gray-50'
+                } ${isOver ? 'ring-2 ring-blue-400' : ''}`}
+                onClick={() => setSelectedId(layer.id)}
+              >
+                <span
+                  onPointerDown={e => handleListItemPointerDown(e, layer.id)}
+                  className="text-[#bbb] text-[14px] cursor-grab select-none"
+                  title="Arrastar para reordenar"
+                >
+                  ⠿
+                </span>
+                <span className="text-[14px]">{layer.type === 'button' ? '🔘' : '🖼'}</span>
+                {editingName === layer.id ? (
+                  <input
+                    autoFocus
+                    type="text"
+                    defaultValue={layer.name || ''}
+                    onBlur={e => { updateLayer(layer.id, { name: e.target.value }); setEditingName(null); }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { updateLayer(layer.id, { name: e.target.value }); setEditingName(null); }
+                      if (e.key === 'Escape') setEditingName(null);
+                    }}
+                    onClick={e => e.stopPropagation()}
+                    className="text-[12px] font-[600] flex-1 border border-orange rounded px-1 py-0.5 outline-none"
+                  />
+                ) : (
+                  <span
+                    onDoubleClick={e => { e.stopPropagation(); setEditingName(layer.id); }}
+                    className="text-[12px] font-[600] text-ink flex-1 truncate"
+                    title="Clique duplo para renomear"
+                  >
+                    {layer.name || 'Camada'}
+                  </span>
+                )}
+                <button
+                  onClick={e => { e.stopPropagation(); updateLayer(layer.id, { visible: !layer.visible }); }}
+                  className="text-[14px] leading-none opacity-60 hover:opacity-100"
+                  title={layer.visible ? 'Ocultar' : 'Mostrar'}
+                >
+                  {layer.visible ? '👁' : '🙈'}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 
