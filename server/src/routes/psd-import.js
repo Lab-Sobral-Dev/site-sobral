@@ -96,11 +96,26 @@ router.post('/', (req, res) => {
           const slug     = slugify(layer.name);
           const filename = `psd-${slug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
           const outPath  = path.join(publicImgDir, filename);
+
+          let saved = false;
           if (typeof layer.image.saveAsPng === 'function') {
-            await layer.image.saveAsPng(outPath);
-          } else {
-            fs.writeFileSync(outPath, layer.image.toPng());
+            try {
+              await Promise.resolve(layer.image.saveAsPng(outPath));
+              saved = true;
+            } catch (saveErr) {
+              console.warn(`psd-import: saveAsPng falhou para "${layer.name}" —`, saveErr.message);
+            }
           }
+          if (!saved && typeof layer.image.toPng === 'function') {
+            try {
+              const buf = layer.image.toPng();
+              if (buf) { fs.writeFileSync(outPath, buf); saved = true; }
+            } catch (toPngErr) {
+              console.warn(`psd-import: toPng falhou para "${layer.name}" —`, toPngErr.message);
+            }
+          }
+          if (!saved) continue;
+
           layers.push({
             id: newId(),
             type: 'image',
