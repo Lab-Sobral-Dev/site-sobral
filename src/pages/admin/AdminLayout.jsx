@@ -3,12 +3,15 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLayout() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, token, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) navigate('/admin/login', { replace: true });
-  }, [isAuthenticated, navigate]);
+    if (!isAuthenticated) { navigate('/admin/login', { replace: true }); return; }
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => { if (r.status === 401) { logout(); navigate('/admin/login', { replace: true }); } })
+      .catch(() => {});
+  }, []);
 
   if (!isAuthenticated) return null;
 
