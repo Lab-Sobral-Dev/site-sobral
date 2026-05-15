@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
+import { useAdminFetch } from '../../hooks/useAdminFetch';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 
 const PAGE_CONFIG = {
@@ -71,19 +72,18 @@ const PAGE_CONFIG = {
 };
 
 export default function AdminContentPage({ page }) {
-  const { token } = useAuth();
+  const { request } = useAdminFetch();
   const [content,   setContent]   = useState({});
   const [saving,    setSaving]    = useState({});
   const [saved,     setSaved]     = useState({});
   const [uploading, setUploading] = useState({});
 
-  const authHeaders = { Authorization: `Bearer ${token}` };
   const config = PAGE_CONFIG[page];
 
   useEffect(() => {
-    fetch(`/api/admin/content/${page}`, { headers: authHeaders })
+    request(`/api/admin/content/${page}`)
       .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        if (!r || !r.ok) throw new Error();
         return r.json();
       })
       .then(rows => {
@@ -97,14 +97,16 @@ export default function AdminContentPage({ page }) {
   const saveField = async (key, value) => {
     setSaving(s => ({ ...s, [key]: true }));
     try {
-      await fetch(`/api/admin/content/${page}/${key}`, {
+      const res = await request(`/api/admin/content/${page}/${key}`, {
         method: 'PUT',
-        headers: { ...authHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ value }),
       });
+      if (!res || !res.ok) throw new Error();
       setSaved(s => ({ ...s, [key]: true }));
       setTimeout(() => setSaved(s => ({ ...s, [key]: false })), 2000);
-    } catch { /* silent */ } finally {
+    } catch {
+      toast.error('Erro ao salvar. Verifique a conexão.');
+    } finally {
       setSaving(s => ({ ...s, [key]: false }));
     }
   };
@@ -114,12 +116,15 @@ export default function AdminContentPage({ page }) {
     const fd = new FormData();
     fd.append('image', file);
     try {
-      const res  = await fetch('/api/upload', { method: 'POST', headers: authHeaders, body: fd });
+      const res  = await request('/api/upload', { method: 'POST', body: fd });
+      if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setContent(c => ({ ...c, [key]: data.url }));
       await saveField(key, data.url);
-    } catch { /* silent */ } finally {
+    } catch {
+      toast.error('Erro ao enviar imagem.');
+    } finally {
       setUploading(u => ({ ...u, [key]: false }));
     }
   };
