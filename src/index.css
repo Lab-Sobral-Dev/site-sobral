@@ -173,4 +173,52 @@
   }
 
   .layer-anim-none {}
+
+  /* ── Scroll Reveal ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+                transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 100ms; }
+  .reveal-delay-2 { transition-delay: 200ms; }
+
+  /* ── Page Fade ── */
+  @keyframes pageFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .page-fade {
+    animation: pageFadeIn 220ms ease both;
+  }
+
+  /* ── Ripple nos botões ── */
+  .btn-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-ripple::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    width: 120%;
+    padding-top: 120%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+  }
+  .btn-ripple:active::after {
+    animation: ripple-effect 500ms ease-out;
+  }
+  @keyframes ripple-effect {
+    from { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    to   { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+  }
 }
