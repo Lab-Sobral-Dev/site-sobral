@@ -18,7 +18,7 @@ export default function AdminDashboardPage() {
   const authHeaders = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    fetch('/api/categories').then(r => r.json()).then(setCategories).catch(() => {});
+    fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
   }, []);
 
   const fetchProducts = useCallback(() => {
@@ -42,13 +42,6 @@ export default function AdminDashboardPage() {
 
   const toggleAtivo = async (id) => {
     const res = await fetch(`/api/admin/products/${id}/ativo`, { method: 'PATCH', headers: authHeaders });
-    if (res.status === 401) { logout(); navigate('/admin/login'); return; }
-    fetchProducts();
-  };
-
-  const deleteProduct = async (id, name) => {
-    if (!window.confirm(`Deletar "${name}" permanentemente? Esta ação não pode ser desfeita.`)) return;
-    const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE', headers: authHeaders });
     if (res.status === 401) { logout(); navigate('/admin/login'); return; }
     fetchProducts();
   };
@@ -130,20 +123,12 @@ export default function AdminDashboardPage() {
                       </button>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => navigate(`/admin/produtos/${p.id}/editar`)}
-                          className="text-orange hover:underline font-[600]"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => deleteProduct(p.id, p.name)}
-                          className="text-red-400 hover:underline font-[600]"
-                        >
-                          Deletar
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => navigate(`/admin/produtos/${p.id}/editar`)}
+                        className="text-orange hover:underline font-[600]"
+                      >
+                        Editar
+                      </button>
                     </td>
                   </tr>
                 ))}
