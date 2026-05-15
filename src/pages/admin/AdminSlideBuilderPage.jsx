@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
+import { useAdminFetch } from '../../hooks/useAdminFetch';
 
 const CANVAS_W = 1920;
 const CANVAS_H = 600;
@@ -92,9 +93,9 @@ function ResizeHandles({ onPointerDown }) {
 }
 
 export default function AdminSlideBuilderPage() {
-  const { id }    = useParams();
-  const navigate  = useNavigate();
-  const { token } = useAuth();
+  const { id }   = useParams();
+  const navigate = useNavigate();
+  const { request } = useAdminFetch();
 
   const canvasRef = useRef(null);
   const dragRef   = useRef(null);
@@ -107,11 +108,9 @@ export default function AdminSlideBuilderPage() {
   const [reorderDrag, setReorderDrag] = useState(null); // { id, overId }
   const [previewKey,  setPreviewKey]  = useState(0);
 
-  const authHeaders = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
-
   useEffect(() => {
-    fetch('/api/admin/hero-slides', { headers: authHeaders })
-      .then(r => r.json())
+    request('/api/admin/hero-slides')
+      .then(r => r ? r.json() : Promise.reject())
       .then(slides => {
         const s = slides.find(sl => sl.id === parseInt(id));
         if (!s) { navigate('/admin/hero-slides'); return; }
@@ -119,7 +118,7 @@ export default function AdminSlideBuilderPage() {
         setLayers(Array.isArray(s.layers) ? s.layers : []);
       })
       .catch(() => navigate('/admin/hero-slides'));
-  }, [id, authHeaders, navigate]);
+  }, [id, request, navigate]);
 
   const updateLayer = useCallback((layerId, patch) => {
     setLayers(ls => ls.map(l => l.id === layerId ? { ...l, ...patch } : l));
@@ -204,15 +203,15 @@ export default function AdminSlideBuilderPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/hero-slides/${id}`, {
-        method:  'PUT',
-        headers: { ...authHeaders, 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ layers }),
+      const res = await request(`/api/admin/hero-slides/${id}`, {
+        method: 'PUT',
+        body:   JSON.stringify({ layers }),
       });
-      if (!res.ok) throw new Error('Falha ao salvar');
+      if (!res || !res.ok) throw new Error('Falha ao salvar');
+      toast.success('Slide salvo');
       navigate('/admin/hero-slides');
     } catch (err) {
-      alert(`Erro ao salvar: ${err.message}`);
+      toast.error(`Erro ao salvar: ${err.message}`);
     } finally {
       setSaving(false);
     }
