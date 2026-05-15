@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
+import { useAdminFetch } from '../../hooks/useAdminFetch';
 
 export default function AdminCategoriesPage() {
-  const { token } = useAuth();
+  const { request } = useAdminFetch();
 
   const [categories, setCategories] = useState([]);
   const [loading,    setLoading]    = useState(true);
@@ -12,16 +13,11 @@ export default function AdminCategoriesPage() {
   const [saving,     setSaving]     = useState(false);
   const [error,      setError]      = useState('');
 
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
-
   const fetchCategories = () => {
     setLoading(true);
     fetch('/api/categories')
       .then(r => r.json())
-      .then(setCategories)
+      .then(data => setCategories(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   };
@@ -33,13 +29,14 @@ export default function AdminCategoriesPage() {
     setError('');
     setSaving(true);
     try {
-      const res  = await fetch('/api/admin/categories', {
+      const res  = await request('/api/admin/categories', {
         method: 'POST',
-        headers: authHeaders,
         body: JSON.stringify({ id: newId.trim(), label: newLabel.trim(), ordem: Number(newOrdem) || 99 }),
       });
+      if (!res) { setSaving(false); return; }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erro ao criar.');
+      toast.success(`Categoria "${newLabel.trim()}" criada`);
       setNewId(''); setNewLabel(''); setNewOrdem('');
       fetchCategories();
     } catch (err) {
@@ -50,11 +47,13 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDelete = async (id, label) => {
-    if (!window.confirm(`Deletar categoria "${label}"? Só é possível se não houver produtos vinculados.`)) return;
+    if (!window.confirm(`Remover categoria "${label}"? Só é possível se não houver produtos vinculados.`)) return;
     try {
-      const res  = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE', headers: authHeaders });
+      const res  = await request(`/api/admin/categories/${id}`, { method: 'DELETE' });
+      if (!res) return;
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Erro ao deletar.');
+      if (!res.ok) throw new Error(data.error || 'Erro ao remover.');
+      toast.success(`Categoria "${label}" removida`);
       fetchCategories();
     } catch (err) {
       setError(err.message);
