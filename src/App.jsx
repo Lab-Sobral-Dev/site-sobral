@@ -16,6 +16,7 @@ import AdminCategoriesPage   from './pages/admin/AdminCategoriesPage';
 import AdminContentPage    from './pages/admin/AdminContentPage';
 import AdminHeroSlidesPage    from './pages/admin/AdminHeroSlidesPage';
 import AdminSlideBuilderPage from './pages/admin/AdminSlideBuilderPage';
+import MisturinhasPage from './pages/MisturinhasPage';
 
 const DEFAULTS = {
   theme: 'orange-classic',
@@ -121,6 +122,7 @@ const router = createBrowserRouter([
       { path: 'quem-somos',   element: <QuemSomosPage /> },
       { path: 'produtos',     element: <ProdutosPage /> },
       { path: 'produtos/:id', element: <ProdutoPage /> },
+      { path: 'misturinhas',  element: <MisturinhasPage /> },
       { path: 'fale-conosco', element: <FaleConoscoPage /> },
       { path: 'privacidade',   element: <PrivacidadePage /> },
     ],

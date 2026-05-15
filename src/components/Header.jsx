@@ -86,6 +86,7 @@ export default function Header() {
               { label: 'Suplementos', to: '/produtos?cat=suplementos' },
               { label: 'Tradicionais', to: '/produtos?cat=tradicionais' },
               { label: 'Cosméticos', to: '/produtos?cat=cosmeticos' },
+              { label: 'Dicas de Misturinhas ✨', to: '/misturinhas' },
             ]}
           />
           <NavDropdown
