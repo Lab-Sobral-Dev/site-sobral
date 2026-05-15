@@ -34,11 +34,12 @@ export function useAdminFetch() {
 
   const request = useCallback(async (url, options = {}) => {
     const { headers: extraHeaders, ...rest } = options;
+    const isFormData = rest.body instanceof FormData;
 
     const res = await fetch(url, {
       ...rest,
       headers: {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...extraHeaders,
         Authorization: `Bearer ${token}`,
       },
@@ -69,13 +70,12 @@ export function useAdminFetch() {
 
 ### Caso especial: upload de arquivo
 
-Quando o caller passar `Content-Type` explicitamente (ex: FormData), o header padrão é sobrescrito:
+Quando o `body` for uma instância de `FormData`, o hook **omite `Content-Type` automaticamente** — o browser define `multipart/form-data` com o boundary correto. O caller não precisa fazer nada especial:
 
 ```js
 const res = await request('/api/upload', {
   method: 'POST',
-  headers: {}, // sem Content-Type → browser define multipart/form-data automaticamente
-  body: formData,
+  body: formData, // hook detecta FormData e não seta Content-Type
 });
 ```
 
