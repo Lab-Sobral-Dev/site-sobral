@@ -70,16 +70,8 @@ export default function HeroCarousel() {
     return () => clearInterval(t);
   }, [slides.length, paused, next]);
 
-  if (!slides.length) {
-    return (
-      <section className="w-full bg-bg leading-[0]">
-        <img src="/images/hero-banner.png" alt="Laboratório Sobral" className="w-full h-auto block" />
-      </section>
-    );
-  }
-
-  const slide = slides[idx];
-  const layers = Array.isArray(slide.layers) ? slide.layers : [];
+  const slide = slides[idx] ?? null;
+  const layers = slide && Array.isArray(slide.layers) ? slide.layers : [];
 
   return (
     <section
@@ -88,12 +80,22 @@ export default function HeroCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div
-        key={`${idx}-${animKey}`}
-        className={`absolute inset-0 slide-enter-${transition}`}
-      >
-        {layers.map(layer => <Layer key={layer.id} layer={layer} />)}
-      </div>
+      {!slides.length && (
+        <img
+          src="/images/hero-banner.png"
+          alt="Laboratório Sobral"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+
+      {slides.length > 0 && (
+        <div
+          key={`${idx}-${animKey}`}
+          className={`absolute inset-0 slide-enter-${transition}`}
+        >
+          {layers.map(layer => <Layer key={layer.id} layer={layer} />)}
+        </div>
+      )}
 
       {slides.length > 1 && (
         <>
