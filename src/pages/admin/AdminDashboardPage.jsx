@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
+import { useAdminFetch } from '../../hooks/useAdminFetch';
 
 export default function AdminDashboardPage() {
-  const { token, logout } = useAuth();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
+  const { request } = useAdminFetch();
 
   const [products,   setProducts]   = useState([]);
   const [total,      setTotal]      = useState(0);
@@ -15,35 +16,40 @@ export default function AdminDashboardPage() {
   const [categories, setCategories] = useState([]);
   const [loading,    setLoading]    = useState(true);
 
-  const authHeaders = { Authorization: `Bearer ${token}` };
-
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
   }, []);
 
-  const fetchProducts = useCallback(() => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page, per_page: 20 });
     if (cat !== 'all') params.set('cat', cat);
     if (query.trim())  params.set('q',   query.trim());
-
-    fetch(`/api/admin/products?${params}`, { headers: authHeaders })
-      .then(r => r.json())
-      .then(json => {
-        setProducts(json.data || []);
-        setTotal(json.total || 0);
-        setTotalPages(json.totalPages || 1);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [page, query, cat, token]);
+    try {
+      const res = await request(`/api/admin/products?${params}`);
+      if (!res) return;
+      const json = await res.json();
+      setProducts(json.data || []);
+      setTotal(json.total || 0);
+      setTotalPages(json.totalPages || 1);
+    } catch {
+      // listagem silenciosa
+    } finally {
+      setLoading(false);
+    }
+  }, [page, query, cat, request]);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   const toggleAtivo = async (id) => {
-    const res = await fetch(`/api/admin/products/${id}/ativo`, { method: 'PATCH', headers: authHeaders });
-    if (res.status === 401) { logout(); navigate('/admin/login'); return; }
-    fetchProducts();
+    const res = await request(`/api/admin/products/${id}/ativo`, { method: 'PATCH' });
+    if (!res) return;
+    if (res.ok) {
+      toast.success('Status atualizado');
+      fetchProducts();
+    } else {
+      toast.error('Erro ao atualizar status');
+    }
   };
 
   return (
