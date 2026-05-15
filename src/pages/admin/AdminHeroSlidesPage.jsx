@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useAuth } from '../../context/AuthContext';
+import { useAdminFetch } from '../../hooks/useAdminFetch';
 
 function SortableSlide({ slide, onToggle, onDelete, onEdit }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: slide.id });
@@ -50,23 +51,27 @@ function SortableSlide({ slide, onToggle, onDelete, onEdit }) {
 }
 
 export default function AdminHeroSlidesPage() {
-  const { token } = useAuth();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
+  const { request } = useAdminFetch();
   const [slides,       setSlides]       = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [uploading,    setUploading]    = useState(false);
   const [psdUploading, setPsdUploading] = useState(false);
 
-  const authHeaders = { Authorization: `Bearer ${token}` };
-  const sensors     = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(useSensor(PointerSensor));
 
-  const fetchSlides = () => {
+  const fetchSlides = async () => {
     setLoading(true);
-    fetch('/api/admin/hero-slides', { headers: authHeaders })
-      .then(r => r.json())
-      .then(data => setSlides(Array.isArray(data) ? data : []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    try {
+      const res = await request('/api/admin/hero-slides');
+      if (!res) return;
+      const data = await res.json();
+      setSlides(Array.isArray(data) ? data : []);
+    } catch {
+      // listagem silenciosa
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchSlides(); }, []);
@@ -79,28 +84,38 @@ export default function AdminHeroSlidesPage() {
     const previous  = slides;
     setSlides(reordered);
     try {
-      const res = await fetch('/api/admin/hero-slides/reorder', {
+      const res = await request('/api/admin/hero-slides/reorder', {
         method: 'PUT',
-        headers: { ...authHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: reordered.map(s => s.id) }),
       });
-      if (!res.ok) throw new Error('Falha ao reordenar');
+      if (!res || !res.ok) throw new Error();
     } catch {
       setSlides(previous);
+      toast.error('Erro ao reordenar. Tente novamente.');
     }
   };
 
   const handleToggle = async (id) => {
-    const res = await fetch(`/api/admin/hero-slides/${id}/ativo`, { method: 'PATCH', headers: authHeaders });
-    if (!res.ok) { alert('Erro ao alterar status.'); return; }
-    fetchSlides();
+    const res = await request(`/api/admin/hero-slides/${id}/ativo`, { method: 'PATCH' });
+    if (!res) return;
+    if (res.ok) {
+      toast.success('Status do slide atualizado');
+      fetchSlides();
+    } else {
+      toast.error('Erro ao alterar status.');
+    }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm(`Excluir slide #${id}?`)) return;
-    const res = await fetch(`/api/admin/hero-slides/${id}`, { method: 'DELETE', headers: authHeaders });
-    if (!res.ok) { alert('Erro ao excluir slide.'); return; }
-    fetchSlides();
+    const res = await request(`/api/admin/hero-slides/${id}`, { method: 'DELETE' });
+    if (!res) return;
+    if (res.ok) {
+      toast.success('Slide removido');
+      fetchSlides();
+    } else {
+      toast.error('Erro ao excluir slide.');
+    }
   };
 
   const handleUpload = async (file) => {
@@ -108,7 +123,8 @@ export default function AdminHeroSlidesPage() {
     const fd = new FormData();
     fd.append('image', file);
     try {
-      const res  = await fetch('/api/upload', { method: 'POST', headers: authHeaders, body: fd });
+      const res  = await request('/api/upload', { method: 'POST', body: fd });
+      if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       const layers = [{
@@ -120,15 +136,15 @@ export default function AdminHeroSlidesPage() {
         visible: true,
         animation: null,
       }];
-      const create = await fetch('/api/admin/hero-slides', {
+      const create = await request('/api/admin/hero-slides', {
         method: 'POST',
-        headers: { ...authHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_url: data.url, ordem: slides.length + 1, layers }),
       });
-      if (!create.ok) throw new Error('Falha ao criar slide.');
+      if (!create || !create.ok) throw new Error('Falha ao criar slide.');
+      toast.success('Slide criado');
       fetchSlides();
     } catch (err) {
-      alert(`Erro ao enviar imagem: ${err.message}`);
+      toast.error(`Erro ao enviar imagem: ${err.message}`);
     } finally {
       setUploading(false);
     }
@@ -139,22 +155,21 @@ export default function AdminHeroSlidesPage() {
     const fd = new FormData();
     fd.append('psd', file);
     try {
-      const res  = await fetch('/api/admin/psd-import', { method: 'POST', headers: authHeaders, body: fd });
-      if (res.status === 401) { navigate('/admin/login'); return; }
+      const res  = await request('/api/admin/psd-import', { method: 'POST', body: fd });
+      if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       const layers = data.layers || [];
       const bg = layers.find(l => l.name === 'fundo' && l.type === 'image');
-      const create = await fetch('/api/admin/hero-slides', {
+      const create = await request('/api/admin/hero-slides', {
         method: 'POST',
-        headers: { ...authHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_url: bg?.url || '', ordem: slides.length + 1, layers }),
       });
-      if (!create.ok) throw new Error('Falha ao criar slide.');
+      if (!create || !create.ok) throw new Error('Falha ao criar slide.');
       const slide = await create.json();
       navigate(`/admin/hero-slides/${slide.id}/editar`);
     } catch (err) {
-      alert(`Erro ao processar PSD: ${err.message}`);
+      toast.error(`Erro ao processar PSD: ${err.message}`);
     } finally {
       setPsdUploading(false);
     }
