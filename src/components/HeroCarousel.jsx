@@ -80,15 +80,15 @@ export default function HeroCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {!slides.length && (
-        <img
-          src="/images/hero-banner.png"
-          alt="Laboratório Sobral"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
+      {/* camada base: inline styles garantem position:absolute antes do CSS carregar,
+          evitando que a img ocupe fluxo e cause reflow ao ser removida */}
+      <img
+        src="/images/hero-banner.png"
+        alt="Laboratório Sobral"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+      />
 
-      {slides.length > 0 && (
+      {slide && (
         <div
           key={`${idx}-${animKey}`}
           className={`absolute inset-0 slide-enter-${transition}`}
