@@ -1,6 +1,10 @@
 import { useState } from 'react';
+import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import Breadcrumb from '../components/Breadcrumb';
 import { usePageContent } from '../hooks/usePageContent';
+
+const safe = (html) => parse(DOMPurify.sanitize(html));
 
 const CONTATO_DEFAULTS = {
   unidade_fabril:       '<p><strong>Rua Bento Leão, 25, Centro</strong><br>Floriano | PI | CEP 64800-062.<br>Telefone: (89) 2101-2202</p>',
@@ -17,6 +21,7 @@ const EMPTY_FORM = { nome: '', sobrenome: '', email: '', celular: '', endereco: 
 export default function FaleConoscoPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState({});
 
   const content = usePageContent('contato', CONTATO_DEFAULTS);
@@ -26,15 +31,33 @@ export default function FaleConoscoPage() {
     if (errors[field]) setErrors(er => ({ ...er, [field]: null }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const required = ['nome', 'sobrenome', 'email', 'celular', 'assunto', 'mensagem'];
     const newErrors = {};
     required.forEach(f => { if (!form[f].trim()) newErrors[f] = true; });
     if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) newErrors.email = true;
     if (Object.keys(newErrors).length) { setErrors(newErrors); return; }
-    setSent(true);
-    setTimeout(() => { setForm(EMPTY_FORM); setSent(false); }, 3000);
+
+    setSending(true);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setErrors({ submit: data.error || 'Erro ao enviar. Tente novamente.' });
+        return;
+      }
+      setSent(true);
+      setForm(EMPTY_FORM);
+    } catch {
+      setErrors({ submit: 'Erro de conexão. Verifique sua internet e tente novamente.' });
+    } finally {
+      setSending(false);
+    }
   };
 
   const inputClass = (field) =>
@@ -46,7 +69,7 @@ export default function FaleConoscoPage() {
 
   return (
     <>
-      <Breadcrumb trail={[{ label: '🏠 Home', to: '/' }, { label: 'Fale Conosco' }]} />
+      <Breadcrumb trail={[{ label: 'Home', to: '/' }, { label: 'Fale Conosco' }]} />
 
       <section className="max-w-content mx-auto px-10 mt-10 pb-16">
         <div className="grid grid-cols-[1.4fr_1fr] gap-12 mb-12">
@@ -54,11 +77,11 @@ export default function FaleConoscoPage() {
             <h2 className="text-[22px] font-[800] text-orange mb-[18px]">LABORATÓRIO SOBRAL</h2>
             <div className="mb-[22px] text-[14.5px] leading-[1.6]">
               <div className="font-[800] mb-1">Unidade Fabril</div>
-              <div dangerouslySetInnerHTML={{ __html: content.unidade_fabril }} />
+              <div>{safe(content.unidade_fabril)}</div>
             </div>
             <div className="text-[14.5px] leading-[1.6]">
               <div className="font-[800] mb-1">Escritório Comercial</div>
-              <div dangerouslySetInnerHTML={{ __html: content.escritorio_comercial }} />
+              <div>{safe(content.escritorio_comercial)}</div>
             </div>
           </div>
 
@@ -81,6 +104,12 @@ export default function FaleConoscoPage() {
         {sent && (
           <div className="py-[14px] px-5 mb-[18px] bg-[#E8F5E8] text-[#2D6A2D] rounded font-bold text-[14px]">
             ✓ Mensagem enviada com sucesso! Retornaremos em breve.
+          </div>
+        )}
+
+        {errors.submit && (
+          <div className="py-[14px] px-5 mb-[18px] bg-red-50 text-red-600 rounded font-bold text-[14px]">
+            {errors.submit}
           </div>
         )}
 
@@ -112,9 +141,10 @@ export default function FaleConoscoPage() {
           <div className="col-span-2 flex justify-end mt-1">
             <button
               type="submit"
-              className="inline-flex items-center justify-center px-9 py-3 rounded-full border-none font-bold text-[14px] tracking-[.3px] text-white bg-gradient-to-b from-[#F89B4D] to-[#E85A0C] shadow-[0_2px_8px_rgba(232,90,12,.3)] transition-all hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(232,90,12,.42)]"
+              disabled={sending}
+              className="inline-flex items-center justify-center px-9 py-3 rounded-full border-none font-bold text-[14px] tracking-[.3px] text-white bg-gradient-to-b from-[#F89B4D] to-[#E85A0C] shadow-[0_2px_8px_rgba(232,90,12,.3)] transition-all hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(232,90,12,.42)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-              ENVIAR
+              {sending ? 'Enviando...' : 'ENVIAR'}
             </button>
           </div>
         </form>

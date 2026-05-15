@@ -1,4 +1,8 @@
+import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import { usePageContent } from '../hooks/usePageContent';
+
+const safe = (html) => parse(DOMPurify.sanitize(html));
 
 const SOBRE_DEFAULTS = {
   missao:             '<p>Contribuir com a saúde e a qualidade de vida das famílias brasileiras.</p>',
@@ -27,26 +31,23 @@ export default function QuemSomosPage() {
         <div className="bg-gradient-to-br from-[#F89B4D] via-orange to-[#E0580A] rounded-lg p-[32px_28px] text-white grid grid-cols-[1fr_1px_1fr_1px_1fr] gap-6 shadow-[0_4px_18px_rgba(232,90,12,.22)]">
           <div className="text-center px-2.5">
             <h3 className="text-white text-[22px] font-[800] mb-2 tracking-[.3px]">Missão</h3>
-            <div
-              className="text-[14.5px] leading-[1.55] m-0 font-semibold opacity-[.96]"
-              dangerouslySetInnerHTML={{ __html: content.missao }}
-            />
+            <div className="text-[14.5px] leading-[1.55] m-0 font-semibold opacity-[.96]">
+              {safe(content.missao)}
+            </div>
           </div>
           <div className="bg-white/40 w-px" />
           <div className="text-center px-2.5">
             <h3 className="text-white text-[22px] font-[800] mb-2 tracking-[.3px]">Visão</h3>
-            <div
-              className="text-[14.5px] leading-[1.55] m-0 font-semibold opacity-[.96]"
-              dangerouslySetInnerHTML={{ __html: content.visao }}
-            />
+            <div className="text-[14.5px] leading-[1.55] m-0 font-semibold opacity-[.96]">
+              {safe(content.visao)}
+            </div>
           </div>
           <div className="bg-white/40 w-px" />
           <div className="text-center px-2.5">
             <h3 className="text-white text-[22px] font-[800] mb-2 tracking-[.3px]">Valores</h3>
-            <div
-              className="text-[14.5px] leading-[1.55] m-0 font-semibold opacity-[.96]"
-              dangerouslySetInnerHTML={{ __html: content.valores }}
-            />
+            <div className="text-[14.5px] leading-[1.55] m-0 font-semibold opacity-[.96]">
+              {safe(content.valores)}
+            </div>
           </div>
         </div>
       </section>
@@ -61,23 +62,19 @@ export default function QuemSomosPage() {
               </h2>
               <div className="h-[2px] bg-gradient-to-r from-orange to-transparent mt-2.5" />
             </div>
-            <div
-              className="text-[15px] leading-[1.7] text-ink-light mb-9"
-              dangerouslySetInnerHTML={{ __html: content.historia_texto_1 }}
-            />
+            <div className="text-[15px] leading-[1.7] text-ink-light mb-9">
+              {safe(content.historia_texto_1)}
+            </div>
             <h2 className="text-[30px] font-[800] mb-[18px]">{content.historia_subtitulo_2}</h2>
-            <div
-              className="text-[15px] leading-[1.7] text-ink-light mb-[18px]"
-              dangerouslySetInnerHTML={{ __html: content.historia_texto_2 }}
-            />
-            <div
-              className="text-[15px] leading-[1.7] text-ink-light mb-[18px]"
-              dangerouslySetInnerHTML={{ __html: content.historia_texto_3 }}
-            />
-            <div
-              className="text-[15px] leading-[1.7] text-ink-light"
-              dangerouslySetInnerHTML={{ __html: content.historia_texto_4 }}
-            />
+            <div className="text-[15px] leading-[1.7] text-ink-light mb-[18px]">
+              {safe(content.historia_texto_2)}
+            </div>
+            <div className="text-[15px] leading-[1.7] text-ink-light mb-[18px]">
+              {safe(content.historia_texto_3)}
+            </div>
+            <div className="text-[15px] leading-[1.7] text-ink-light">
+              {safe(content.historia_texto_4)}
+            </div>
           </div>
 
           <div className="flex flex-col gap-6 pt-[60px]">

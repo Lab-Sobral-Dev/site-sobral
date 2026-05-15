@@ -25,11 +25,12 @@ export default function ProdutosPage() {
   const [total,      setTotal]      = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading,    setLoading]    = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     fetch('/api/categories')
       .then(r => r.json())
-      .then(setCategories)
+      .then(data => setCategories(Array.isArray(data) ? data : []))
       .catch(() => {});
   }, []);
 
@@ -42,11 +43,12 @@ export default function ProdutosPage() {
     fetch(`/api/products?${params}`)
       .then(r => r.json())
       .then(json => {
+        setFetchError(false);
         setProducts(json.data || []);
         setTotal(json.total || 0);
         setTotalPages(json.totalPages || 1);
       })
-      .catch(() => {})
+      .catch(() => setFetchError(true))
       .finally(() => setLoading(false));
   }, [cat, query, page]);
 
@@ -120,10 +122,12 @@ export default function ProdutosPage() {
 
         {loading ? (
           <div className="py-[60px] text-center text-muted text-[15px]">Carregando produtos...</div>
+        ) : fetchError ? (
+          <div className="py-[60px] text-center text-muted text-[15px]">Erro ao carregar produtos. Tente novamente.</div>
         ) : products.length === 0 ? (
           <div className="py-[60px] text-center text-muted text-[15px]">Nenhum produto encontrado com estes filtros.</div>
         ) : (
-          <div className="grid grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {products.map(p => (
               <ProductCard key={p.id} product={p} onClick={() => navigate(`/produtos/${p.id}`)} />
             ))}

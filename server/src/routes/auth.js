@@ -1,17 +1,28 @@
 const { Router } = require('express');
-const jwt = require('jsonwebtoken');
+const jwt        = require('jsonwebtoken');
+const bcrypt     = require('bcryptjs');
+const rateLimit  = require('express-rate-limit');
 const requireAuth = require('../middleware/requireAuth');
 const validate    = require('../middleware/validate');
 
 const router = Router();
 
-router.post('/login', validate(['email', 'password']), (req, res) => {
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
+});
+
+router.post('/login', loginLimiter, validate(['email', 'password']), async (req, res) => {
   const { email, password } = req.body;
 
-  if (
-    email    !== process.env.ADMIN_EMAIL ||
-    password !== process.env.ADMIN_PASSWORD
-  ) {
+  const emailOk    = email === process.env.ADMIN_EMAIL;
+  const passwordOk = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH || '');
+
+  if (!emailOk || !passwordOk) {
     return res.status(401).json({ error: 'Credenciais inválidas.' });
   }
 

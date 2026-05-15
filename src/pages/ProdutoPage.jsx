@@ -14,6 +14,8 @@ export default function ProdutoPage() {
   useEffect(() => {
     setLoading(true);
     setNotFound(false);
+    setVariant(0);
+    setOpenAccordion('caracteristicas');
     fetch(`/api/products/${id}`)
       .then(r => {
         if (r.status === 404) { setNotFound(true); return null; }
@@ -51,7 +53,7 @@ export default function ProdutoPage() {
   return (
     <>
       <Breadcrumb trail={[
-        { label: '🏠 Home', to: '/' },
+        { label: 'Home', to: '/' },
         { label: 'Produtos', to: '/produtos' },
         { label: p.name },
       ]} />

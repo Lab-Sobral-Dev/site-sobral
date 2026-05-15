@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import { CATALOG } from '../data/catalog';
 import ProductCard from '../components/ProductCard';
 import HeroCarousel from '../components/HeroCarousel';
@@ -85,10 +87,9 @@ export default function HomePage() {
               </h2>
               <div className="h-[2px] bg-gradient-to-r from-orange to-transparent mt-2.5" />
             </div>
-            <div
-              className="text-[15.5px] leading-[1.7] text-ink-light mb-7"
-              dangerouslySetInnerHTML={{ __html: content.historia_texto_1 }}
-            />
+            <div className="text-[15.5px] leading-[1.7] text-ink-light mb-7">
+              {parse(DOMPurify.sanitize(content.historia_texto_1))}
+            </div>
             <button
               className="inline-flex items-center justify-center px-6 py-2.5 rounded-full border-none font-bold text-[14px] tracking-[.3px] text-white bg-gradient-to-b from-[#F89B4D] to-[#E85A0C] shadow-[0_2px_8px_rgba(232,90,12,.3)] transition-all hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(232,90,12,.42)]"
               onClick={() => navigate('/quem-somos')}
