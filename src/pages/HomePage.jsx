@@ -6,6 +6,7 @@ import { CATALOG } from '../data/catalog';
 import ProductCard from '../components/ProductCard';
 import HeroCarousel from '../components/HeroCarousel';
 import { usePageContent } from '../hooks/usePageContent';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const FEATURED_IDS = ['aqualema','calciolax-articule','saludoz','propolis-verde','movimex','calciolax-kids','rosa-mosqueta-spray','propzinco'];
 
@@ -31,12 +32,16 @@ export default function HomePage() {
   const featured = CATALOG.filter(p => FEATURED_IDS.includes(p.id));
   const visible  = featured.slice(carouselIdx, carouselIdx + 4);
 
+  const refLinhas   = useScrollReveal();
+  const refVendidos = useScrollReveal();
+  const refHistoria = useScrollReveal();
+
   return (
     <>
       <HeroCarousel />
 
       {/* NOSSAS LINHAS */}
-      <section className="max-w-content mx-auto px-10 mt-[60px]">
+      <section ref={refLinhas} className="reveal max-w-content mx-auto px-10 mt-[60px]">
         <h2 className="text-[28px] font-[800] text-center mt-10 mb-7">Nossas Linhas</h2>
         <div className="grid grid-cols-4 gap-5 max-w-[960px] mx-auto">
           {BRAND_KEYS.map((key, i) => (
@@ -55,7 +60,7 @@ export default function HomePage() {
       </section>
 
       {/* MAIS VENDIDOS */}
-      <section className="max-w-content mx-auto px-10 mt-[70px]">
+      <section ref={refVendidos} className="reveal max-w-content mx-auto px-10 mt-[70px]">
         <h2 className="text-[28px] font-[800] text-center mt-10 mb-7">Produtos mais vendidos</h2>
         <div className="relative">
           <button
@@ -77,7 +82,7 @@ export default function HomePage() {
       </section>
 
       {/* HISTÓRIA */}
-      <section className="max-w-content mx-auto px-10 mt-[80px]">
+      <section ref={refHistoria} className="reveal max-w-content mx-auto px-10 mt-[80px]">
         <div className="grid grid-cols-[1.1fr_1fr] gap-12 items-center">
           <div>
             <div className="mt-12 mb-6">
