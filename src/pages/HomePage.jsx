@@ -14,9 +14,14 @@ const BRAND_LABELS = ['Linha Tradicionais', 'Família Calciolax', 'Movimex', 'Ó
 const BRAND_KEYS   = ['marca_tradicionais_imagem', 'marca_calciolax_imagem', 'marca_movimex_imagem', 'marca_oleos_imagem'];
 
 const HOME_DEFAULTS = {
-  historia_titulo:    'Conheça a história do',
-  historia_subtitulo: 'Laboratório Sobral',
-  historia_texto_1:   '<p>Há mais de 100 anos, o Laboratório Sobral faz parte da vida dos brasileiros. Estamos nas casas das famílias levando mais saúde e proporcionando leveza e bem-estar ao dia a dia. Mais que uma indústria, somos um símbolo da luta do povo brasileiro. Essa é nossa essência e isso nunca vai mudar.</p>',
+  linhas_eyebrow:       'FAMÍLIAS DE PRODUTOS',
+  linhas_titulo:        'Nossas Linhas',
+  vendidos_eyebrow:     'OS PREFERIDOS',
+  vendidos_titulo:      'Produtos mais vendidos',
+  historia_eyebrow:     'DESDE 1911',
+  historia_titulo:      'Conheça a história do',
+  historia_subtitulo:   'Laboratório Sobral',
+  historia_texto_1:     '<p>Há mais de 100 anos, o Laboratório Sobral faz parte da vida dos brasileiros. Estamos nas casas das famílias levando mais saúde e proporcionando leveza e bem-estar ao dia a dia. Mais que uma indústria, somos um símbolo da luta do povo brasileiro. Essa é nossa essência e isso nunca vai mudar.</p>',
   historia_imagem:             '/images/fachada.png',
   marca_tradicionais_imagem:   '/images/brand-tradicionais.png',
   marca_calciolax_imagem:      '/images/brand-calciolax.png',
@@ -42,7 +47,10 @@ export default function HomePage() {
 
       {/* NOSSAS LINHAS */}
       <section ref={refLinhas} className="reveal max-w-content mx-auto px-10 mt-[60px]">
-        <h2 className="text-[28px] font-[800] text-center mt-10 mb-7">Nossas Linhas</h2>
+        <div className="text-center mt-10 mb-7">
+          <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">{content.linhas_eyebrow}</div>
+          <h2 className="font-display text-[36px] font-[900] tracking-[-.5px] leading-none">{content.linhas_titulo}</h2>
+        </div>
         <div className="grid grid-cols-4 gap-5 max-w-[960px] mx-auto">
           {BRAND_KEYS.map((key, i) => (
             <div
@@ -61,7 +69,10 @@ export default function HomePage() {
 
       {/* MAIS VENDIDOS */}
       <section ref={refVendidos} className="reveal max-w-content mx-auto px-10 mt-[70px]">
-        <h2 className="text-[28px] font-[800] text-center mt-10 mb-7">Produtos mais vendidos</h2>
+        <div className="text-center mt-10 mb-7">
+          <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">{content.vendidos_eyebrow}</div>
+          <h2 className="font-display text-[36px] font-[900] tracking-[-.5px] leading-none">{content.vendidos_titulo}</h2>
+        </div>
         <div className="relative">
           <button
             className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border-none bg-white shadow text-orange flex items-center justify-center text-[22px] z-[5] transition-all hover:bg-orange hover:text-white disabled:opacity-30"
@@ -86,11 +97,12 @@ export default function HomePage() {
         <div className="grid grid-cols-[1.1fr_1fr] gap-12 items-center">
           <div>
             <div className="mt-12 mb-6">
-              <h2 className="text-[36px] font-[800] leading-[1.15] mb-2.5">
+              <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-[14px]">{content.historia_eyebrow}</div>
+              <h2 className="font-display text-[42px] font-[900] leading-[1.05] mb-2.5 tracking-[-.5px] text-balance">
                 {content.historia_titulo}
-                <span className="text-orange block">{content.historia_subtitulo}</span>
+                <span className="text-orange block italic">{content.historia_subtitulo}</span>
               </h2>
-              <div className="h-[2px] bg-gradient-to-r from-orange to-transparent mt-2.5" />
+              <div className="h-[2px] w-20 bg-gradient-to-r from-orange to-transparent mt-3.5" />
             </div>
             <div className="text-[15.5px] leading-[1.7] text-ink-light mb-7">
               {parse(DOMPurify.sanitize(content.historia_texto_1))}

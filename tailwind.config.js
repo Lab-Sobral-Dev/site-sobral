@@ -24,7 +24,8 @@ export default {
         DEFAULT: '0 4px 14px rgba(0,0,0,.06)',
       },
       fontFamily: {
-        sans: ['Nunito', 'Segoe UI', 'system-ui', 'sans-serif'],
+        sans:    ['Nunito', 'Segoe UI', 'system-ui', 'sans-serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
       },
       maxWidth: {
         content: '1180px',
