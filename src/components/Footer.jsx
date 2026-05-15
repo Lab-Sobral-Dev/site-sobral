@@ -39,7 +39,7 @@ export default function Footer() {
               ['/quem-somos', 'Quem Somos'],
               ['/produtos', 'Produtos'],
               ['/fale-conosco', 'Fale Conosco'],
-              ['/fale-conosco', 'Trabalhe Conosco'],
+              ['/fale-conosco', 'Trabalhe Conosco'], /* TODO: link para página/formulário dedicado */
               ['/privacidade', 'Política de Privacidade'],
             ].map(([to, label]) => (
               <li key={label} className="text-[14px] font-semibold opacity-95">
@@ -55,7 +55,7 @@ export default function Footer() {
           <ul className="list-none p-0 m-0 space-y-1.5">
             {['Instagram', 'Facebook', 'YouTube', 'LinkedIn', 'TikTok'].map(s => (
               <li key={s} className="text-[14px] font-semibold opacity-95">
-                <a href="#" className="hover:underline">{s}</a>
+                <a href="#" onClick={(e) => e.preventDefault()} className="hover:underline">{s}</a>
               </li>
             ))}
           </ul>
