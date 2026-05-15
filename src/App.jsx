@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -98,11 +98,14 @@ function Tweaks() {
 }
 
 function Layout() {
+  const location = useLocation();
   return (
     <>
       <ScrollRestoration />
       <Header />
-      <main><Outlet /></main>
+      <main key={location.pathname} className="page-fade">
+        <Outlet />
+      </main>
       <Footer />
       <Tweaks />
     </>
