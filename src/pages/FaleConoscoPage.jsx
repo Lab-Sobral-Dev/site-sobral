@@ -142,7 +142,7 @@ export default function FaleConoscoPage() {
             <button
               type="submit"
               disabled={sending}
-              className="inline-flex items-center justify-center px-9 py-3 rounded-full border-none font-bold text-[14px] tracking-[.3px] text-white bg-gradient-to-b from-[#F89B4D] to-[#E85A0C] shadow-[0_2px_8px_rgba(232,90,12,.3)] transition-all hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(232,90,12,.42)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              className="btn-ripple inline-flex items-center justify-center px-9 py-3 rounded-full border-none font-bold text-[14px] tracking-[.3px] text-white bg-gradient-to-b from-[#F89B4D] to-[#E85A0C] shadow-[0_2px_8px_rgba(232,90,12,.3)] transition-all hover:-translate-y-px hover:shadow-[0_4px_14px_rgba(232,90,12,.42)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
               {sending ? 'Enviando...' : 'ENVIAR'}
             </button>
