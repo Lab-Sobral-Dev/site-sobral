@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLayout() {
@@ -52,6 +53,7 @@ export default function AdminLayout() {
       <main className="flex-1 overflow-auto">
         <Outlet />
       </main>
+      <Toaster position="bottom-right" richColors duration={3000} />
     </div>
   );
 }
