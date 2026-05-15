@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
+import { useAdminFetch } from '../../hooks/useAdminFetch';
 
 const EMPTY_FORM = {
   id: '', name: '', tag: '', category_id: '', brand: '', image: '',
@@ -10,10 +11,10 @@ const EMPTY_FORM = {
 };
 
 export default function AdminProductFormPage() {
-  const { id }      = useParams();
-  const isEdit      = !!id;
-  const { token }   = useAuth();
-  const navigate    = useNavigate();
+  const { id }  = useParams();
+  const isEdit  = !!id;
+  const navigate = useNavigate();
+  const { request } = useAdminFetch();
 
   const [form,       setForm]       = useState(EMPTY_FORM);
   const [categories, setCategories] = useState([]);
@@ -23,16 +24,14 @@ export default function AdminProductFormPage() {
   const [imageFile,  setImageFile]  = useState(null);
   const [uploading,  setUploading]  = useState(false);
 
-  const authHeaders = { Authorization: `Bearer ${token}` };
-
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(setCategories).catch(() => {});
   }, []);
 
   useEffect(() => {
     if (!isEdit) return;
-    fetch(`/api/admin/products/${id}`, { headers: authHeaders })
-      .then(r => r.json())
+    request(`/api/admin/products/${id}`)
+      .then(r => r ? r.json() : Promise.reject())
       .then(p => {
         setForm({
           id:              p.id,
@@ -67,7 +66,8 @@ export default function AdminProductFormPage() {
     const fd = new FormData();
     fd.append('image', imageFile);
     try {
-      const res  = await fetch('/api/upload', { method: 'POST', headers: authHeaders, body: fd });
+      const res  = await request('/api/upload', { method: 'POST', body: fd });
+      if (!res) return null;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erro no upload.');
       return data.url;
@@ -116,13 +116,11 @@ export default function AdminProductFormPage() {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res  = await fetch(url, {
-        method,
-        headers: { ...authHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const res  = await request(url, { method, body: JSON.stringify(body) });
+      if (!res) { setSaving(false); return; }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erro ao salvar.');
+      toast.success(isEdit ? 'Produto atualizado' : 'Produto criado');
       navigate('/admin');
     } catch (err) {
       setError(err.message);
