@@ -83,14 +83,14 @@ export default function HeroCarousel() {
 
   return (
     <section
-      className="w-full bg-bg leading-[0] relative overflow-hidden"
+      className="w-full bg-bg relative overflow-hidden"
+      style={{ aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
       <div
         key={`${idx}-${animKey}`}
-        className={`relative slide-enter-${transition}`}
-        style={{ aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
+        className={`absolute inset-0 slide-enter-${transition}`}
       >
         {layers.map(layer => <Layer key={layer.id} layer={layer} />)}
       </div>
