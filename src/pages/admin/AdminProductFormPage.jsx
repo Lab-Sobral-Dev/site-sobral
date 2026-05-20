@@ -156,7 +156,7 @@ export default function AdminProductFormPage() {
   );
 
   return (
-    <div className="p-8 max-w-[860px]">
+    <div className="p-4 md:p-8 max-w-[860px]">
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate('/admin')} className="text-orange text-[13px] font-[600] hover:underline">
           ← Produtos
@@ -173,12 +173,12 @@ export default function AdminProductFormPage() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {field('ID (slug)', 'id', 'text', { disabled: isEdit, placeholder: 'ex: calciolax-articule' })}
           {field('Nome *', 'name', 'text', { placeholder: 'Nome do produto' })}
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {field('Tag / subtítulo', 'tag', 'text', { placeholder: 'ex: Cálcio + Vitamina D 240ml' })}
           {field('Marca', 'brand', 'text', { placeholder: 'ex: Calciolax' })}
         </div>
@@ -200,7 +200,7 @@ export default function AdminProductFormPage() {
 
         <div>
           <label className="block text-[13px] font-[600] text-ink-light mb-1">Imagem</label>
-          <div className="flex gap-3 items-start">
+          <div className="flex flex-col md:flex-row gap-3 md:items-start">
             <input
               type="text"
               value={form.image}
@@ -251,18 +251,18 @@ export default function AdminProductFormPage() {
           </div>
         )}
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col md:flex-row gap-3 pt-2">
           <button
             type="submit"
             disabled={saving || uploading}
-            className="bg-orange hover:bg-[#E0580A] text-white font-[700] px-6 py-2.5 rounded-[8px] text-[14px] transition-colors disabled:opacity-60"
+            className="w-full md:w-auto bg-orange hover:bg-[#E0580A] text-white font-[700] px-6 py-2.5 rounded-[8px] text-[14px] transition-colors disabled:opacity-60"
           >
             {saving || uploading ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar produto'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/admin')}
-            className="border border-line text-ink-light font-[600] px-6 py-2.5 rounded-[8px] text-[14px] hover:border-orange hover:text-orange transition-colors"
+            className="w-full md:w-auto border border-line text-ink-light font-[600] px-6 py-2.5 rounded-[8px] text-[14px] hover:border-orange hover:text-orange transition-colors"
           >
             Cancelar
           </button>
