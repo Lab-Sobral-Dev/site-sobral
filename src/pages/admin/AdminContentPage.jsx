@@ -141,7 +141,7 @@ export default function AdminContentPage({ page }) {
   if (!config) return <div className="p-8 text-muted">Página não configurada.</div>;
 
   return (
-    <div className="p-8 max-w-[720px]">
+    <div className="p-4 md:p-8 max-w-[720px]">
       <h1 className="text-[24px] font-[800] text-ink mb-1">{config.title}</h1>
       <p className="text-[13px] text-muted mb-6">Alterações publicadas imediatamente no site.</p>
 
@@ -189,7 +189,7 @@ export default function AdminContentPage({ page }) {
                 )}
 
                 {field.type === 'image' && (
-                  <div className="flex gap-3 items-start">
+                  <div className="flex flex-col md:flex-row gap-3 md:items-start">
                     <div className="flex-1">
                       <input
                         type="text"
