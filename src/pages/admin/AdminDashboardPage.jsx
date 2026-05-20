@@ -53,32 +53,32 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
         <div>
-          <h1 className="text-[24px] font-[800] text-ink">Produtos</h1>
+          <h1 className="text-[22px] md:text-[24px] font-[800] text-ink">Produtos</h1>
           <p className="text-[13px] text-muted">{total} produtos no catálogo</p>
         </div>
         <button
           onClick={() => navigate('/admin/produtos/novo')}
-          className="bg-orange hover:bg-[#E0580A] text-white font-[700] px-5 py-2.5 rounded-[8px] text-[14px] transition-colors"
+          className="w-full md:w-auto bg-orange hover:bg-[#E0580A] text-white font-[700] px-5 py-2.5 rounded-[8px] text-[14px] transition-colors"
         >
           + Novo produto
         </button>
       </div>
 
-      <div className="flex gap-3 mb-5 flex-wrap">
+      <div className="flex flex-col md:flex-row gap-3 mb-5">
         <input
           type="text"
           placeholder="Buscar..."
           value={query}
           onChange={e => { setQuery(e.target.value); setPage(1); }}
-          className="border border-line rounded-[8px] px-4 py-2 text-[13px] w-[220px] outline-none focus:border-orange"
+          className="border border-line rounded-[8px] px-4 py-2 text-[13px] w-full md:w-[220px] outline-none focus:border-orange"
         />
         <select
           value={cat}
           onChange={e => { setCat(e.target.value); setPage(1); }}
-          className="border border-line rounded-[8px] px-3 py-2 text-[13px] outline-none focus:border-orange bg-white"
+          className="border border-line rounded-[8px] px-3 py-2 text-[13px] outline-none focus:border-orange bg-white w-full md:w-auto"
         >
           <option value="all">Todas as categorias</option>
           {categories.filter(c => c.id !== 'all').map(c => (
@@ -91,7 +91,8 @@ export default function AdminDashboardPage() {
         <div className="py-16 text-center text-muted text-[14px]">Carregando...</div>
       ) : (
         <>
-          <div className="bg-white rounded-[10px] border border-line overflow-hidden">
+          {/* Desktop: tabela */}
+          <div className="hidden md:block bg-white rounded-[10px] border border-line overflow-hidden">
             <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-line bg-[#FAFAFA] text-left">
@@ -142,8 +143,45 @@ export default function AdminDashboardPage() {
             </table>
           </div>
 
+          {/* Mobile: cards */}
+          <div className="md:hidden flex flex-col gap-3">
+            {products.map(p => (
+              <div key={p.id} className="bg-white rounded-[10px] border border-line p-4">
+                <div className="flex gap-3 mb-3">
+                  {p.image && (
+                    <img src={p.image} alt="" className="w-14 h-14 object-contain rounded border border-line flex-shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-[700] text-ink truncate">{p.name}</p>
+                    <p className="text-muted text-[12px] truncate">{p.tag}</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 text-[12px] text-ink-light mb-3 flex-wrap">
+                  <span><b className="text-ink">Cat:</b> {p.category_id}</span>
+                  <span><b className="text-ink">Marca:</b> {p.brand}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={() => toggleAtivo(p.id)}
+                    className={`px-3 py-1 rounded-full text-[12px] font-[600] transition-colors ${
+                      p.ativo ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-500'
+                    }`}
+                  >
+                    {p.ativo ? 'Ativo' : 'Inativo'}
+                  </button>
+                  <button
+                    onClick={() => navigate(`/admin/produtos/${p.id}/editar`)}
+                    className="text-orange font-[600] text-[13px]"
+                  >
+                    Editar →
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-6">
+            <div className="flex justify-center gap-2 mt-6 flex-wrap">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
                 <button
                   key={n}
