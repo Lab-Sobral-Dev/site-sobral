@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
+import AdminMobileDrawer, { HamburgerIcon } from '../../components/admin/AdminMobileDrawer';
 
 export default function AdminLayout() {
   const { isAuthenticated, token, logout } = useAuth();
   const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) { navigate('/admin/login', { replace: true }); return; }
@@ -23,9 +25,26 @@ export default function AdminLayout() {
         : 'text-ink-light hover:bg-[#FFF4EB] hover:text-orange'
     }`;
 
+  const handleLogout = () => { logout(); navigate('/admin/login'); };
+
   return (
-    <div className="min-h-screen bg-[#F5F5F5] flex">
-      <aside className="w-[220px] bg-white border-r border-line flex flex-col flex-shrink-0">
+    <div className="min-h-screen bg-[#F5F5F5] lg:flex">
+      {/* Topbar mobile */}
+      <div className="lg:hidden bg-white border-b border-line px-4 py-3 flex justify-between items-center sticky top-0 z-40">
+        <div className="flex items-center gap-2.5">
+          <img src="/images/logo.png" alt="Sobral" className="w-8 h-8 rounded-full" />
+          <div>
+            <p className="font-[800] text-[13px] text-ink leading-none">Painel Admin</p>
+            <p className="text-[10px] text-muted leading-none mt-0.5">Laboratório Sobral</p>
+          </div>
+        </div>
+        <button onClick={() => setDrawerOpen(true)} className="text-ink p-2" aria-label="Abrir menu">
+          <HamburgerIcon />
+        </button>
+      </div>
+
+      {/* Sidebar desktop */}
+      <aside className="hidden lg:flex w-[220px] bg-white border-r border-line flex-col flex-shrink-0">
         <div className="p-6 border-b border-line">
           <img src="/images/logo.png" alt="Sobral" className="w-10 h-10 rounded-full mb-2" />
           <p className="font-[800] text-[14px] text-ink">Painel Admin</p>
@@ -43,16 +62,23 @@ export default function AdminLayout() {
         </nav>
         <div className="p-3 border-t border-line">
           <button
-            onClick={() => { logout(); navigate('/admin/login'); }}
+            onClick={handleLogout}
             className="w-full text-left px-4 py-2.5 rounded-[8px] text-[14px] font-[600] text-ink-light hover:bg-red-50 hover:text-red-500 transition-colors"
           >
             Sair
           </button>
         </div>
       </aside>
+
       <main className="flex-1 overflow-auto">
         <Outlet />
       </main>
+
+      <AdminMobileDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onLogout={handleLogout}
+      />
       <Toaster position="bottom-right" richColors duration={3000} />
     </div>
   );
