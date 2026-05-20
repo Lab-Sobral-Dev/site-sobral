@@ -24,5 +24,9 @@ COPY --from=builder /app/dist ./dist/
 
 RUN mkdir -p public/images/produtos
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup \
+    && chown -R appuser:appgroup /app
+USER appuser
+
 EXPOSE 3001
 CMD ["node", "server/src/server.js"]
