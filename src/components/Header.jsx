@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import MobileDrawer, { HamburgerIcon } from './MobileDrawer';
 
 function SearchIcon() {
   return (
@@ -35,6 +36,7 @@ function NavDropdown({ id, label, items, open, onToggle, onNavigate }) {
 
 export default function Header() {
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,16 +61,16 @@ export default function Header() {
   return (
     <>
       <div className="h-[6px] bg-gradient-to-r from-[#FFB46B] via-orange to-[#FFB46B]" />
-      <header className="bg-white px-10 py-[14px] flex items-center gap-10 shadow-sm sticky top-0 z-50">
+      <header className="bg-white px-4 md:px-10 py-[14px] flex items-center gap-4 lg:gap-10 shadow-sm sticky top-0 z-50">
         <div
-          className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
+          className="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
           onClick={() => navigate('/')}
           title="Laboratório Sobral"
         >
           <img src="/images/logo.png" alt="Laboratório Sobral" width={56} height={56} className="w-full h-full object-cover rounded-full" />
         </div>
 
-        <nav className="flex gap-7 items-center flex-1">
+        <nav className="hidden lg:flex gap-7 items-center flex-1">
           <NavDropdown
             id="sobral" label="O Sobral" open={openDropdown === 'sobral'}
             onToggle={setOpenDropdown} onNavigate={navigate}
@@ -107,7 +109,7 @@ export default function Header() {
           </div>
         </nav>
 
-        <div className="relative w-[260px]">
+        <div className="hidden lg:block relative w-[260px]">
           <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none">
             <SearchIcon />
           </span>
@@ -120,7 +122,17 @@ export default function Header() {
             className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] text-ink outline-none transition-[border-color,box-shadow] focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)] placeholder:text-muted"
           />
         </div>
+
+        <button
+          className="lg:hidden ml-auto text-ink p-2"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Abrir menu"
+        >
+          <HamburgerIcon />
+        </button>
       </header>
+
+      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </>
   );
 }
