@@ -46,12 +46,12 @@ export default function HomePage() {
       <HeroCarousel />
 
       {/* NOSSAS LINHAS */}
-      <section ref={refLinhas} className="reveal max-w-content mx-auto px-10 mt-[60px]">
+      <section ref={refLinhas} className="reveal max-w-content mx-auto px-4 md:px-10 mt-[60px]">
         <div className="text-center mt-10 mb-7">
           <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">{content.linhas_eyebrow}</div>
-          <h2 className="font-display text-[36px] font-[900] tracking-[-.5px] leading-none">{content.linhas_titulo}</h2>
+          <h2 className="font-display text-[28px] md:text-[36px] font-[900] tracking-[-.5px] leading-none">{content.linhas_titulo}</h2>
         </div>
-        <div className="grid grid-cols-4 gap-5 max-w-[960px] mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-[960px] mx-auto">
           {BRAND_KEYS.map((key, i) => (
             <div
               key={key}
@@ -68,24 +68,26 @@ export default function HomePage() {
       </section>
 
       {/* MAIS VENDIDOS */}
-      <section ref={refVendidos} className="reveal max-w-content mx-auto px-10 mt-[70px]">
+      <section ref={refVendidos} className="reveal max-w-content mx-auto px-4 md:px-10 mt-[70px]">
         <div className="text-center mt-10 mb-7">
           <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">{content.vendidos_eyebrow}</div>
-          <h2 className="font-display text-[36px] font-[900] tracking-[-.5px] leading-none">{content.vendidos_titulo}</h2>
+          <h2 className="font-display text-[28px] md:text-[36px] font-[900] tracking-[-.5px] leading-none">{content.vendidos_titulo}</h2>
         </div>
         <div className="relative">
           <button
-            className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border-none bg-white shadow text-orange flex items-center justify-center text-[22px] z-[5] transition-all hover:bg-orange hover:text-white disabled:opacity-30"
+            className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full border-none bg-white shadow text-orange flex items-center justify-center text-[18px] md:text-[22px] z-[5] transition-all hover:bg-orange hover:text-white disabled:opacity-30"
             onClick={() => setCarouselIdx(Math.max(0, carouselIdx - 1))}
             disabled={carouselIdx === 0}
           >‹</button>
-          <div className="grid grid-cols-4 gap-[18px] px-5">
-            {visible.map(p => (
-              <ProductCard key={p.id} product={p} onClick={() => navigate(`/produtos/${p.id}`)} />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-[18px] px-2 md:px-5">
+            {visible.map((p, i) => (
+              <div key={p.id} className={i >= 2 ? 'hidden md:block' : ''}>
+                <ProductCard product={p} onClick={() => navigate(`/produtos/${p.id}`)} />
+              </div>
             ))}
           </div>
           <button
-            className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border-none bg-white shadow text-orange flex items-center justify-center text-[22px] z-[5] transition-all hover:bg-orange hover:text-white disabled:opacity-30"
+            className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full border-none bg-white shadow text-orange flex items-center justify-center text-[18px] md:text-[22px] z-[5] transition-all hover:bg-orange hover:text-white disabled:opacity-30"
             onClick={() => setCarouselIdx(Math.min(featured.length - 4, carouselIdx + 1))}
             disabled={carouselIdx >= featured.length - 4}
           >›</button>
@@ -93,12 +95,12 @@ export default function HomePage() {
       </section>
 
       {/* HISTÓRIA */}
-      <section ref={refHistoria} className="reveal max-w-content mx-auto px-10 mt-[80px]">
-        <div className="grid grid-cols-[1.1fr_1fr] gap-12 items-center">
-          <div>
-            <div className="mt-12 mb-6">
+      <section ref={refHistoria} className="reveal max-w-content mx-auto px-4 md:px-10 mt-[80px]">
+        <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-8 md:gap-12 items-center">
+          <div className="order-2 md:order-1">
+            <div className="mt-6 md:mt-12 mb-6">
               <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-[14px]">{content.historia_eyebrow}</div>
-              <h2 className="font-display text-[42px] font-[900] leading-[1.05] mb-2.5 tracking-[-.5px] text-balance">
+              <h2 className="font-display text-[32px] md:text-[42px] font-[900] leading-[1.05] mb-2.5 tracking-[-.5px] text-balance">
                 {content.historia_titulo}
                 <span className="text-orange block italic">{content.historia_subtitulo}</span>
               </h2>
@@ -114,7 +116,7 @@ export default function HomePage() {
               VEJA MAIS
             </button>
           </div>
-          <div className="aspect-[4/3] rounded overflow-hidden shadow">
+          <div className="aspect-[4/3] rounded overflow-hidden shadow order-1 md:order-2">
             <img src={content.historia_imagem} alt="Fachada do Laboratório Sobral" className="w-full h-full object-cover" />
           </div>
         </div>
