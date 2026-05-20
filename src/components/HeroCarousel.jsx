@@ -75,8 +75,7 @@ export default function HeroCarousel() {
 
   return (
     <section
-      className="w-full bg-bg relative overflow-hidden"
-      style={{ aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
+      className="w-full bg-bg relative overflow-hidden aspect-[4/3] max-h-[280px] md:aspect-[1920/600] md:max-h-none"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
