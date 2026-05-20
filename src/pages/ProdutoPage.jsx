@@ -58,8 +58,8 @@ export default function ProdutoPage() {
         { label: p.name },
       ]} />
 
-      <section className="max-w-content mx-auto px-10 mt-11">
-        <div className="grid grid-cols-[1fr_1.1fr] gap-16 items-start">
+      <section className="max-w-content mx-auto px-4 md:px-10 mt-8 md:mt-11">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr] gap-8 md:gap-16 items-start">
           {/* Galeria */}
           <div>
             <div className="aspect-square bg-white border border-line rounded flex items-center justify-center overflow-hidden p-[30px]">
@@ -86,7 +86,7 @@ export default function ProdutoPage() {
 
           {/* Info */}
           <div>
-            <h1 className="text-[36px] font-bold mb-[14px] text-ink-light">{p.name}</h1>
+            <h1 className="text-[28px] md:text-[36px] font-bold mb-[14px] text-ink-light">{p.name}</h1>
             <p className="text-[15px] leading-[1.6] text-ink-light mb-7">{p.description}</p>
 
             <div>
@@ -110,15 +110,15 @@ export default function ProdutoPage() {
       </section>
 
       {/* Ingredientes + Nutricional */}
-      <section className="bg-gradient-to-b from-[#C5D11E] to-[#A8B410] text-white mt-[60px] py-12 px-10">
-        <div className="max-w-content mx-auto grid grid-cols-2 gap-12">
+      <section className="bg-gradient-to-b from-[#C5D11E] to-[#A8B410] text-white mt-[60px] py-10 md:py-12 px-4 md:px-10">
+        <div className="max-w-content mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12">
           <div>
-            <h2 className="text-[26px] font-[800] text-center mb-[22px] text-white">Ingredientes</h2>
+            <h2 className="text-[24px] md:text-[26px] font-[800] text-center mb-[22px] text-white">Ingredientes</h2>
             <p className="text-[13.5px] leading-[1.65] mb-[18px]">{p.ingredientes || 'Informações não disponíveis para este produto.'}</p>
             {p.disclaimer && <p className="text-[13.5px] leading-[1.65] font-bold">{p.disclaimer}</p>}
           </div>
           {p.nutri_rows ? (
-            <div className="border-l border-white/30 pl-12">
+            <div className="md:border-l border-white/30 md:pl-12 pt-8 md:pt-0 border-t md:border-t-0">
               <h2 className="text-[26px] font-[800] text-center mb-[22px] text-white">Informação nutricional</h2>
               {p.nutri_porcoes && <pre className="font-sans text-[13.5px] m-0 whitespace-pre-wrap mb-[14px]">{p.nutri_porcoes}</pre>}
               <table className="w-full border-collapse text-[13.5px]">
@@ -145,7 +145,7 @@ export default function ProdutoPage() {
               <p className="text-[11px] mt-2.5 italic">*Percentual de valores diários fornecidos pela porção.</p>
             </div>
           ) : (
-            <div className="border-l border-white/30 pl-12 flex items-center justify-center text-white/70 text-[14px]">
+            <div className="md:border-l border-white/30 md:pl-12 pt-8 md:pt-0 border-t md:border-t-0 flex items-center justify-center text-white/70 text-[14px]">
               Informações nutricionais não disponíveis para este produto.
             </div>
           )}
