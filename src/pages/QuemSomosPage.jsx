@@ -36,18 +36,18 @@ export default function QuemSomosPage() {
       </div>
 
       {/* MVV — Stack horizontal editorial */}
-      <section ref={refMVV} className="reveal max-w-content mx-auto px-10 mt-10">
-        <div className="bg-white rounded p-[36px_50px] shadow-sm flex flex-col gap-2">
+      <section ref={refMVV} className="reveal max-w-content mx-auto px-4 md:px-10 mt-10">
+        <div className="bg-white rounded p-6 md:p-[36px_50px] shadow-sm flex flex-col gap-2">
           {MVV_ITEMS.map((item, i) => (
             <div
               key={item.key}
-              className={`grid grid-cols-[220px_1fr] gap-8 items-start py-[22px] ${i < MVV_ITEMS.length - 1 ? 'border-b border-line' : ''}`}
+              className={`grid grid-cols-1 md:grid-cols-[220px_1fr] gap-3 md:gap-8 items-start py-[22px] ${i < MVV_ITEMS.length - 1 ? 'border-b border-line' : ''}`}
             >
               <div>
                 <div className={`text-[11px] tracking-[2px] font-[900] mb-1.5 ${item.text}`}>{item.tag}</div>
-                <div className="font-display text-[32px] font-[900] text-ink leading-none">{item.title}</div>
+                <div className="font-display text-[28px] md:text-[32px] font-[900] text-ink leading-none">{item.title}</div>
               </div>
-              <div className={`text-[15.5px] text-ink-light leading-[1.65] py-1.5 pl-6 border-l-[3px] ${item.accent}`}>
+              <div className={`text-[15.5px] text-ink-light leading-[1.65] py-1.5 pl-4 md:pl-6 border-l-[3px] ${item.accent}`}>
                 {safe(content[item.key])}
               </div>
             </div>
@@ -56,11 +56,11 @@ export default function QuemSomosPage() {
       </section>
 
       {/* História — Magazine com pull-quote */}
-      <section ref={refHistoria} className="reveal max-w-content mx-auto px-10 mt-20 pb-16">
-        <div className="grid grid-cols-2 gap-[60px] items-stretch">
-          <div className="flex flex-col justify-center">
+      <section ref={refHistoria} className="reveal max-w-content mx-auto px-4 md:px-10 mt-12 md:mt-20 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-[60px] items-stretch">
+          <div className="flex flex-col justify-center order-2 md:order-1">
             <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-[18px]">{content.historia_eyebrow}</div>
-            <h2 className="font-display text-[46px] font-[900] leading-[1.05] mb-6 text-ink tracking-[-.5px] text-balance">
+            <h2 className="font-display text-[32px] md:text-[46px] font-[900] leading-[1.05] mb-6 text-ink tracking-[-.5px] text-balance">
               {content.historia_heading}
             </h2>
             <div className="text-[15px] text-ink-light leading-[1.7] mb-4">{safe(content.historia_texto_1)}</div>
@@ -68,11 +68,11 @@ export default function QuemSomosPage() {
             <div className="text-[15px] text-ink-light leading-[1.7]">{safe(content.historia_texto_3)}</div>
           </div>
 
-          <div className="relative">
-            <div className="aspect-[4/5] rounded-[4px] bg-[#EAEAEA] overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,.12)]">
+          <div className="relative order-1 md:order-2">
+            <div className="aspect-[4/5] max-h-[420px] md:max-h-none rounded-[4px] bg-[#EAEAEA] overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,.12)]">
               <img src={content.historia_imagem} alt="Fachada do Laboratório Sobral" className="w-full h-full object-cover" />
             </div>
-            <div className="absolute bottom-[38px] -left-[30px] right-[40px] bg-orange text-white px-[26px] py-[22px] font-display text-[20px] font-bold leading-[1.3] italic shadow-[0_8px_24px_rgba(232,90,12,.28)]">
+            <div className="relative md:absolute mt-4 md:mt-0 md:bottom-[38px] md:-left-[30px] md:right-[40px] bg-orange text-white px-5 md:px-[26px] py-4 md:py-[22px] font-display text-[17px] md:text-[20px] font-bold leading-[1.3] italic shadow-[0_8px_24px_rgba(232,90,12,.28)]">
               "{content.historia_pullquote}"
             </div>
           </div>
