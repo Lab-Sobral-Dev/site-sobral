@@ -71,8 +71,8 @@ export default function FaleConoscoPage() {
     <>
       <Breadcrumb trail={[{ label: 'Home', to: '/' }, { label: 'Fale Conosco' }]} />
 
-      <section className="max-w-content mx-auto px-10 mt-10 pb-16">
-        <div className="grid grid-cols-[1.4fr_1fr] gap-12 mb-12">
+      <section className="max-w-content mx-auto px-4 md:px-10 mt-10 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-8 md:gap-12 mb-12">
           <div>
             <h2 className="text-[22px] font-[800] text-orange mb-[18px]">LABORATÓRIO SOBRAL</h2>
             <div className="mb-[22px] text-[14.5px] leading-[1.6]">
@@ -113,7 +113,7 @@ export default function FaleConoscoPage() {
           </div>
         )}
 
-        <form className="grid grid-cols-2 gap-[14px] bg-[#EEEEEE] p-7 rounded" onSubmit={handleSubmit}>
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-[14px] bg-[#EEEEEE] p-5 md:p-7 rounded" onSubmit={handleSubmit}>
           <input placeholder="Nome*" className={inputClass('nome')} value={form.nome} onChange={handleChange('nome')} />
           <input placeholder="Sobrenome*" className={inputClass('sobrenome')} value={form.sobrenome} onChange={handleChange('sobrenome')} />
           <input placeholder="E-mail*" type="email" className={inputClass('email')} value={form.email} onChange={handleChange('email')} />
