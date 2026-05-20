@@ -61,7 +61,7 @@ export default function AdminCategoriesPage() {
   };
 
   return (
-    <div className="p-8 max-w-[640px]">
+    <div className="p-4 md:p-8 max-w-[640px]">
       <h1 className="text-[24px] font-[800] text-ink mb-6">Categorias</h1>
 
       {error && (
@@ -73,7 +73,7 @@ export default function AdminCategoriesPage() {
       <div className="bg-white border border-line rounded-[10px] p-5 mb-6">
         <h2 className="text-[15px] font-[700] text-ink mb-4">Nova categoria</h2>
         <form onSubmit={handleCreate} className="flex flex-col gap-3">
-          <div className="grid grid-cols-[1fr_2fr_80px] gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_80px] gap-3">
             <div>
               <label className="block text-[12px] font-[600] text-ink-light mb-1">ID (slug)</label>
               <input
@@ -118,35 +118,61 @@ export default function AdminCategoriesPage() {
       {loading ? (
         <div className="text-muted text-[14px]">Carregando...</div>
       ) : (
-        <div className="bg-white border border-line rounded-[10px] overflow-hidden">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-line bg-[#FAFAFA] text-left">
-                <th className="px-4 py-3 font-[700] text-ink-light">ID</th>
-                <th className="px-4 py-3 font-[700] text-ink-light">Label</th>
-                <th className="px-4 py-3 font-[700] text-ink-light">Ordem</th>
-                <th className="px-4 py-3 font-[700] text-ink-light"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map(c => (
-                <tr key={c.id} className="border-b border-line last:border-0 hover:bg-[#FAFAFA]">
-                  <td className="px-4 py-3 font-mono text-ink-light">{c.id}</td>
-                  <td className="px-4 py-3 font-[600] text-ink">{c.label}</td>
-                  <td className="px-4 py-3 text-ink-light">{c.ordem}</td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleDelete(c.id, c.label)}
-                      className="text-red-400 hover:underline font-[600]"
-                    >
-                      Deletar
-                    </button>
-                  </td>
+        <>
+          {/* Desktop: tabela */}
+          <div className="hidden md:block bg-white border border-line rounded-[10px] overflow-hidden">
+            <table className="w-full text-[13px]">
+              <thead>
+                <tr className="border-b border-line bg-[#FAFAFA] text-left">
+                  <th className="px-4 py-3 font-[700] text-ink-light">ID</th>
+                  <th className="px-4 py-3 font-[700] text-ink-light">Label</th>
+                  <th className="px-4 py-3 font-[700] text-ink-light">Ordem</th>
+                  <th className="px-4 py-3 font-[700] text-ink-light"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {categories.map(c => (
+                  <tr key={c.id} className="border-b border-line last:border-0 hover:bg-[#FAFAFA]">
+                    <td className="px-4 py-3 font-mono text-ink-light">{c.id}</td>
+                    <td className="px-4 py-3 font-[600] text-ink">{c.label}</td>
+                    <td className="px-4 py-3 text-ink-light">{c.ordem}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => handleDelete(c.id, c.label)}
+                        className="text-red-400 hover:underline font-[600]"
+                      >
+                        Deletar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile: cards */}
+          <div className="md:hidden flex flex-col gap-3">
+            {categories.map(c => (
+              <div key={c.id} className="bg-white rounded-[10px] border border-line p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-[700] text-ink mb-0.5">{c.label}</p>
+                    <p className="font-mono text-[12px] text-muted truncate">{c.id}</p>
+                  </div>
+                  <span className="text-[11px] text-ink-light bg-[#FAFAFA] rounded px-2 py-1 ml-2">
+                    Ordem: {c.ordem}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleDelete(c.id, c.label)}
+                  className="text-red-400 hover:underline font-[600] text-[13px]"
+                >
+                  Deletar
+                </button>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
