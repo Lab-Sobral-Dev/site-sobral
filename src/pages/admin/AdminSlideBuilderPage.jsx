@@ -251,7 +251,26 @@ export default function AdminSlideBuilderPage() {
   const selected = layers.find(l => l.id === selectedId) || null;
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <>
+      {/* Mobile: tela de aviso (< lg) */}
+      <div className="lg:hidden p-6 min-h-[60vh] flex items-center justify-center">
+        <div className="bg-white rounded-[12px] border border-line p-8 text-center max-w-[400px]">
+          <div className="text-[48px] mb-3">🖥️</div>
+          <h2 className="text-[18px] font-[800] text-ink mb-2">Editor requer desktop</h2>
+          <p className="text-[14px] text-ink-light leading-[1.55] mb-6">
+            O editor visual de slides usa drag-and-drop pixel-perfect que não funciona bem em telas pequenas. Abra em um computador para editar este slide.
+          </p>
+          <button
+            onClick={() => navigate('/admin/hero-slides')}
+            className="bg-orange hover:bg-[#E0580A] text-white font-[700] px-5 py-2.5 rounded-[8px] text-[14px]"
+          >
+            ← Voltar para Hero Slides
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop: editor visual (≥ lg) */}
+      <div className="hidden lg:flex h-full overflow-hidden">
 
       {/* ── PAINEL ESQUERDO — LISTA DE CAMADAS ── */}
       <div className="w-[240px] bg-white border-r border-line flex flex-col flex-shrink-0">
@@ -598,6 +617,7 @@ export default function AdminSlideBuilderPage() {
           replayKey={previewKey}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
