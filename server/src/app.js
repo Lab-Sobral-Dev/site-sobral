@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path       = require('path');
 const express    = require('express');
 const helmet     = require('helmet');
 const cors       = require('cors');
@@ -53,7 +54,15 @@ app.use('/api/admin/hero-slides',   adminHeroSlidesRouter);
 app.use('/api/upload',              uploadRouter);
 app.use('/api/admin/psd-import',    psdImportRouter);
 
-app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '../../dist');
+  app.use(express.static(distPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
+}
 
 app.use((err, req, res, _next) => {
   console.error('Erro não tratado:', err.message);
