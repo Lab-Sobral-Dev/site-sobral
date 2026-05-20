@@ -7,4 +7,7 @@ dist/
 *.jpg
 *.jpeg
 !public/images/**
+public/images/produtos/psd-*
+public/images/produtos/captura-de-tela-*
+repo-patch/
 .superpowers/
