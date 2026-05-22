@@ -25,7 +25,7 @@ export default function AdminProductFormPage() {
   const [uploading,  setUploading]  = useState(false);
 
   useEffect(() => {
-    fetch('/api/categories').then(r => r.json()).then(setCategories).catch(() => {});
+    fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
   }, []);
 
   useEffect(() => {
