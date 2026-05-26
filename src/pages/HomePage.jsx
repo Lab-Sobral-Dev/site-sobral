@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
-import { CATALOG } from '../data/catalog';
 import ProductCard from '../components/ProductCard';
 import HeroCarousel from '../components/HeroCarousel';
 import { usePageContent } from '../hooks/usePageContent';
@@ -32,10 +31,24 @@ const HOME_DEFAULTS = {
 export default function HomePage() {
   const navigate = useNavigate();
   const [carouselIdx, setCarouselIdx] = useState(0);
+  const [featured,    setFeatured]    = useState([]);
   const content = usePageContent('home', HOME_DEFAULTS);
 
-  const featured = CATALOG.filter(p => FEATURED_IDS.includes(p.id));
-  const visible  = featured.slice(carouselIdx, carouselIdx + 4);
+  useEffect(() => {
+    fetch(`/api/products?ids=${FEATURED_IDS.join(',')}&per_page=20`)
+      .then(r => r.json())
+      .then(json => {
+        if (Array.isArray(json.data)) {
+          const ordered = FEATURED_IDS
+            .map(id => json.data.find(p => p.id === id))
+            .filter(Boolean);
+          setFeatured(ordered);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const visible = featured.slice(carouselIdx, carouselIdx + 4);
 
   const refLinhas   = useScrollReveal();
   const refVendidos = useScrollReveal();

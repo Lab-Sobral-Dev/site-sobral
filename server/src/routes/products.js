@@ -22,6 +22,13 @@ router.get('/', async (req, res) => {
       params.push(`%${q}%`);
       where.push(`(name ILIKE $${params.length} OR tag ILIKE $${params.length} OR brand ILIKE $${params.length})`);
     }
+    const ids = req.query.ids
+      ? String(req.query.ids).split(',').map(s => s.trim()).filter(Boolean)
+      : null;
+    if (ids && ids.length) {
+      params.push(ids);
+      where.push(`id = ANY($${params.length})`);
+    }
 
     const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
 
