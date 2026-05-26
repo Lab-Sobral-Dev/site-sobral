@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
+import { useDebounce } from '../../hooks/useDebounce';
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function AdminDashboardPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [page,       setPage]       = useState(1);
   const [query,      setQuery]      = useState('');
+  const debouncedQuery = useDebounce(query, 300);
   const [cat,        setCat]        = useState('all');
   const [categories, setCategories] = useState([]);
   const [loading,    setLoading]    = useState(true);
@@ -23,8 +25,8 @@ export default function AdminDashboardPage() {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page, per_page: 20 });
-    if (cat !== 'all') params.set('cat', cat);
-    if (query.trim())  params.set('q',   query.trim());
+    if (cat !== 'all')          params.set('cat', cat);
+    if (debouncedQuery.trim()) params.set('q',   debouncedQuery.trim());
     try {
       const res = await request(`/api/admin/products?${params}`);
       if (!res) return;
@@ -37,7 +39,7 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, query, cat, request]);
+  }, [page, debouncedQuery, cat, request]);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 

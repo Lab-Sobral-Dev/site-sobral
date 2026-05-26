@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import { useDebounce } from '../hooks/useDebounce';
 
 function SearchIcon() {
   return (
@@ -19,6 +20,10 @@ export default function ProdutosPage() {
   const cat   = searchParams.get('cat') || 'all';
   const query = searchParams.get('q')   || '';
   const page  = Math.max(1, parseInt(searchParams.get('page')) || 1);
+
+  const [inputValue, setInputValue] = useState(query);
+  const debouncedQuery = useDebounce(inputValue, 300);
+  const isFirstRender  = useRef(true);
 
   const [categories, setCategories] = useState([]);
   const [products,   setProducts]   = useState([]);
@@ -54,9 +59,18 @@ export default function ProdutosPage() {
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    const p = new URLSearchParams(searchParams);
+    if (debouncedQuery.trim()) p.set('q', debouncedQuery.trim()); else p.delete('q');
+    p.delete('page');
+    setSearchParams(p, { replace: true });
+  }, [debouncedQuery]);
+
   const setCat = (val) => {
     const p = new URLSearchParams();
     if (val !== 'all') p.set('cat', val);
+    setInputValue('');
     setSearchParams(p);
   };
 
@@ -110,8 +124,8 @@ export default function ProdutosPage() {
             <input
               type="text"
               placeholder="Buscar produto..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
               className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] outline-none focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)]"
             />
           </div>
