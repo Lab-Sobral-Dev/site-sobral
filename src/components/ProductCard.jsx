@@ -9,6 +9,7 @@ export default function ProductCard({ product, onClick }) {
           ? <img
               src={product.image}
               alt={product.name}
+              loading="lazy"
               className="max-w-[82%] max-h-[88%] object-contain transition-transform duration-[300ms] ease-out group-hover:scale-[1.04]"
             />
           : <span className="text-[11px] text-muted font-mono text-center p-3 leading-snug">[ foto: {product.name} ]</span>
