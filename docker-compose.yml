@@ -20,6 +20,8 @@ services:
       - "127.0.0.1:3001:3001"
     volumes:
       - uploads:/app/public/images/produtos
+      - uploads_hero:/app/public/images/hero
+      - uploads_cms:/app/public/images/cms
     env_file:
       - ./server/.env
     environment:
@@ -33,3 +35,5 @@ services:
 volumes:
   db_data:
   uploads:
+  uploads_hero:
+  uploads_cms:

@@ -22,7 +22,7 @@ RUN cd server && npm ci --omit=dev
 COPY server/ ./server/
 COPY --from=builder /app/dist ./dist/
 
-RUN mkdir -p public/images/produtos
+RUN mkdir -p public/images/produtos public/images/hero public/images/cms
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup \
     && chown -R appuser:appgroup /app
