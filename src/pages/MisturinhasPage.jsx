@@ -332,7 +332,7 @@ export default function MisturinhasPage() {
             </div>
           </div>
           <div className="relative z-[1] rounded-[20px] overflow-hidden aspect-[3/4] shadow-[0_12px_32px_rgba(0,0,0,.18)] max-h-[320px] lg:max-h-none">
-            <img src="/images/misturinhas-girl.jpg" alt="" className="w-full h-full object-cover block" />
+            <img src="/images/misturinhas-hero-panel.png" alt="" className="w-full h-full object-cover block" />
           </div>
         </div>
       </section>
