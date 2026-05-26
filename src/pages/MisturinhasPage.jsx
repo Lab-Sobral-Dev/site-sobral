@@ -169,7 +169,7 @@ export default function MisturinhasPage() {
 
         <div className="rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(232,90,12,.22)] h-[400px] lg:h-auto">
           <img
-            src="/images/misturinhas-hero-panel.jpg"
+            src="/images/misturinhas-hero-panel.png"
             alt="Dicas de Misturinhas Óleos Sobral"
             className="w-full h-full object-cover block"
           />
