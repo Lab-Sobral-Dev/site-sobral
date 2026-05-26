@@ -1,6 +1,15 @@
+import { Helmet } from 'react-helmet-async';
+
 export default function PrivacidadePage() {
   return (
     <>
+      <Helmet>
+        <title>Privacidade e Proteção de Dados | Laboratório Sobral</title>
+        <meta name="description" content="Política de privacidade do Laboratório Sobral em conformidade com a LGPD. Saiba como coletamos, usamos e protegemos seus dados pessoais." />
+        <meta property="og:title" content="Privacidade e Proteção de Dados | Laboratório Sobral" />
+        <meta property="og:description" content="Política de privacidade do Laboratório Sobral em conformidade com a LGPD." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="bg-gradient-to-b from-orange to-[#E85A0C] text-white text-center py-[22px] px-5 text-[26px] font-[800] tracking-[.3px]">
         Privacidade e Proteção de Dados
       </div>

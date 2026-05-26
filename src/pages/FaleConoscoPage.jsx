@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import Breadcrumb from '../components/Breadcrumb';
@@ -69,6 +70,13 @@ export default function FaleConoscoPage() {
 
   return (
     <>
+      <Helmet>
+        <title>Fale Conosco | Laboratório Sobral</title>
+        <meta name="description" content="Entre em contato com o Laboratório Sobral. Formulário de contato, endereços, telefones e SAC gratuito." />
+        <meta property="og:title" content="Fale Conosco | Laboratório Sobral" />
+        <meta property="og:description" content="Entre em contato com o Laboratório Sobral. Formulário de contato, endereços, telefones e SAC." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <Breadcrumb trail={[{ label: 'Home', to: '/' }, { label: 'Fale Conosco' }]} />
 
       <section className="max-w-content mx-auto px-4 md:px-10 mt-10 pb-16">

@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import { usePageContent } from '../hooks/usePageContent';
@@ -31,6 +32,13 @@ export default function QuemSomosPage() {
 
   return (
     <>
+      <Helmet>
+        <title>Quem Somos | Laboratório Sobral</title>
+        <meta name="description" content="Conheça a história do Laboratório Sobral: mais de 100 anos cuidando da saúde dos brasileiros. Missão, visão, valores e trajetória desde 1911." />
+        <meta property="og:title" content="Quem Somos | Laboratório Sobral" />
+        <meta property="og:description" content="Mais de 100 anos cuidando da saúde dos brasileiros. Conheça nossa história, missão, visão e valores." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="bg-gradient-to-b from-orange to-[#E85A0C] text-white text-center py-7 px-5 font-display text-[32px] font-[900] tracking-[-.3px]">
         Quem Somos
       </div>

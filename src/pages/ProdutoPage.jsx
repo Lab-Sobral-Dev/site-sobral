@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import Breadcrumb from '../components/Breadcrumb';
 
 export default function ProdutoPage() {
@@ -66,6 +67,14 @@ export default function ProdutoPage() {
 
   return (
     <>
+      <Helmet>
+        <title>{p.name} | Laboratório Sobral</title>
+        <meta name="description" content={p.description ? p.description.slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />
+        <meta property="og:title" content={`${p.name} | Laboratório Sobral`} />
+        <meta property="og:description" content={p.description ? p.description.slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />
+        {p.image && <meta property="og:image" content={p.image} />}
+        <meta property="og:type" content="product" />
+      </Helmet>
       <Breadcrumb trail={[
         { label: 'Home', to: '/' },
         { label: 'Produtos', to: '/produtos' },

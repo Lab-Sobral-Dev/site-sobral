@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import ProductCard from '../components/ProductCard';
 import { useDebounce } from '../hooks/useDebounce';
 
@@ -89,6 +90,13 @@ export default function ProdutosPage() {
 
   return (
     <>
+      <Helmet>
+        <title>Produtos | Laboratório Sobral</title>
+        <meta name="description" content="Conheça o catálogo completo do Laboratório Sobral: suplementos, tradicionais, óleos e cosméticos. Filtro por categoria e busca por nome." />
+        <meta property="og:title" content="Produtos | Laboratório Sobral" />
+        <meta property="og:description" content="Catálogo completo de produtos Sobral: suplementos, tradicionais, óleos e cosméticos." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="bg-gradient-to-b from-orange to-[#E85A0C] text-white text-center py-7 px-5 font-display text-[32px] font-[900] tracking-[-.3px]">
         Produtos
       </div>

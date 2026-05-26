@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import ProductCard from '../components/ProductCard';
@@ -56,6 +57,13 @@ export default function HomePage() {
 
   return (
     <>
+      <Helmet>
+        <title>Laboratório Sobral | Saúde e bem-estar para sua família</title>
+        <meta name="description" content="Há mais de 100 anos o Laboratório Sobral cuida da saúde dos brasileiros. Conheça nossas linhas de suplementos, tradicionais, óleos e cosméticos." />
+        <meta property="og:title" content="Laboratório Sobral | Saúde e bem-estar para sua família" />
+        <meta property="og:description" content="Há mais de 100 anos o Laboratório Sobral cuida da saúde dos brasileiros. Conheça nossas linhas de suplementos, tradicionais, óleos e cosméticos." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <HeroCarousel />
 
       {/* NOSSAS LINHAS */}
