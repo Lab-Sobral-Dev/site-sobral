@@ -331,8 +331,8 @@ export default function MisturinhasPage() {
               </button>
             </div>
           </div>
-          <div className="relative z-[1] rounded-[20px] overflow-hidden aspect-[3/4] shadow-[0_12px_32px_rgba(0,0,0,.18)] max-h-[320px] lg:max-h-none">
-            <img src="/images/misturinhas-hero-panel.png" alt="" className="w-full h-full object-cover block" />
+          <div className="relative z-[1] rounded-[20px] overflow-hidden aspect-[3/4] shadow-[0_12px_32px_rgba(0,0,0,.18)] max-h-[320px] lg:max-h-none bg-[#F37021]">
+            <img src="/images/misturinhas-hero-panel.png" alt="" className="w-full h-full object-contain block" />
           </div>
         </div>
       </section>
