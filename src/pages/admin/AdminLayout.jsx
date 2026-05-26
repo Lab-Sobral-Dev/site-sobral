@@ -5,13 +5,13 @@ import { useAuth } from '../../context/AuthContext';
 import AdminMobileDrawer, { HamburgerIcon } from '../../components/admin/AdminMobileDrawer';
 
 export default function AdminLayout() {
-  const { isAuthenticated, token, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) { navigate('/admin/login', { replace: true }); return; }
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', { credentials: 'include' })
       .then(r => { if (r.status === 401) { logout(); navigate('/admin/login', { replace: true }); } })
       .catch(() => {});
   }, []);

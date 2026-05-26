@@ -1,23 +1,28 @@
 import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
-const TOKEN_KEY = 'sobral_admin_token';
+const AUTH_FLAG = 'sobral_admin_auth';
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => localStorage.getItem(AUTH_FLAG) === 'true'
+  );
 
-  const login = (t) => {
-    localStorage.setItem(TOKEN_KEY, t);
-    setToken(t);
+  const login = () => {
+    localStorage.setItem(AUTH_FLAG, 'true');
+    setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
+  const logout = async () => {
+    localStorage.removeItem(AUTH_FLAG);
+    setIsAuthenticated(false);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {}
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export function useAdminFetch() {
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const request = useCallback(async (url, options = {}) => {
@@ -12,10 +12,10 @@ export function useAdminFetch() {
 
     const res = await fetch(url, {
       ...rest,
+      credentials: 'include',
       headers: {
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...extraHeaders,
-        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -26,7 +26,7 @@ export function useAdminFetch() {
     }
 
     return res;
-  }, [token, logout, navigate]);
+  }, [logout, navigate]);
 
   return { request };
 }

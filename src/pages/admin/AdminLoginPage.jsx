@@ -19,12 +19,13 @@ export default function AdminLoginPage() {
     try {
       const res  = await fetch('/api/auth/login', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Credenciais inválidas.');
-      login(data.token);
+      login();
       navigate('/admin', { replace: true });
     } catch (err) {
       setError(err.message);

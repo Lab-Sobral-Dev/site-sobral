@@ -1,7 +1,7 @@
 const { Router } = require('express');
-const jwt        = require('jsonwebtoken');
-const bcrypt     = require('bcryptjs');
-const rateLimit  = require('express-rate-limit');
+const jwt         = require('jsonwebtoken');
+const bcrypt      = require('bcryptjs');
+const rateLimit   = require('express-rate-limit');
 const requireAuth = require('../middleware/requireAuth');
 const validate    = require('../middleware/validate');
 
@@ -16,6 +16,15 @@ const loginLimiter = rateLimit({
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
 });
 
+const COOKIE_NAME = 'sobral_jwt';
+const cookieOpts = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 8 * 60 * 60 * 1000,
+  path: '/',
+};
+
 router.post('/login', loginLimiter, validate(['email', 'password']), async (req, res) => {
   const { email, password } = req.body;
 
@@ -26,12 +35,14 @@ router.post('/login', loginLimiter, validate(['email', 'password']), async (req,
     return res.status(401).json({ error: 'Credenciais inválidas.' });
   }
 
-  const token = jwt.sign(
-    { email },
-    process.env.JWT_SECRET,
-    { expiresIn: '8h' }
-  );
-  res.json({ token });
+  const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '8h' });
+  res.cookie(COOKIE_NAME, token, cookieOpts);
+  res.json({ ok: true, email });
+});
+
+router.post('/logout', (req, res) => {
+  res.clearCookie(COOKIE_NAME, { path: '/' });
+  res.json({ ok: true });
 });
 
 router.get('/me', requireAuth, (req, res) => {

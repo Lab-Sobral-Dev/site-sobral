@@ -1,9 +1,10 @@
 require('dotenv').config();
-const path       = require('path');
-const express    = require('express');
-const helmet     = require('helmet');
-const cors       = require('cors');
-const rateLimit  = require('express-rate-limit');
+const path         = require('path');
+const express      = require('express');
+const helmet       = require('helmet');
+const cors         = require('cors');
+const cookieParser = require('cookie-parser');
+const rateLimit    = require('express-rate-limit');
 
 const productsRouter        = require('./routes/products');
 const categoriesRouter      = require('./routes/categories');
@@ -28,8 +29,10 @@ app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? process.env.CORS_ORIGIN
     : 'http://localhost:5173',
+  credentials: true,
   optionsSuccessStatus: 200,
 }));
+app.use(cookieParser());
 app.use(express.json());
 
 app.use(rateLimit({
