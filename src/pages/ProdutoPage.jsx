@@ -6,7 +6,6 @@ export default function ProdutoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [openAccordion, setOpenAccordion] = useState('caracteristicas');
-  const [variant, setVariant] = useState(0);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -14,7 +13,6 @@ export default function ProdutoPage() {
   useEffect(() => {
     setLoading(true);
     setNotFound(false);
-    setVariant(0);
     setOpenAccordion('caracteristicas');
     fetch(`/api/products/${id}`)
       .then(r => {
@@ -43,11 +41,27 @@ export default function ProdutoPage() {
 
   const p = product;
 
+  const nutriUnidade = (() => {
+    if (!p.nutri_porcoes) return '—';
+    const match = p.nutri_porcoes.match(/Porção:\s*([^\n(]+)/i);
+    return match ? match[1].trim() : p.nutri_porcoes.split('\n')[0];
+  })();
+
   const accordionData = [
-    { id: 'caracteristicas', title: 'Características do produto', content: p.caracteristicas?.join(' ') || p.description },
-    { id: 'apresentacao',    title: 'Apresentação',               content: p.apresentacao || '—' },
-    { id: 'modouso',         title: 'Modo de Uso',                content: p.modo_uso || '—' },
-    { id: 'precaucoes',      title: 'Precauções',                 content: p.precaucoes || '—' },
+    {
+      id: 'caracteristicas',
+      title: 'Características do produto',
+      render: Array.isArray(p.caracteristicas) && p.caracteristicas.length
+        ? (
+            <ul className="list-disc list-inside space-y-1">
+              {p.caracteristicas.map((item, i) => <li key={i}>{item}</li>)}
+            </ul>
+          )
+        : <span>{p.description}</span>,
+    },
+    { id: 'apresentacao', title: 'Apresentação', render: <span>{p.apresentacao || '—'}</span> },
+    { id: 'modouso',      title: 'Modo de Uso',  render: <span>{p.modo_uso    || '—'}</span> },
+    { id: 'precaucoes',   title: 'Precauções',   render: <span>{p.precaucoes  || '—'}</span> },
   ];
 
   return (
@@ -68,20 +82,6 @@ export default function ProdutoPage() {
                 : <span className="text-[11px] text-muted font-mono text-center">[ foto: {p.name} ]</span>
               }
             </div>
-            <div className="flex gap-[14px] mt-[18px] justify-center">
-              {[0, 1, 2].map(i => (
-                <div
-                  key={i}
-                  onClick={() => setVariant(i)}
-                  className={`w-[72px] h-[72px] bg-white rounded-[8px] flex items-center justify-center cursor-pointer p-1.5 ${variant === i ? 'border-2 border-orange' : 'border border-line'}`}
-                >
-                  {p.image
-                    ? <img src={p.image} alt="" className="max-w-full max-h-full object-contain" />
-                    : <span className="text-[10px] text-[#bbb] font-mono">angle {i + 1}</span>
-                  }
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Info */}
@@ -100,7 +100,7 @@ export default function ProdutoPage() {
                     <span className="arrow text-orange text-[18px]">▾</span>
                   </button>
                   <div className="accordion-content">
-                    <div className="pb-4 text-[14px] text-ink-light leading-[1.6]">{item.content}</div>
+                    <div className="pb-4 text-[14px] text-ink-light leading-[1.6]">{item.render}</div>
                   </div>
                 </div>
               ))}
@@ -125,7 +125,7 @@ export default function ProdutoPage() {
                 <thead>
                   <tr className="border-b border-white/40">
                     <th className="text-left"></th>
-                    <th className="text-right py-1.5 font-bold">15 ml</th>
+                    <th className="text-right py-1.5 font-bold">{nutriUnidade}</th>
                     <th className="text-right py-1.5 font-bold">%VD*</th>
                   </tr>
                 </thead>
