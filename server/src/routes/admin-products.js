@@ -43,7 +43,8 @@ router.get('/', async (req, res) => {
       params
     );
 
-    res.json({ data: dataRes.rows, total, page, totalPages: Math.ceil(total / perPage) });
+    const totalPages = Math.ceil(total / perPage) || 1;
+    res.json({ data: dataRes.rows, total, page: Math.min(page, totalPages), totalPages });
   } catch (err) {
     console.error('GET /api/admin/products:', err.message);
     res.status(500).json({ error: 'Erro interno.' });

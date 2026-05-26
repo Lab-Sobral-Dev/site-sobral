@@ -42,11 +42,12 @@ router.get('/', async (req, res) => {
       params
     );
 
+    const totalPages = Math.ceil(total / perPage) || 1;
     res.json({
       data:       dataRes.rows,
       total,
-      page,
-      totalPages: Math.ceil(total / perPage),
+      page:       Math.min(page, totalPages),
+      totalPages,
     });
   } catch (err) {
     console.error('GET /api/products:', err.message);
