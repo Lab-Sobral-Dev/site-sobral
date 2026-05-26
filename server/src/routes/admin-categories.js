@@ -40,6 +40,9 @@ router.put('/:id', validate(['label']), async (req, res) => {
 
 // DELETE /api/admin/categories/:id
 router.delete('/:id', async (req, res) => {
+  if (req.params.id === 'all') {
+    return res.status(403).json({ error: 'A categoria "Todos" é reservada e não pode ser removida.' });
+  }
   try {
     const { rowCount } = await pool.query(
       'DELETE FROM categories WHERE id = $1',

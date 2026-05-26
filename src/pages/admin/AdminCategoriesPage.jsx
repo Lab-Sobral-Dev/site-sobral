@@ -137,12 +137,14 @@ export default function AdminCategoriesPage() {
                     <td className="px-4 py-3 font-[600] text-ink">{c.label}</td>
                     <td className="px-4 py-3 text-ink-light">{c.ordem}</td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleDelete(c.id, c.label)}
-                        className="text-red-400 hover:underline font-[600]"
-                      >
-                        Deletar
-                      </button>
+                      {c.id !== 'all' && (
+                        <button
+                          onClick={() => handleDelete(c.id, c.label)}
+                          className="text-red-400 hover:underline font-[600]"
+                        >
+                          Deletar
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -163,12 +165,14 @@ export default function AdminCategoriesPage() {
                     Ordem: {c.ordem}
                   </span>
                 </div>
-                <button
-                  onClick={() => handleDelete(c.id, c.label)}
-                  className="text-red-400 hover:underline font-[600] text-[13px]"
-                >
-                  Deletar
-                </button>
+                {c.id !== 'all' && (
+                  <button
+                    onClick={() => handleDelete(c.id, c.label)}
+                    className="text-red-400 hover:underline font-[600] text-[13px]"
+                  >
+                    Deletar
+                  </button>
+                )}
               </div>
             ))}
           </div>
