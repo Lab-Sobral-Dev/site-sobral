@@ -212,7 +212,16 @@ export default function AdminProductFormPage() {
               <input
                 type="file"
                 accept=".jpg,.jpeg,.png,.webp"
-                onChange={e => setImageFile(e.target.files[0] || null)}
+                onChange={e => {
+                  const file = e.target.files[0] || null;
+                  if (file && file.size > 20 * 1024 * 1024) {
+                    setError('Imagem muito grande. Tamanho máximo: 20 MB.');
+                    e.target.value = '';
+                    return;
+                  }
+                  setError('');
+                  setImageFile(file);
+                }}
                 className="text-[13px] text-ink-light"
               />
               {imageFile && (

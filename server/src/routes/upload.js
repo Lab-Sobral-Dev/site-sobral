@@ -43,7 +43,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     cb(null, allowedExts.includes(ext) && allowedMimes.includes(file.mimetype));
@@ -52,7 +52,12 @@ const upload = multer({
 
 router.post('/', requireAuth, (req, res) => {
   upload.single('image')(req, res, async (err) => {
-    if (err) return res.status(400).json({ error: err.message });
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'Arquivo muito grande. Tamanho máximo: 20 MB.' });
+      }
+      return res.status(400).json({ error: err.message });
+    }
     if (!req.file) return res.status(400).json({ error: 'Arquivo ausente ou tipo inválido (jpg/png/webp).' });
 
     const filePath = req.file.path;
