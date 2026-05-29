@@ -74,7 +74,7 @@ export default function Header() {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="h-[6px] bg-gradient-to-r from-[#FFB46B] via-orange to-[#FFB46B]" />
 
-        <div className="flex items-center gap-4 lg:gap-8 px-4 md:px-10 py-[14px]">
+        <div className="flex items-center gap-4 lg:gap-8 max-w-content mx-auto px-4 md:px-10 py-[14px]">
           {/* Logo */}
           <div
             className="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
