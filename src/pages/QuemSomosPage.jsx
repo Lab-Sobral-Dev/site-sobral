@@ -15,7 +15,6 @@ const SOBRE_DEFAULTS = {
   historia_texto_1:   '<p>A história do Laboratório Sobral começou a ser contada em 1911, com a abertura de uma botica na cidade de Amarante – Piauí, a Pharmacia Sobral. Em 1919 foi transferida para Floriano, e aqui fixada. Em 1925 foi para sede própria, onde está até hoje.</p>',
   historia_texto_2:   '<p>Ao longo dos anos o pequeno negócio cresceu e, além da Pharmacia, a botica transformou-se em um laboratório e pequena indústria de medicamentos.</p>',
   historia_texto_3:   '<p>Em 1973, sob a gestão do economista e empreendedor Teodoro Ferreira Sobral Neto, a fábrica passou a ser continuamente ampliada e modernizada — até chegar aos dias de hoje, referência no cuidado da saúde dos brasileiros.</p>',
-  historia_pullquote: 'Mais que uma indústria, somos um símbolo da luta do povo brasileiro.',
   historia_imagem:    '/images/fachada.png',
 };
 

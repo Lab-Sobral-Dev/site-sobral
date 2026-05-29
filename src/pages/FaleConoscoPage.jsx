@@ -9,7 +9,7 @@ const safe = (html) => parse(DOMPurify.sanitize(html));
 
 function toWhatsApp(phone) {
   const digits = phone.replace(/\D/g, '');
-  if (digits.length < 8) return null;
+  if (digits.startsWith('0800') || digits.length < 10) return null;
   const num = digits.startsWith('55') ? digits : `55${digits}`;
   return `https://wa.me/${num}`;
 }
