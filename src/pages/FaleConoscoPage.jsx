@@ -7,13 +7,22 @@ import { usePageContent } from '../hooks/usePageContent';
 
 const safe = (html) => parse(DOMPurify.sanitize(html));
 
+function toWhatsApp(phone) {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 8) return null;
+  const num = digits.startsWith('55') ? digits : `55${digits}`;
+  return `https://wa.me/${num}`;
+}
+
 const CONTATO_DEFAULTS = {
   unidade_fabril:       '<p><strong>Rua Bento Leão, 25, Centro</strong><br>Floriano | PI | CEP 64800-062.<br>Telefone: (89) 2101-2202</p>',
   escritorio_comercial: '<p><strong>Avenida Elias João Tajra, 1601, Fátima</strong><br>Teresina | PI | CEP 64049-300<br>Telefone: (89) 99921-0283</p>',
+  sac_telefone:         '0800 979 5040',
+  sac_email:            'sac@laboratoriosobral.com.br',
+  rh_telefone:          '(89) 99999-9999',
+  rh_email:             'rh@laboratoriosobral.com.br',
   marketing_telefone:   '(89) 99999-9999',
   marketing_email:      'marketing@laboratoriosobral.com.br',
-  atendimento_telefone: '(89) 99999-9999',
-  sac:                  '0800 979 5040',
 };
 
 const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
@@ -94,16 +103,30 @@ export default function FaleConoscoPage() {
           </div>
 
           <div className="flex flex-col gap-3.5 items-start">
-            <div className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
-              <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-1">MARKETING</div>
-              <div className="text-[14px] text-ink-light mt-1">{content.marketing_telefone}</div>
-              <div className="text-[14px] text-ink-light">{content.marketing_email}</div>
-            </div>
-            <div className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
-              <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-1">ATENDIMENTO</div>
-              <div className="text-[14px] text-ink-light mt-1">{content.atendimento_telefone}</div>
-            </div>
-            <div className="mt-2.5 text-[18px] font-[800] text-orange">SAC {content.sac}</div>
+            {[
+              { label: 'SAC',       telefone: content.sac_telefone,       email: content.sac_email },
+              { label: 'RH',        telefone: content.rh_telefone,        email: content.rh_email },
+              { label: 'MARKETING', telefone: content.marketing_telefone, email: content.marketing_email },
+            ].map(({ label, telefone, email }) => {
+              const wa = toWhatsApp(telefone);
+              return (
+                <div key={label} className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
+                  <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-2">
+                    {label}
+                  </div>
+                  {wa ? (
+                    <a href={wa} target="_blank" rel="noreferrer" className="block text-[14px] text-ink-light hover:text-orange transition-colors mt-1">
+                      {telefone}
+                    </a>
+                  ) : (
+                    <div className="text-[14px] text-ink-light mt-1">{telefone}</div>
+                  )}
+                  <a href={`mailto:${email}`} className="block text-[14px] text-ink-light hover:text-orange transition-colors">
+                    {email}
+                  </a>
+                </div>
+              );
+            })}
           </div>
         </div>
 
