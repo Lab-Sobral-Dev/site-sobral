@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Testes de integração
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: sobral
+          POSTGRES_PASSWORD: sobral_pass
+          POSTGRES_DB: sobral_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Instalar dependências do servidor
+        run: npm ci
+        working-directory: server
+
+      - name: Rodar migrations no banco de teste
+        run: node src/db/migrate.js
+        working-directory: server
+        env:
+          DATABASE_URL: postgresql://sobral:sobral_pass@localhost:5432/sobral_test
+
+      - name: Rodar testes
+        run: npm test
+        working-directory: server
+        env:
+          DATABASE_URL: postgresql://sobral:sobral_pass@localhost:5432/sobral_test
+          JWT_SECRET: test-jwt-secret-12345
+          ADMIN_EMAIL: admin@test.com
+          ADMIN_PASSWORD: Test@123
+          NODE_ENV: test
