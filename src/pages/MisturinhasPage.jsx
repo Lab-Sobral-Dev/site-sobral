@@ -143,31 +143,23 @@ export default function MisturinhasPage() {
       {/* HERO */}
       <section
         ref={refHero}
-        className="reveal bg-[#FAF5EC] grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-9 lg:gap-[60px] items-stretch px-8 py-12 lg:px-20 lg:py-[60px] relative overflow-hidden"
+        className="reveal bg-[#FAF5EC] flex flex-col items-center text-center px-8 py-12 lg:px-20 lg:py-[60px] relative overflow-hidden gap-9"
       >
         <div className="absolute -bottom-[100px] -left-[60px] w-[280px] h-[280px] rounded-full border-[14px] border-orange/10 pointer-events-none" />
 
-        <div className="relative flex flex-col justify-center max-w-[560px]">
+        <div className="relative flex flex-col items-center max-w-[700px]">
           <div className="text-[12px] tracking-[3px] font-[900] text-orange mb-[18px]">FOLDER · ÓLEOS SOBRAL</div>
-          <h1 className="font-display text-[56px] lg:text-[76px] font-[900] leading-[.95] mb-6 text-ink tracking-[-2px] text-balance">
+          <h1 className="font-display text-[48px] lg:text-[72px] font-[900] leading-[.95] mb-6 text-ink tracking-[-2px]">
             Misturinhas<br/>
             <em className="text-orange not-italic-only italic font-[700]">que mudam tudo.</em>
           </h1>
-          <p className="text-[18px] leading-[1.55] text-ink-light mb-8 max-w-[480px]">
+          <p className="text-[18px] leading-[1.55] text-ink-light max-w-[480px]">
             10 combinações dos <strong className="text-ink font-[800]">Óleos Sobral</strong> para turbinar sua rotina de pele e cabelo.
             Use sozinhos ou misturados — sua beleza agradece.
           </p>
-          <div className="flex gap-10 pt-6 border-t border-black/10">
-            {[['10','receitas'],['12','óleos'],['2','linhas']].map(([n, lbl]) => (
-              <div key={lbl} className="flex flex-col">
-                <b className="font-display text-[44px] font-[900] text-orange leading-none mb-1">{n}</b>
-                <span className="text-[12px] font-bold text-ink-light tracking-[1px] uppercase">{lbl}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
-        <div className="rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(232,90,12,.22)] h-[400px] lg:h-auto">
+        <div className="rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(232,90,12,.22)] w-full max-w-[700px] aspect-[16/9]">
           <img
             src="/images/misturinhas-hero-panel.png"
             alt="Dicas de Misturinhas Óleos Sobral"
