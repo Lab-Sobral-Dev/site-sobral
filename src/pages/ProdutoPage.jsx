@@ -52,10 +52,10 @@ export default function ProdutoPage() {
               {p.caracteristicas.map((item, i) => <li key={i}>{item}</li>)}
             </ul>
           )
-        : <span>{p.description}</span>,
+        : <span className="whitespace-pre-wrap">{p.description}</span>,
     },
-    { id: 'apresentacao', title: 'Apresentação', render: <span>{p.apresentacao || '—'}</span> },
-    { id: 'modouso',      title: 'Modo de Uso',  render: <span>{p.modo_uso    || '—'}</span> },
+    { id: 'apresentacao', title: 'Apresentação', render: <span className="whitespace-pre-wrap">{p.apresentacao || '—'}</span> },
+    { id: 'modouso',      title: 'Modo de Uso',  render: <span className="whitespace-pre-wrap">{p.modo_uso    || '—'}</span> },
   ];
 
   return (
@@ -89,7 +89,7 @@ export default function ProdutoPage() {
           {/* Info */}
           <div>
             <h1 className="text-[28px] md:text-[36px] font-bold mb-[14px] text-ink-light">{p.name}</h1>
-            <p className="text-[15px] leading-[1.6] text-ink-light mb-7">{p.description}</p>
+            <p className="text-[15px] leading-[1.6] text-ink-light mb-7 whitespace-pre-wrap">{p.description}</p>
 
             <div>
               {accordionData.map(item => (
