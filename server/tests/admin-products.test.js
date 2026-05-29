@@ -38,14 +38,17 @@ describe('GET /api/admin/products — autenticação', () => {
        ON CONFLICT(id) DO UPDATE SET ativo = false`,
       [CAT_ID]
     );
-    const res = await request(app)
-      .get('/api/admin/products')
-      .set('Authorization', `Bearer ${token}`);
-    expect(res.status).toBe(200);
-    const found = res.body.data.find(p => p.id === 'test-inativo-001');
-    expect(found).toBeDefined();
-    expect(found.ativo).toBe(false);
-    await pool.query('DELETE FROM products WHERE id = $1', ['test-inativo-001']);
+    try {
+      const res = await request(app)
+        .get('/api/admin/products')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      const found = res.body.data.find(p => p.id === 'test-inativo-001');
+      expect(found).toBeDefined();
+      expect(found.ativo).toBe(false);
+    } finally {
+      await pool.query('DELETE FROM products WHERE id = $1', ['test-inativo-001']);
+    }
   });
 });
 
