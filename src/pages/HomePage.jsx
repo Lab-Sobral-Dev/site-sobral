@@ -1,14 +1,10 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
-import ProductCard from '../components/ProductCard';
 import HeroCarousel from '../components/HeroCarousel';
 import { usePageContent } from '../hooks/usePageContent';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-
-const FEATURED_IDS = ['aqualema','calciolax-articule','saludoz','propolis-verde','movimex','calciolax-kids','rosa-mosqueta-spray','propzinco'];
 
 const BRAND_LABELS = ['Linha Tradicionais', 'Família Calciolax', 'Movimex', 'Óleos Sobral'];
 const BRAND_KEYS   = ['marca_tradicionais_imagem', 'marca_calciolax_imagem', 'marca_movimex_imagem', 'marca_oleos_imagem'];
@@ -16,8 +12,6 @@ const BRAND_KEYS   = ['marca_tradicionais_imagem', 'marca_calciolax_imagem', 'ma
 const HOME_DEFAULTS = {
   linhas_eyebrow:       'FAMÍLIAS DE PRODUTOS',
   linhas_titulo:        'Nossas Linhas',
-  vendidos_eyebrow:     'OS PREFERIDOS',
-  vendidos_titulo:      'Produtos mais vendidos',
   historia_eyebrow:     'DESDE 1911',
   historia_titulo:      'Conheça a história do',
   historia_subtitulo:   'Laboratório Sobral',
@@ -31,28 +25,9 @@ const HOME_DEFAULTS = {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [carouselIdx, setCarouselIdx] = useState(0);
-  const [featured,    setFeatured]    = useState([]);
   const content = usePageContent('home', HOME_DEFAULTS);
 
-  useEffect(() => {
-    fetch(`/api/products?ids=${FEATURED_IDS.join(',')}&per_page=20`)
-      .then(r => r.json())
-      .then(json => {
-        if (Array.isArray(json.data)) {
-          const ordered = FEATURED_IDS
-            .map(id => json.data.find(p => p.id === id))
-            .filter(Boolean);
-          setFeatured(ordered);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const visible = featured.slice(carouselIdx, carouselIdx + 4);
-
   const refLinhas   = useScrollReveal();
-  const refVendidos = useScrollReveal();
   const refHistoria = useScrollReveal();
 
   return (
@@ -88,30 +63,48 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* MAIS VENDIDOS */}
-      <section ref={refVendidos} className="reveal max-w-content mx-auto px-4 md:px-10 mt-[70px]">
-        <div className="text-center mt-10 mb-7">
-          <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">{content.vendidos_eyebrow}</div>
-          <h2 className="font-display text-[28px] md:text-[36px] font-[900] tracking-[-.5px] leading-none">{content.vendidos_titulo}</h2>
+      {/* REDES SOCIAIS */}
+      <section className="max-w-content mx-auto px-4 md:px-10 mt-[70px]">
+        <div className="text-center mb-8">
+          <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">SIGA A GENTE</div>
+          <h2 className="font-display text-[28px] md:text-[36px] font-[900] tracking-[-.5px] leading-none">Nossas Redes Sociais</h2>
         </div>
-        <div className="relative">
-          <button
-            className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full border-none bg-white shadow text-orange flex items-center justify-center text-[18px] md:text-[22px] z-[5] transition-all hover:bg-orange hover:text-white disabled:opacity-30"
-            onClick={() => setCarouselIdx(Math.max(0, carouselIdx - 1))}
-            disabled={carouselIdx === 0}
-          >‹</button>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-[18px] px-2 md:px-5">
-            {visible.map((p, i) => (
-              <div key={p.id} className={i >= 2 ? 'hidden md:block' : ''}>
-                <ProductCard product={p} onClick={() => navigate(`/produtos/${p.id}`)} />
-              </div>
-            ))}
-          </div>
-          <button
-            className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full border-none bg-white shadow text-orange flex items-center justify-center text-[18px] md:text-[22px] z-[5] transition-all hover:bg-orange hover:text-white disabled:opacity-30"
-            onClick={() => setCarouselIdx(Math.min(featured.length - 4, carouselIdx + 1))}
-            disabled={carouselIdx >= featured.length - 4}
-          >›</button>
+        <div className="flex flex-wrap justify-center gap-4">
+          <a
+            href="https://instagram.com/labsobral"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 bg-white border border-line rounded-full px-6 py-3 font-bold text-[15px] text-ink shadow-sm transition-all hover:-translate-y-px hover:border-orange hover:text-orange"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+            @labsobral
+          </a>
+          <a
+            href="https://facebook.com/labsobral"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 bg-white border border-line rounded-full px-6 py-3 font-bold text-[15px] text-ink shadow-sm transition-all hover:-translate-y-px hover:border-orange hover:text-orange"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+            Laboratório Sobral
+          </a>
+          <a
+            href="https://wa.me/558921012202"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 bg-white border border-line rounded-full px-6 py-3 font-bold text-[15px] text-ink shadow-sm transition-all hover:-translate-y-px hover:border-orange hover:text-orange"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+            WhatsApp
+          </a>
         </div>
       </section>
 
