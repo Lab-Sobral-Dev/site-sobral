@@ -42,12 +42,6 @@ export default function ProdutoPage() {
 
   const p = product;
 
-  const nutriUnidade = (() => {
-    if (!p.nutri_porcoes) return '—';
-    const match = p.nutri_porcoes.match(/Porção:\s*([^\n(]+)/i);
-    return match ? match[1].trim() : p.nutri_porcoes.split('\n')[0];
-  })();
-
   const accordionData = [
     {
       id: 'caracteristicas',
@@ -62,7 +56,6 @@ export default function ProdutoPage() {
     },
     { id: 'apresentacao', title: 'Apresentação', render: <span>{p.apresentacao || '—'}</span> },
     { id: 'modouso',      title: 'Modo de Uso',  render: <span>{p.modo_uso    || '—'}</span> },
-    { id: 'precaucoes',   title: 'Precauções',   render: <span>{p.precaucoes  || '—'}</span> },
   ];
 
   return (
@@ -115,49 +108,6 @@ export default function ProdutoPage() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Ingredientes + Nutricional */}
-      <section className="bg-gradient-to-b from-[#C5D11E] to-[#A8B410] text-white mt-[60px] py-10 md:py-12 px-4 md:px-10">
-        <div className="max-w-content mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12">
-          <div>
-            <h2 className="text-[24px] md:text-[26px] font-[800] text-center mb-[22px] text-white">Ingredientes</h2>
-            <p className="text-[13.5px] leading-[1.65] mb-[18px]">{p.ingredientes || 'Informações não disponíveis para este produto.'}</p>
-            {p.disclaimer && <p className="text-[13.5px] leading-[1.65] font-bold">{p.disclaimer}</p>}
-          </div>
-          {p.nutri_rows ? (
-            <div className="md:border-l border-white/30 md:pl-12 pt-8 md:pt-0 border-t md:border-t-0">
-              <h2 className="text-[26px] font-[800] text-center mb-[22px] text-white">Informação nutricional</h2>
-              {p.nutri_porcoes && <pre className="font-sans text-[13.5px] m-0 whitespace-pre-wrap mb-[14px]">{p.nutri_porcoes}</pre>}
-              <table className="w-full border-collapse text-[13.5px]">
-                <thead>
-                  <tr className="border-b border-white/40">
-                    <th className="text-left"></th>
-                    <th className="text-right py-1.5 font-bold">{nutriUnidade}</th>
-                    <th className="text-right py-1.5 font-bold">%VD*</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {p.nutri_rows.map((r, i) => (
-                    <tr key={i} className="border-b border-white/20">
-                      <td className="py-2">{r[0]}</td>
-                      <td className="text-right">{r[1]}</td>
-                      <td className="text-right">{r[2]}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <p className="text-[12px] mt-[14px] leading-[1.55]">
-                Não contém quantidades significativas de açúcares totais, açúcares adicionados, proteínas, gorduras totais, gorduras saturadas, gorduras trans, fibras alimentares e sódio.
-              </p>
-              <p className="text-[11px] mt-2.5 italic">*Percentual de valores diários fornecidos pela porção.</p>
-            </div>
-          ) : (
-            <div className="md:border-l border-white/30 md:pl-12 pt-8 md:pt-0 border-t md:border-t-0 flex items-center justify-center text-white/70 text-[14px]">
-              Informações nutricionais não disponíveis para este produto.
-            </div>
-          )}
         </div>
       </section>
     </>
