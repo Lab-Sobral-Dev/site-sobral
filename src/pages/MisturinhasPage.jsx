@@ -102,18 +102,18 @@ const MISTURINHAS_PELE = [
 ];
 
 const GUIA_OLEOS = [
-  { id:'oleo-alecrim',        nome:'Alecrim',        tag:'Fortalecimento capilar' },
-  { id:'oleo-uva',            nome:'Semente de Uva', tag:'Peles acneicas, cicatrizes' },
-  { id:'oleo-coco',           nome:'Coco',           tag:'Hidratação + demaquilante' },
-  { id:'oleo-girassol',       nome:'Girassol',       tag:'Vitamina E, elasticidade' },
-  { id:'oleo-amendoas',       nome:'Amêndoas Doce',  tag:'Estrias e ressecamento' },
-  { id:'oleo-ricino',         nome:'Rícino',         tag:'Umectação capilar' },
-  { id:'rosa-mosqueta-gotas', nome:'Rosa Mosqueta',  tag:'Antienvelhecimento' },
-  { id:'oleo-copaiba',        nome:'Copaíba',        tag:'Cicatrizes e manchas' },
-  { id:'oleo-babosa',         nome:'Babosa',         tag:'Couro cabeludo, sol' },
-  { id:'oleo-abacate',        nome:'Abacate',        tag:'Couro cabeludo + pele' },
-  { id:'oleo-argan',          nome:'Argan',          tag:'Anti-friz, circulação' },
-  { id:'glicerina',           nome:'Glicerina',      tag:'Hidratante universal' },
+  { id:'oleo-alecrim',        nome:'Óleo de Alecrim',        tag:'Fortalecimento capilar' },
+  { id:'oleo-uva',            nome:'Óleo de Semente de Uva', tag:'Peles acneicas, cicatrizes' },
+  { id:'oleo-coco',           nome:'Óleo de Coco',           tag:'Hidratação + demaquilante' },
+  { id:'oleo-girassol',       nome:'Óleo de Girassol',       tag:'Vitamina E, elasticidade' },
+  { id:'oleo-amendoas',       nome:'Óleo de Amêndoas Doce',  tag:'Estrias e ressecamento' },
+  { id:'oleo-ricino',         nome:'Óleo de Rícino',         tag:'Umectação capilar' },
+  { id:'rosa-mosqueta-gotas', nome:'Óleo de Rosa Mosqueta',  tag:'Antienvelhecimento' },
+  { id:'oleo-copaiba',        nome:'Óleo de Copaíba',        tag:'Cicatrizes e manchas' },
+  { id:'oleo-babosa',         nome:'Óleo de Babosa',         tag:'Couro cabeludo, sol' },
+  { id:'oleo-abacate',        nome:'Óleo de Abacate',        tag:'Couro cabeludo + pele' },
+  { id:'oleo-argan',          nome:'Óleo de Argan',          tag:'Anti-friz, circulação' },
+  { id:'glicerina',           nome:'Glicerina Sobral',       tag:'Hidratante universal' },
 ];
 
 function findP(id) {
@@ -173,20 +173,16 @@ export default function MisturinhasPage() {
         {/* Tabs */}
         <div className="flex gap-3 justify-center mb-9">
           {[
-            { id: 'cabelo', label: 'Cabelo', count: '5 misturinhas', svg: <path d="M12 3 C7 3 4 7 5 13 L6 21 M12 3 C17 3 20 7 19 13 L18 21 M9 15 L9 21 M15 15 L15 21"/> },
-            { id: 'pele',   label: 'Pele',   count: '5 misturinhas', svg: <><path d="M5 12 Q5 6 12 6 Q19 6 19 12 Q19 19 12 19 Q5 19 5 12 Z"/><circle cx="10" cy="11" r=".8" fill="currentColor"/><circle cx="14" cy="13" r=".8" fill="currentColor"/><circle cx="11" cy="15" r=".8" fill="currentColor"/></> },
+            { id: 'cabelo', label: 'Cabelo', count: '5 misturinhas' },
+            { id: 'pele',   label: 'Pele',   count: '5 misturinhas' },
           ].map(t => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`bg-white border-2 rounded-full pl-5 pr-[26px] py-3 flex items-center gap-3 transition-all font-sans text-left
-                ${tab === t.id ? 'bg-orange border-orange !text-white shadow-[0_4px_14px_rgba(232,90,12,.3)]' : 'border-line text-ink hover:border-orange hover:text-orange'}`}
+              className={`border-2 rounded-full px-6 py-3 flex items-center gap-2 transition-all font-sans text-left
+                ${tab === t.id ? 'border-orange !text-white shadow-[0_4px_14px_rgba(232,90,12,.3)]' : 'border-line text-ink hover:border-orange hover:text-orange'}`}
               style={tab === t.id ? { background: 'var(--orange)', color: 'white' } : {}}
             >
-              <span className={`w-[38px] h-[38px] rounded-full grid place-items-center flex-shrink-0
-                ${tab === t.id ? 'bg-white/20 text-white' : 'bg-orange-50 text-orange'}`}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">{t.svg}</svg>
-              </span>
               <div>
                 <div className="font-[900] text-[16px] leading-none mb-0.5">{t.label}</div>
                 <div className="text-[11px] opacity-80 font-semibold">{t.count}</div>
@@ -247,12 +243,9 @@ export default function MisturinhasPage() {
                   <p className="text-[15px] leading-[1.6] text-ink-light m-0">{current.aplicacao}</p>
                 </div>
 
-                <div className="flex gap-3.5 items-start bg-white p-4 rounded-[14px] shadow-[0_4px_14px_rgba(232,90,12,.08)]">
-                  <span className="text-[28px] flex-shrink-0 leading-none">✨</span>
-                  <div>
-                    <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-1.5">O RESULTADO</div>
-                    <p className="text-[14.5px] leading-[1.5] text-ink m-0 font-semibold">{current.resultado}</p>
-                  </div>
+                <div className="bg-white p-4 rounded-[14px] shadow-[0_4px_14px_rgba(232,90,12,.08)]">
+                  <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-1.5">O RESULTADO</div>
+                  <p className="text-[14.5px] leading-[1.5] text-ink m-0 font-semibold">{current.resultado}</p>
                 </div>
               </div>
             </div>
@@ -317,10 +310,6 @@ export default function MisturinhasPage() {
                  className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-white text-orange font-[900] text-[14px] tracking-[.3px] transition-all hover:-translate-y-px hover:shadow-lg">
                 @labsobral no Instagram
               </a>
-              <button onClick={() => navigate('/produtos')}
-                className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-transparent text-white border-[1.5px] border-white/50 font-bold text-[14px] tracking-[.3px] transition-all hover:bg-white/10">
-                Ver todos os óleos →
-              </button>
             </div>
           </div>
           <div className="relative z-[1] rounded-[20px] overflow-hidden aspect-[3/4] shadow-[0_12px_32px_rgba(0,0,0,.18)] max-h-[320px] lg:max-h-none bg-[#F37021]">
