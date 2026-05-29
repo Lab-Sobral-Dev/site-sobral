@@ -76,12 +76,9 @@ export default function QuemSomosPage() {
             <div className="text-[15px] text-ink-light leading-[1.7]">{safe(content.historia_texto_3)}</div>
           </div>
 
-          <div className="relative order-1 md:order-2">
-            <div className="aspect-[4/5] max-h-[420px] md:max-h-none rounded-[4px] bg-[#EAEAEA] overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,.12)]">
+          <div className="order-1 md:order-2">
+            <div className="aspect-[16/9] rounded-[4px] bg-[#EAEAEA] overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,.12)]">
               <img src={content.historia_imagem} alt="Fachada do Laboratório Sobral" className="w-full h-full object-cover" />
-            </div>
-            <div className="relative md:absolute mt-4 md:mt-0 md:bottom-[38px] md:-left-[30px] md:right-[40px] bg-orange text-white px-5 md:px-[26px] py-4 md:py-[22px] font-display text-[17px] md:text-[20px] font-bold leading-[1.3] italic shadow-[0_8px_24px_rgba(232,90,12,.28)]">
-              "{content.historia_pullquote}"
             </div>
           </div>
         </div>
