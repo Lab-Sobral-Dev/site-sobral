@@ -11,7 +11,7 @@ function makeToken() {
 
 async function createCategory(id = 'test-cat-001') {
   await pool.query(
-    `INSERT INTO categories(id, name)
+    `INSERT INTO categories(id, label)
      VALUES($1, 'Categoria Teste')
      ON CONFLICT(id) DO NOTHING`,
     [id]
