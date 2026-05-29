@@ -1,5 +1,6 @@
 const request = require('supertest');
 const app     = require('../src/app');
+const pool    = require('../src/db');
 const { createCategory, deleteCategory, createProduct, deleteProduct } = require('./helpers');
 
 const CAT_ID  = 'test-cat-prods';
@@ -11,8 +12,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await deleteProduct(PROD_ID);
-  await deleteCategory(CAT_ID);
+  try { await deleteProduct(PROD_ID); } catch (e) { console.error('cleanup product:', e.message); }
+  try { await deleteCategory(CAT_ID); } catch (e) { console.error('cleanup category:', e.message); }
 });
 
 describe('GET /api/products', () => {
@@ -47,12 +48,14 @@ describe('GET /api/products', () => {
   });
 
   it('não retorna produtos inativos', async () => {
-    const pool = require('../src/db');
     await pool.query('UPDATE products SET ativo = false WHERE id = $1', [PROD_ID]);
-    const res = await request(app).get(`/api/products?ids=${PROD_ID}&per_page=5`);
-    expect(res.status).toBe(200);
-    expect(res.body.data.find(p => p.id === PROD_ID)).toBeUndefined();
-    await pool.query('UPDATE products SET ativo = true WHERE id = $1', [PROD_ID]);
+    try {
+      const res = await request(app).get(`/api/products?ids=${PROD_ID}&per_page=5`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.find(p => p.id === PROD_ID)).toBeUndefined();
+    } finally {
+      await pool.query('UPDATE products SET ativo = true WHERE id = $1', [PROD_ID]);
+    }
   });
 });
 
