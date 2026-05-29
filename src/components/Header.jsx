@@ -11,6 +11,32 @@ function SearchIcon() {
   );
 }
 
+function InstagramIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+      <circle cx="12" cy="12" r="4"/>
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
+  );
+}
+
 function NavDropdown({ id, label, items, open, onToggle, onNavigate }) {
   return (
     <div
@@ -60,17 +86,29 @@ export default function Header() {
 
   return (
     <>
-      <div className="h-[6px] bg-gradient-to-r from-[#FFB46B] via-orange to-[#FFB46B]" />
-      <header className="bg-white px-4 md:px-10 py-[14px] flex items-center gap-4 lg:gap-10 shadow-sm sticky top-0 z-50">
-        <div
-          className="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
-          onClick={() => navigate('/')}
-          title="Laboratório Sobral"
-        >
-          <img src="/images/logo.png" alt="Laboratório Sobral" width={56} height={56} className="w-full h-full object-cover rounded-full" />
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="h-[6px] bg-gradient-to-r from-[#FFB46B] via-orange to-[#FFB46B]" />
+
+        {/* Logo — centralizado */}
+        <div className="flex items-center justify-center px-4 py-3 relative">
+          <div
+            className="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
+            onClick={() => navigate('/')}
+            title="Laboratório Sobral"
+          >
+            <img src="/images/logo.png" alt="Laboratório Sobral" width={56} height={56} className="w-full h-full object-cover rounded-full" />
+          </div>
+          <button
+            className="lg:hidden absolute right-4 text-ink p-2"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Abrir menu"
+          >
+            <HamburgerIcon />
+          </button>
         </div>
 
-        <nav className="hidden lg:flex gap-7 items-center flex-1 justify-center">
+        {/* Nav + busca — desktop, centralizado */}
+        <nav className="hidden lg:flex items-center justify-center gap-7 pb-[12px]">
           <NavDropdown
             id="sobral" label="O Sobral" open={openDropdown === 'sobral'}
             onToggle={setOpenDropdown} onNavigate={navigate}
@@ -91,45 +129,42 @@ export default function Header() {
               { label: 'Dicas de Misturinhas ✨', to: '/misturinhas' },
             ]}
           />
-          <NavDropdown
-            id="vendidos" label="Mais Vendidos" open={openDropdown === 'vendidos'}
-            onToggle={setOpenDropdown} onNavigate={navigate}
-            items={[
-              { label: 'Aqualemã Sobral', to: '/produtos/aqualema' },
-              { label: 'Calciolax Articule', to: '/produtos/calciolax-articule' },
-              { label: 'Saludoz Ômega AZ', to: '/produtos/saludoz' },
-              { label: 'Extrato de Própolis Verde', to: '/produtos/propolis-verde' },
-            ]}
-          />
+
+          {/* Redes sociais */}
+          <div className="flex items-center gap-1">
+            <a href="https://instagram.com/labsobral" target="_blank" rel="noreferrer" aria-label="Instagram" className="p-2 text-ink-light transition-colors hover:text-orange">
+              <InstagramIcon />
+            </a>
+            <a href="https://facebook.com/labsobral" target="_blank" rel="noreferrer" aria-label="Facebook" className="p-2 text-ink-light transition-colors hover:text-orange">
+              <FacebookIcon />
+            </a>
+            <a href="https://wa.me/558921012202" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="p-2 text-ink-light transition-colors hover:text-orange">
+              <WhatsAppIcon />
+            </a>
+          </div>
+
           <div
             className={`font-bold text-[15px] py-2.5 cursor-pointer transition-colors hover:text-orange ${isFaleConosco ? 'text-orange' : 'text-ink'}`}
             onClick={() => navigate('/fale-conosco')}
           >
             Fale Conosco
           </div>
+
+          {/* Barra de busca — centralizada junto ao nav */}
+          <div className="relative w-[240px]">
+            <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none">
+              <SearchIcon />
+            </span>
+            <input
+              type="text"
+              placeholder="Pesquisar produto"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleSearch}
+              className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] text-ink outline-none transition-[border-color,box-shadow] focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)] placeholder:text-muted"
+            />
+          </div>
         </nav>
-
-        <div className="hidden lg:block relative w-[260px]">
-          <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none">
-            <SearchIcon />
-          </span>
-          <input
-            type="text"
-            placeholder="Pesquisar produto"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleSearch}
-            className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] text-ink outline-none transition-[border-color,box-shadow] focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)] placeholder:text-muted"
-          />
-        </div>
-
-        <button
-          className="lg:hidden ml-auto text-ink p-2"
-          onClick={() => setDrawerOpen(true)}
-          aria-label="Abrir menu"
-        >
-          <HamburgerIcon />
-        </button>
       </header>
 
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
