@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Breadcrumb from '../components/Breadcrumb';
+import ProductCard from '../components/ProductCard';
 
 export default function ProdutoPage() {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function ProdutoPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [related, setRelated] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -23,6 +25,17 @@ export default function ProdutoPage() {
       .then(data => { if (data) setProduct(data); })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
+  }, [id]);
+
+  useEffect(() => {
+    fetch('/api/products?per_page=5')
+      .then(r => r.json())
+      .then(json => {
+        if (Array.isArray(json.data)) {
+          setRelated(json.data.filter(p => p.id !== id).slice(0, 4));
+        }
+      })
+      .catch(() => {});
   }, [id]);
 
   if (loading) {
@@ -110,6 +123,23 @@ export default function ProdutoPage() {
           </div>
         </div>
       </section>
+
+      {related.length > 0 && (
+        <section className="max-w-content mx-auto px-4 md:px-10 mt-[60px] mb-16">
+          <h2 className="font-display text-[24px] md:text-[30px] font-[900] tracking-[-.3px] mb-7">
+            Outros Produtos
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-[18px]">
+            {related.map(prod => (
+              <ProductCard
+                key={prod.id}
+                product={prod}
+                onClick={() => navigate(`/produtos/${prod.id}`)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </>
   );
 }
