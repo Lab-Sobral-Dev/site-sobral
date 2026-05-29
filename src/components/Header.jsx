@@ -70,7 +70,7 @@ export default function Header() {
           <img src="/images/logo.png" alt="Laboratório Sobral" width={56} height={56} className="w-full h-full object-cover rounded-full" />
         </div>
 
-        <nav className="hidden lg:flex gap-7 items-center flex-1">
+        <nav className="hidden lg:flex gap-7 items-center flex-1 justify-center">
           <NavDropdown
             id="sobral" label="O Sobral" open={openDropdown === 'sobral'}
             onToggle={setOpenDropdown} onNavigate={navigate}
