@@ -74,8 +74,8 @@ export default function Header() {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="h-[6px] bg-gradient-to-r from-[#FFB46B] via-orange to-[#FFB46B]" />
 
-        {/* Logo — centralizado */}
-        <div className="flex items-center justify-center px-4 py-3 relative">
+        <div className="flex items-center gap-4 lg:gap-8 px-4 md:px-10 py-[14px]">
+          {/* Logo */}
           <div
             className="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
             onClick={() => navigate('/')}
@@ -83,57 +83,48 @@ export default function Header() {
           >
             <img src="/images/logo.png" alt="Laboratório Sobral" width={56} height={56} className="w-full h-full object-cover rounded-full" />
           </div>
-          <button
-            className="lg:hidden absolute right-4 text-ink p-2"
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Abrir menu"
-          >
-            <HamburgerIcon />
-          </button>
-        </div>
 
-        {/* Nav + busca — desktop, centralizado */}
-        <nav className="hidden lg:flex items-center justify-center gap-7 pb-[12px]">
-          <NavDropdown
-            id="sobral" label="O Sobral" open={openDropdown === 'sobral'}
-            onToggle={setOpenDropdown} onNavigate={navigate}
-            items={[
-              { label: 'Quem Somos', to: '/quem-somos' },
-              { label: 'Nossa História', to: '/quem-somos' },
-              { label: 'Trabalhe Conosco', to: '/fale-conosco' },
-            ]}
-          />
-          <NavDropdown
-            id="produtos" label="Produtos" open={openDropdown === 'produtos'}
-            onToggle={setOpenDropdown} onNavigate={navigate}
-            items={[
-              { label: 'Todos os produtos', to: '/produtos' },
-              { label: 'Suplementos', to: '/produtos?cat=suplementos' },
-              { label: 'Tradicionais', to: '/produtos?cat=tradicionais' },
-              { label: 'Cosméticos', to: '/produtos?cat=cosmeticos' },
-              { label: 'Dicas de Misturinhas ✨', to: '/misturinhas' },
-            ]}
-          />
+          {/* Nav — desktop */}
+          <nav className="hidden lg:flex items-center gap-7 flex-1 justify-center">
+            <NavDropdown
+              id="sobral" label="O Sobral" open={openDropdown === 'sobral'}
+              onToggle={setOpenDropdown} onNavigate={navigate}
+              items={[
+                { label: 'Quem Somos', to: '/quem-somos' },
+                { label: 'Nossa História', to: '/quem-somos' },
+                { label: 'Trabalhe Conosco', to: '/fale-conosco' },
+              ]}
+            />
+            <NavDropdown
+              id="produtos" label="Produtos" open={openDropdown === 'produtos'}
+              onToggle={setOpenDropdown} onNavigate={navigate}
+              items={[
+                { label: 'Todos os produtos', to: '/produtos' },
+                { label: 'Suplementos', to: '/produtos?cat=suplementos' },
+                { label: 'Tradicionais', to: '/produtos?cat=tradicionais' },
+                { label: 'Cosméticos', to: '/produtos?cat=cosmeticos' },
+                { label: 'Dicas de Misturinhas ✨', to: '/misturinhas' },
+              ]}
+            />
+            <NavDropdown
+              id="redes" label="Redes Sociais" open={openDropdown === 'redes'}
+              onToggle={setOpenDropdown} onNavigate={navigate}
+              items={[
+                { label: 'Instagram', to: 'https://instagram.com/labsobral', external: true },
+                { label: 'Facebook', to: 'https://facebook.com/labsobral', external: true },
+                { label: 'WhatsApp', to: 'https://wa.me/558921012202', external: true },
+              ]}
+            />
+            <div
+              className={`font-bold text-[15px] py-2.5 cursor-pointer transition-colors hover:text-orange ${isFaleConosco ? 'text-orange' : 'text-ink'}`}
+              onClick={() => navigate('/fale-conosco')}
+            >
+              Fale Conosco
+            </div>
+          </nav>
 
-          <NavDropdown
-            id="redes" label="Redes Sociais" open={openDropdown === 'redes'}
-            onToggle={setOpenDropdown} onNavigate={navigate}
-            items={[
-              { label: 'Instagram', to: 'https://instagram.com/labsobral', external: true },
-              { label: 'Facebook', to: 'https://facebook.com/labsobral', external: true },
-              { label: 'WhatsApp', to: 'https://wa.me/558921012202', external: true },
-            ]}
-          />
-
-          <div
-            className={`font-bold text-[15px] py-2.5 cursor-pointer transition-colors hover:text-orange ${isFaleConosco ? 'text-orange' : 'text-ink'}`}
-            onClick={() => navigate('/fale-conosco')}
-          >
-            Fale Conosco
-          </div>
-
-          {/* Barra de busca — centralizada junto ao nav */}
-          <div className="relative w-[240px]">
+          {/* Busca — desktop */}
+          <div className="hidden lg:block relative w-[240px] flex-shrink-0">
             <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none">
               <SearchIcon />
             </span>
@@ -146,7 +137,16 @@ export default function Header() {
               className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] text-ink outline-none transition-[border-color,box-shadow] focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)] placeholder:text-muted"
             />
           </div>
-        </nav>
+
+          {/* Hambúrguer — mobile */}
+          <button
+            className="lg:hidden ml-auto text-ink p-2"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Abrir menu"
+          >
+            <HamburgerIcon />
+          </button>
+        </div>
       </header>
 
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
