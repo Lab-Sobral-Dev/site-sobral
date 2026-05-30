@@ -103,7 +103,7 @@ export default function Header() {
                 { label: 'Calciolax',          to: '/produtos?cat=calciolax' },
                 { label: 'Movimex',            to: '/produtos?cat=movimex' },
                 { label: 'Óleos',              to: '/produtos?cat=oleos' },
-                { label: 'Dicas de Misturinhas ✨', to: '/misturinhas' },
+                { label: 'Dicas de Misturinhas', to: '/misturinhas' },
               ]}
             />
             <NavDropdown
