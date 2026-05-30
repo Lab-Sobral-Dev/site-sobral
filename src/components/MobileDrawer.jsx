@@ -43,10 +43,10 @@ const NAV_SECTIONS = [
     id: 'produtos',
     label: 'Produtos',
     items: [
-      { label: 'Todos os produtos',         to: '/produtos' },
-      { label: 'Suplementos',               to: '/produtos?cat=suplementos' },
       { label: 'Tradicionais',              to: '/produtos?cat=tradicionais' },
-      { label: 'Cosméticos',                to: '/produtos?cat=cosmeticos' },
+      { label: 'Calciolax',                 to: '/produtos?cat=calciolax' },
+      { label: 'Movimex',                   to: '/produtos?cat=movimex' },
+      { label: 'Óleos',                     to: '/produtos?cat=oleos' },
       { label: 'Dicas de Misturinhas ✨',   to: '/misturinhas' },
     ],
   },
