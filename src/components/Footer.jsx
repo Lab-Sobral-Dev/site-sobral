@@ -11,8 +11,14 @@ export default function Footer() {
             <img src="/images/logo.png" alt="Laboratório Sobral" className="w-full h-full object-cover" />
           </div>
           <div className="text-[13.5px] leading-relaxed font-semibold">
+            <div className="text-[10px] uppercase tracking-[1.5px] opacity-70 mb-0.5">Unidade Fabril</div>
             Rua Bento Leão, 25, Centro<br />
             Floriano–PI, CEP 64800-062
+          </div>
+          <div className="mt-3 text-[13.5px] leading-relaxed font-semibold">
+            <div className="text-[10px] uppercase tracking-[1.5px] opacity-70 mb-0.5">Escritório Comercial</div>
+            Av. Homero Castelo Branco, 637, Jóquei<br />
+            Teresina–PI, CEP 64049-505
           </div>
           <div className="mt-3 text-[10px] font-[800] tracking-[2px] opacity-70 uppercase">
             Empresa Brasileira desde 1911
@@ -24,7 +30,6 @@ export default function Footer() {
           <h4 className="text-[16px] font-[800] mb-[14px] tracking-[.3px]">Fale Conosco</h4>
           <ul className="list-none p-0 m-0 space-y-2">
             <li className="text-[13.5px] font-semibold opacity-95">(89) 2101-2202</li>
-            <li className="text-[13.5px] font-semibold opacity-95">(89) 99921-0283</li>
             <li className="text-[13px] font-semibold opacity-90 break-all">sac@laboratoriosobral.com.br</li>
             <li className="text-[13.5px] font-[800] mt-3 opacity-95">SAC 0800 979 5040</li>
           </ul>
@@ -53,9 +58,15 @@ export default function Footer() {
         <div>
           <h4 className="text-[16px] font-[800] mb-[14px] tracking-[.3px]">Redes Sociais</h4>
           <ul className="list-none p-0 m-0 space-y-1.5">
-            {['Instagram', 'Facebook', 'YouTube', 'LinkedIn', 'TikTok'].map(s => (
-              <li key={s} className="text-[14px] font-semibold opacity-95">
-                <a href="#" onClick={(e) => e.preventDefault()} className="hover:underline">{s}</a>
+            {[
+              { name: 'Instagram', href: 'https://instagram.com/labsobral' },
+              { name: 'Facebook',  href: 'https://facebook.com/labsobral' },
+              { name: 'YouTube',   href: 'https://www.youtube.com/channel/UCUEAkwfnRsBmRm3An6Vhb2g' },
+              { name: 'LinkedIn',  href: 'https://www.linkedin.com/in/labsobral/' },
+              { name: 'TikTok',    href: 'https://www.tiktok.com/@labsobral' },
+            ].map(({ name, href }) => (
+              <li key={name} className="text-[14px] font-semibold opacity-95">
+                <a href={href} target="_blank" rel="noreferrer" className="hover:underline">{name}</a>
               </li>
             ))}
           </ul>

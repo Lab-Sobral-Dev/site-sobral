@@ -16,7 +16,7 @@ function toWhatsApp(phone) {
 
 const CONTATO_DEFAULTS = {
   unidade_fabril:       '<p><strong>Rua Bento Leão, 25, Centro</strong><br>Floriano | PI | CEP 64800-062.<br>Telefone: (89) 2101-2202</p>',
-  escritorio_comercial: '<p><strong>Avenida Elias João Tajra, 1601, Fátima</strong><br>Teresina | PI | CEP 64049-300<br>Telefone: (89) 99921-0283</p>',
+  escritorio_comercial: '<p><strong>Av. Homero Castelo Branco, 637, Jóquei</strong><br>Teresina–PI | CEP 64049-505</p>',
   sac_telefone:         '0800 979 5040',
   sac_email:            'sac@laboratoriosobral.com.br',
   rh_telefone:          '(89) 99999-9999',
@@ -104,29 +104,59 @@ export default function FaleConoscoPage() {
 
           <div className="flex flex-col gap-3.5 items-start">
             {[
-              { label: 'SAC',       telefone: content.sac_telefone,       email: content.sac_email },
-              { label: 'RH',        telefone: content.rh_telefone,        email: content.rh_email },
-              { label: 'MARKETING', telefone: content.marketing_telefone, email: content.marketing_email },
-            ].map(({ label, telefone, email }) => {
-              const wa = toWhatsApp(telefone);
-              return (
-                <div key={label} className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
-                  <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-2">
-                    {label}
-                  </div>
-                  {wa ? (
-                    <a href={wa} target="_blank" rel="noreferrer" className="block text-[14px] text-ink-light hover:text-orange transition-colors mt-1">
-                      {telefone}
-                    </a>
-                  ) : (
-                    <div className="text-[14px] text-ink-light mt-1">{telefone}</div>
-                  )}
+              {
+                label: 'SAC',
+                phone: content.sac_telefone,
+                wa: 'https://wa.me/5589994606485?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20atendimento.',
+                email: content.sac_email,
+              },
+              {
+                label: 'RH',
+                wa: toWhatsApp(content.rh_telefone),
+                waLabel: content.rh_telefone,
+                email: content.rh_email,
+              },
+              {
+                label: 'MARKETING',
+                wa: 'https://wa.me/5589994021056?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20atendimento.',
+                email: content.marketing_email,
+              },
+              {
+                label: 'AGENDE UMA VISITA',
+                wa: 'https://wa.me/5589999270207?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20agendar%20uma%20visita%20na%20ind%C3%BAstria.',
+              },
+            ].map(({ label, phone, wa, waLabel, email }) => (
+              <div key={label} className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
+                <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-2">
+                  {label}
+                </div>
+                {phone && <div className="text-[14px] text-ink-light mt-1">{phone}</div>}
+                {wa && (
+                  <a href={wa} target="_blank" rel="noreferrer" className="block text-[14px] text-ink-light hover:text-orange transition-colors mt-1">
+                    {waLabel || 'Falar pelo WhatsApp'}
+                  </a>
+                )}
+                {email && (
                   <a href={`mailto:${email}`} className="block text-[14px] text-ink-light hover:text-orange transition-colors">
                     {email}
                   </a>
-                </div>
-              );
-            })}
+                )}
+              </div>
+            ))}
+
+            <a
+              href="https://drive.google.com/file/d/1JWe_OkLG8Ro6jCGAaRdOBIsynoj3Rped/view"
+              target="_blank"
+              rel="noreferrer"
+              className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line hover:border-orange transition-colors group block"
+            >
+              <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-2">
+                TRANSPARÊNCIA
+              </div>
+              <div className="text-[14px] text-ink-light group-hover:text-orange transition-colors">
+                Relatório de Transparência Salarial
+              </div>
+            </a>
           </div>
         </div>
 

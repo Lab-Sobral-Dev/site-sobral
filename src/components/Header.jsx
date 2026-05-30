@@ -112,6 +112,9 @@ export default function Header() {
               items={[
                 { label: 'Instagram', to: 'https://instagram.com/labsobral', external: true },
                 { label: 'Facebook', to: 'https://facebook.com/labsobral', external: true },
+                { label: 'YouTube', to: 'https://www.youtube.com/channel/UCUEAkwfnRsBmRm3An6Vhb2g', external: true },
+                { label: 'LinkedIn', to: 'https://www.linkedin.com/in/labsobral/', external: true },
+                { label: 'TikTok', to: 'https://www.tiktok.com/@labsobral', external: true },
                 { label: 'WhatsApp', to: 'https://wa.me/558921012202', external: true },
               ]}
             />
