@@ -107,14 +107,7 @@ export default function FaleConoscoPage() {
               {
                 label: 'SAC',
                 phone: content.sac_telefone,
-                wa: 'https://wa.me/5589994606485?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20atendimento.',
                 email: content.sac_email,
-              },
-              {
-                label: 'RH',
-                wa: toWhatsApp(content.rh_telefone),
-                waLabel: content.rh_telefone,
-                email: content.rh_email,
               },
               {
                 label: 'MARKETING',
@@ -124,6 +117,7 @@ export default function FaleConoscoPage() {
               {
                 label: 'AGENDE UMA VISITA',
                 wa: 'https://wa.me/5589999270207?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20agendar%20uma%20visita%20na%20ind%C3%BAstria.',
+                email: 'rh@laboratoriosobral.com.br',
               },
             ].map(({ label, phone, wa, waLabel, email }) => (
               <div key={label} className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
