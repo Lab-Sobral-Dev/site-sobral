@@ -43,6 +43,7 @@ const NAV_SECTIONS = [
     id: 'produtos',
     label: 'Produtos',
     items: [
+      { label: 'Todos os produtos',         to: '/produtos' },
       { label: 'Tradicionais',              to: '/produtos?cat=tradicionais' },
       { label: 'Calciolax',                 to: '/produtos?cat=calciolax' },
       { label: 'Movimex',                   to: '/produtos?cat=movimex' },
