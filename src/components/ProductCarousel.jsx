@@ -1,14 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
-import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const CARDS_PER_PAGE = 4;
 const INTERVAL_MS = 5000;
 
 export default function ProductCarousel() {
   const navigate = useNavigate();
-  const ref = useScrollReveal();
 
   const [products, setProducts] = useState([]);
   const [pageIdx, setPageIdx] = useState(0);
@@ -39,8 +37,7 @@ export default function ProductCarousel() {
 
   return (
     <section
-      ref={ref}
-      className="reveal max-w-content mx-auto px-4 md:px-10 mt-[60px]"
+      className="max-w-content mx-auto px-4 md:px-10 mt-[60px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
