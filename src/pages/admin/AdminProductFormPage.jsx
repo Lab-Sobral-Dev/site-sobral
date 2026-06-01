@@ -7,7 +7,7 @@ const EMPTY_FORM = {
   id: '', name: '', tag: '', category_id: '', brand: '', image: '',
   description: '', caracteristicas: '', apresentacao: '', modo_uso: '',
   precaucoes: '', ingredientes: '', disclaimer: '', nutri_porcoes: '',
-  nutri_rows: '', ativo: true,
+  nutri_rows: '', ativo: true, destaque: false,
 };
 
 export default function AdminProductFormPage() {
@@ -52,6 +52,7 @@ export default function AdminProductFormPage() {
           nutri_porcoes:   p.nutri_porcoes   ?? '',
           nutri_rows:      p.nutri_rows      ? JSON.stringify(p.nutri_rows, null, 2) : '',
           ativo:           p.ativo,
+          destaque:        p.destaque ?? false,
         });
       })
       .catch(() => setError('Erro ao carregar produto.'))
@@ -259,6 +260,17 @@ export default function AdminProductFormPage() {
             <label htmlFor="ativo" className="text-[14px] font-[600] text-ink">Produto ativo (visível no site)</label>
           </div>
         )}
+
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="destaque"
+            checked={form.destaque}
+            onChange={e => set('destaque', e.target.checked)}
+            className="w-4 h-4 accent-orange"
+          />
+          <label htmlFor="destaque" className="text-[14px] font-[600] text-ink">Produto em destaque (aparece no carrossel da home)</label>
+        </div>
 
         <div className="flex flex-col md:flex-row gap-3 pt-2">
           <button
