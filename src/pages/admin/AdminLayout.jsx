@@ -13,8 +13,8 @@ export default function AdminLayout() {
     if (!isAuthenticated) { navigate('/admin/login', { replace: true }); return; }
     fetch('/api/auth/me', { credentials: 'include' })
       .then(r => { if (r.status === 401) { logout(); navigate('/admin/login', { replace: true }); } })
-      .catch(() => {});
-  }, []);
+      .catch(() => { logout(); navigate('/admin/login', { replace: true }); });
+  }, [isAuthenticated, logout, navigate]);
 
   if (!isAuthenticated) return null;
 

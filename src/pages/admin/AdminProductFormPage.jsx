@@ -149,6 +149,7 @@ export default function AdminProductFormPage() {
           value={form[key]}
           onChange={e => set(key, type === 'checkbox' ? e.target.checked : e.target.value)}
           disabled={opts.disabled}
+          required={opts.required}
           className="w-full border border-line rounded-[8px] px-4 py-2.5 text-[14px] outline-none focus:border-orange disabled:bg-[#F5F5F5] disabled:text-muted"
           placeholder={opts.placeholder}
         />
@@ -175,8 +176,8 @@ export default function AdminProductFormPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {field('ID (slug)', 'id', 'text', { disabled: isEdit, placeholder: 'ex: calciolax-articule' })}
-          {field('Nome *', 'name', 'text', { placeholder: 'Nome do produto' })}
+          {field('ID (slug) *', 'id', 'text', { disabled: isEdit, required: !isEdit, placeholder: 'ex: calciolax-articule' })}
+          {field('Nome *', 'name', 'text', { required: true, placeholder: 'Nome do produto' })}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

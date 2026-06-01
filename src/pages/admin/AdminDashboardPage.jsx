@@ -54,6 +54,8 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const catLabel = (id) => categories.find(c => c.id === id)?.label ?? id;
+
   return (
     <div className="p-4 md:p-8">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
@@ -119,7 +121,7 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-ink-light">{p.category_id}</td>
+                    <td className="px-4 py-3 text-ink-light">{catLabel(p.category_id)}</td>
                     <td className="px-4 py-3 text-ink-light">{p.brand}</td>
                     <td className="px-4 py-3">
                       <button
@@ -159,7 +161,7 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
                 <div className="flex gap-4 text-[12px] text-ink-light mb-3 flex-wrap">
-                  <span><b className="text-ink">Cat:</b> {p.category_id}</span>
+                  <span><b className="text-ink">Cat:</b> {catLabel(p.category_id)}</span>
                   <span><b className="text-ink">Marca:</b> {p.brand}</span>
                 </div>
                 <div className="flex justify-between items-center">

@@ -85,13 +85,15 @@ router.post('/', requireAuth, (req, res) => {
     const dir = path.dirname(filePath);
     const baseName = path.basename(filePath, path.extname(filePath));
     const webpPath = path.join(dir, `${baseName}.webp`);
+    const tmpPath  = path.join(dir, `${baseName}-tmp.webp`);
 
     try {
       await sharp(filePath)
         .resize({ width: 800, withoutEnlargement: true })
         .webp({ quality: 85 })
-        .toFile(webpPath);
+        .toFile(tmpPath);
 
+      fs.renameSync(tmpPath, webpPath);
       if (filePath !== webpPath) {
         try { fs.unlinkSync(filePath); } catch {}
       }
