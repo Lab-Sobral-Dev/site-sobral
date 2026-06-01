@@ -1,10 +1,10 @@
-const { Router } = require('express');
-const multer     = require('multer');
-const path       = require('path');
-const fs         = require('fs');
-const PSD        = require('psd');
-const requireAuth = require('../middleware/requireAuth');
-const { newId, CANVAS_W, CANVAS_H } = require('../utils/normalizeLayers');
+const { Router }    = require('express');
+const multer         = require('multer');
+const path           = require('path');
+const fs             = require('fs');
+const { Worker }     = require('worker_threads');
+const requireAuth    = require('../middleware/requireAuth');
+const { CANVAS_W, CANVAS_H } = require('../utils/normalizeLayers');
 
 const router = Router();
 router.use(requireAuth);
@@ -17,15 +17,45 @@ if (!fs.existsSync(publicImgDir)) fs.mkdirSync(publicImgDir, { recursive: true }
 
 const upload = multer({
   dest: tmpDir,
-  limits: { fileSize: 200 * 1024 * 1024 },
+  limits: { fileSize: 30 * 1024 * 1024 }, // 30 MB
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     cb(null, ext === '.psd');
   },
 });
 
-function slugify(str) {
-  return (str || 'layer').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'layer';
+const WORKER_PATH    = path.join(__dirname, '..', 'workers', 'psd-worker.js');
+const TARGET_RATIO   = CANVAS_W / CANVAS_H;
+const TIMEOUT_MS     = 60_000; // 60 segundos
+
+function parsePsdInWorker(tmpPath) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(WORKER_PATH, {
+      workerData: { tmpPath, publicImgDir, targetRatio: TARGET_RATIO },
+    });
+
+    const timer = setTimeout(() => {
+      worker.terminate();
+      reject(Object.assign(new Error('Tempo limite excedido (60 s). Use um arquivo PSD menor.'), { status: 408 }));
+    }, TIMEOUT_MS);
+
+    worker.on('message', (msg) => {
+      clearTimeout(timer);
+      worker.terminate();
+      if (msg.error) {
+        const err = Object.assign(new Error(msg.error), { status: 422, extra: msg });
+        reject(err);
+      } else {
+        resolve(msg.layers);
+      }
+    });
+
+    worker.on('error', (err) => { clearTimeout(timer); reject(err); });
+    worker.on('exit',  (code) => {
+      clearTimeout(timer);
+      if (code !== 0) reject(new Error(`Worker encerrado com código ${code}`));
+    });
+  });
 }
 
 router.post('/', (req, res) => {
@@ -35,108 +65,12 @@ router.post('/', (req, res) => {
 
     const tmpPath = req.file.path;
     try {
-      const psd = PSD.fromFile(tmpPath);
-      await psd.parse();
-
-      const psdW = psd.header.width;
-      const psdH = psd.header.height;
-
-      const targetRatio = CANVAS_W / CANVAS_H;          // 3.2  (16:5)
-      const actualRatio = psdW / psdH;
-      const deviation   = Math.abs(actualRatio - targetRatio) / targetRatio;
-      if (deviation > 0.05) {
-        return res.status(422).json({
-          error:
-            `Proporção incompatível: o PSD tem ${psdW} × ${psdH} px ` +
-            `(${(actualRatio).toFixed(2)}:1), mas o hero usa proporção 16:5 ` +
-            `(${CANVAS_W} × ${CANVAS_H} px). ` +
-            `Redimensione o PSD para ${CANVAS_W} × ${CANVAS_H} px antes de importar.`,
-          psdWidth:  psdW,
-          psdHeight: psdH,
-          expectedWidth:  CANVAS_W,
-          expectedHeight: CANVAS_H,
-        });
-      }
-
-      const layers = [];
-
-      // Camada de fundo: composite do PSD inteiro (requer módulo canvas).
-      try {
-        const tree = psd.tree();
-        if (typeof tree.toPng === 'function') {
-          const composite = tree.toPng();
-          if (composite) {
-            const bgFilename = `psd-bg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
-            fs.writeFileSync(path.join(publicImgDir, bgFilename), composite);
-            layers.push({
-              id: newId(),
-              type: 'image',
-              name: 'fundo',
-              url: `/images/produtos/${bgFilename}`,
-              x: 0, y: 0,
-              width: CANVAS_W, height: CANVAS_H,
-              visible: true,
-              animation: null,
-            });
-          }
-        }
-      } catch (compErr) {
-        console.warn('psd-import: composite ignorado —', compErr.message);
-      }
-
-      // Camadas individuais — psd.layers vem do topo para a base; invertemos
-      // para que a camada de fundo fique no início do array (z-index menor).
-      for (const layer of [...psd.layers].reverse()) {
-        if (!layer.image) continue;
-        const w = typeof layer.width  === 'function' ? layer.width()  : layer.width;
-        const h = typeof layer.height === 'function' ? layer.height() : layer.height;
-        if (!w || !h) continue;
-
-        try {
-          const slug     = slugify(layer.name);
-          const filename = `psd-${slug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
-          const outPath  = path.join(publicImgDir, filename);
-
-          let saved = false;
-          if (typeof layer.image.saveAsPng === 'function') {
-            try {
-              await Promise.resolve(layer.image.saveAsPng(outPath));
-              saved = true;
-            } catch (saveErr) {
-              console.warn(`psd-import: saveAsPng falhou para "${layer.name}" —`, saveErr.message);
-            }
-          }
-          if (!saved && typeof layer.image.toPng === 'function') {
-            try {
-              const buf = layer.image.toPng();
-              if (buf) { fs.writeFileSync(outPath, buf); saved = true; }
-            } catch (toPngErr) {
-              console.warn(`psd-import: toPng falhou para "${layer.name}" —`, toPngErr.message);
-            }
-          }
-          if (!saved) continue;
-
-          layers.push({
-            id: newId(),
-            type: 'image',
-            name: layer.name || 'Camada',
-            url: `/images/produtos/${filename}`,
-            x: Math.round((layer.left / psdW) * CANVAS_W),
-            y: Math.round((layer.top  / psdH) * CANVAS_H),
-            width: Math.round((w / psdW) * CANVAS_W),
-            height: Math.round((h / psdH) * CANVAS_H),
-            visible: true,
-            animation: null,
-          });
-        } catch (layerErr) {
-          console.warn(`psd-import: camada "${layer.name}" ignorada —`, layerErr.message);
-        }
-      }
-
+      const layers = await parsePsdInWorker(tmpPath);
       res.json({ layers });
     } catch (e) {
       console.error('POST /api/admin/psd-import:', e.message);
-      res.status(422).json({ error: `Não foi possível processar o PSD: ${e.message}` });
+      const { status = 422, extra = {} } = e;
+      res.status(status).json({ error: e.message, ...extra });
     } finally {
       fs.unlink(tmpPath, () => {});
     }
