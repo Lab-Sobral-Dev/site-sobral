@@ -34,51 +34,6 @@ export default function HomePage() {
 
       <ProductCarousel />
 
-      {/* REDES SOCIAIS */}
-      <section className="max-w-content mx-auto px-4 md:px-10 mt-[70px]">
-        <div className="text-center mb-8">
-          <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">SIGA A GENTE</div>
-          <h2 className="font-display text-[28px] md:text-[36px] font-[900] tracking-[-.5px] leading-none">Nossas Redes Sociais</h2>
-        </div>
-        <div className="flex flex-wrap justify-center gap-4">
-          <a
-            href="https://instagram.com/labsobral"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-3 bg-white border border-line rounded-full px-6 py-3 font-bold text-[15px] text-ink shadow-sm transition-all hover:-translate-y-px hover:border-orange hover:text-orange"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
-            </svg>
-            @labsobral
-          </a>
-          <a
-            href="https://facebook.com/labsobral"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-3 bg-white border border-line rounded-full px-6 py-3 font-bold text-[15px] text-ink shadow-sm transition-all hover:-translate-y-px hover:border-orange hover:text-orange"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-            </svg>
-            Laboratório Sobral
-          </a>
-          <a
-            href="https://wa.me/558921012202"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-3 bg-white border border-line rounded-full px-6 py-3 font-bold text-[15px] text-ink shadow-sm transition-all hover:-translate-y-px hover:border-orange hover:text-orange"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-            </svg>
-            WhatsApp
-          </a>
-        </div>
-      </section>
-
       {/* HISTÓRIA */}
       <section ref={refHistoria} className="reveal max-w-content mx-auto px-4 md:px-10 mt-[80px]">
         <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-8 md:gap-12 items-center">
