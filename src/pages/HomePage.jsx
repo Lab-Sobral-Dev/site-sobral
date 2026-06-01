@@ -3,31 +3,22 @@ import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import HeroCarousel from '../components/HeroCarousel';
+import ProductCarousel from '../components/ProductCarousel';
 import { usePageContent } from '../hooks/usePageContent';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
-const BRAND_LABELS = ['Linha Tradicionais', 'Família Calciolax', 'Movimex', 'Óleos Sobral'];
-const BRAND_KEYS   = ['marca_tradicionais_imagem', 'marca_calciolax_imagem', 'marca_movimex_imagem', 'marca_oleos_imagem'];
-
 const HOME_DEFAULTS = {
-  linhas_eyebrow:       'FAMÍLIAS DE PRODUTOS',
-  linhas_titulo:        'Nossas Linhas',
   historia_eyebrow:     'DESDE 1911',
   historia_titulo:      'Conheça a nossa história',
   historia_subtitulo:   '',
   historia_texto_1:     '<p>Há mais de 100 anos, o Laboratório Sobral faz parte da vida dos brasileiros. Estamos nas casas das famílias levando mais saúde e proporcionando leveza e bem-estar ao dia a dia. Mais que uma indústria, somos um símbolo da luta do povo brasileiro. Essa é nossa essência e isso nunca vai mudar.</p>',
   historia_imagem:             '/images/fachada.png',
-  marca_tradicionais_imagem:   '/images/brand-tradicionais.png',
-  marca_calciolax_imagem:      '/images/brand-calciolax.png',
-  marca_movimex_imagem:        '/images/brand-movimex.png',
-  marca_oleos_imagem:          '/images/brand-oleos.png',
 };
 
 export default function HomePage() {
   const navigate = useNavigate();
   const content = usePageContent('home', HOME_DEFAULTS);
 
-  const refLinhas   = useScrollReveal();
   const refHistoria = useScrollReveal();
 
   return (
@@ -41,27 +32,7 @@ export default function HomePage() {
       </Helmet>
       <HeroCarousel />
 
-      {/* NOSSAS LINHAS */}
-      <section ref={refLinhas} className="reveal max-w-content mx-auto px-4 md:px-10 mt-[60px]">
-        <div className="text-center mt-10 mb-7">
-          <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">{content.linhas_eyebrow}</div>
-          <h2 className="font-display text-[28px] md:text-[36px] font-[900] tracking-[-.5px] leading-none">{content.linhas_titulo}</h2>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-[960px] mx-auto">
-          {BRAND_KEYS.map((key, i) => (
-            <div
-              key={key}
-              className="bg-white rounded p-5 flex flex-col items-center justify-between gap-3 cursor-pointer shadow-sm h-[220px] transition-[transform,box-shadow] duration-[220ms] hover:-translate-y-1 hover:shadow"
-              onClick={() => navigate('/produtos')}
-            >
-              <div className="flex-1 w-full flex items-center justify-center min-h-0">
-                <img src={content[key]} alt={BRAND_LABELS[i]} className="max-w-full max-h-full w-auto h-auto object-contain block" />
-              </div>
-              <div className="font-[800] text-[13.5px] text-ink text-center flex-shrink-0">{BRAND_LABELS[i]}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <ProductCarousel />
 
       {/* REDES SOCIAIS */}
       <section className="max-w-content mx-auto px-4 md:px-10 mt-[70px]">
