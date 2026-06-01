@@ -29,6 +29,9 @@ router.get('/', async (req, res) => {
       params.push(ids);
       where.push(`id = ANY($${params.length})`);
     }
+    if (req.query.destaque === 'true') {
+      where.push('destaque = TRUE');
+    }
 
     const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
 
