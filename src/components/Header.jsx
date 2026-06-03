@@ -122,11 +122,12 @@ export default function Header() {
               id="produtos" label="Produtos" open={openDropdown === 'produtos'}
               onToggle={setOpenDropdown} onNavigate={navigate}
               items={[
-                { label: 'Todos os produtos',  to: '/produtos' },
-                { label: 'Tradicionais',       to: '/produtos?cat=tradicionais' },
-                { label: 'Calciolax',          to: '/produtos?cat=calciolax' },
-                { label: 'Movimex',            to: '/produtos?cat=movimex' },
-                { label: 'Óleos',              to: '/produtos?cat=oleos' },
+                { label: 'Todos os produtos',    to: '/produtos' },
+                { label: 'Tradicionais',         to: '/produtos?cat=tradicionais' },
+                { label: 'Calciolax',            to: '/produtos?cat=calciolax' },
+                { label: 'Movimex',              to: '/produtos?cat=movimex' },
+                { label: 'Óleos',                to: '/produtos?cat=oleos' },
+                { label: 'Dicas de Misturinhas', to: '/misturinhas' },
               ]}
             />
             <NavDropdown
