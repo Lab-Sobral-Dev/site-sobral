@@ -81,7 +81,12 @@ router.post('/', requireAuth, (req, res) => {
       return res.status(400).json({ error: 'Tipo de arquivo inválido.' });
     }
 
-    // PERF-03: converter para WebP com sharp (max 800px, qualidade 85)
+    // PERF-03: converter para WebP com sharp (largura e qualidade por tipo)
+    const MAX_WIDTH = { hero: 1920, cms: 1400, produtos: 900 };
+    const QUALITY   = { hero: 92,   cms: 88,   produtos: 85  };
+    const maxWidth  = MAX_WIDTH[type]  || 900;
+    const quality   = QUALITY[type]    || 85;
+
     const dir = path.dirname(filePath);
     const baseName = path.basename(filePath, path.extname(filePath));
     const webpPath = path.join(dir, `${baseName}.webp`);
@@ -89,8 +94,8 @@ router.post('/', requireAuth, (req, res) => {
 
     try {
       await sharp(filePath)
-        .resize({ width: 800, withoutEnlargement: true })
-        .webp({ quality: 85 })
+        .resize({ width: maxWidth, withoutEnlargement: true })
+        .webp({ quality })
         .toFile(tmpPath);
 
       fs.renameSync(tmpPath, webpPath);

@@ -129,7 +129,7 @@ export default function AdminHeroSlidesPage() {
     const fd = new FormData();
     fd.append('image', file);
     try {
-      const res  = await request('/api/upload', { method: 'POST', body: fd });
+      const res  = await request('/api/upload?type=hero', { method: 'POST', body: fd });
       if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
