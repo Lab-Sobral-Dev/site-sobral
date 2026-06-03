@@ -16,6 +16,7 @@ import AdminCategoriesPage   from './pages/admin/AdminCategoriesPage';
 import AdminContentPage    from './pages/admin/AdminContentPage';
 import AdminHeroSlidesPage    from './pages/admin/AdminHeroSlidesPage';
 import AdminSlideBuilderPage from './pages/admin/AdminSlideBuilderPage';
+import AdminMisturinhasPage  from './pages/admin/AdminMisturinhasPage';
 import MisturinhasPage from './pages/MisturinhasPage';
 
 const DEFAULTS = {
@@ -139,6 +140,7 @@ const router = createBrowserRouter([
       { path: 'conteudo/home',    element: <AdminContentPage page="home" /> },
       { path: 'conteudo/sobre',   element: <AdminContentPage page="sobre" /> },
       { path: 'conteudo/contato', element: <AdminContentPage page="contato" /> },
+      { path: 'misturinhas',                element: <AdminMisturinhasPage /> },
       { path: 'hero-slides',                element: <AdminHeroSlidesPage /> },
       { path: 'hero-slides/:id/editar',    element: <AdminSlideBuilderPage /> },
     ],

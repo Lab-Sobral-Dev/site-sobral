@@ -35,6 +35,7 @@ const NAV_GROUPS = [
       { to: '/admin/conteudo/home',    label: 'Home' },
       { to: '/admin/conteudo/sobre',   label: 'Quem Somos' },
       { to: '/admin/conteudo/contato', label: 'Fale Conosco' },
+      { to: '/admin/misturinhas',      label: 'Misturinhas' },
       { to: '/admin/hero-slides',      label: 'Hero Slides' },
     ],
   },

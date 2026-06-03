@@ -1,104 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-
-const MISTURINHAS_CABELO = [
-  {
-    titulo: 'Cabelo com brilho natural',
-    aplicacao: 'Aplique no couro cabeludo com massagens suaves, espalhe ao longo dos fios, deixe agir durante a noite e enxágue no dia seguinte.',
-    resultado: 'Fios mais nutridos, macios e com um brilho de arrasar.',
-    ingredientes: [
-      { qty: '1 tampa',  id: 'oleo-coco',    nome: 'Óleo de Coco' },
-      { qty: '1 tampa',  id: 'oleo-ricino',  nome: 'Óleo de Rícino' },
-      { qty: '7 gotas',  id: 'oleo-alecrim', nome: 'Óleo de Alecrim' },
-    ],
-  },
-  {
-    titulo: 'Hidratação nutritiva',
-    aplicacao: 'Aplique nos fios úmidos evitando a raiz. Deixe agir por 20–30 minutos com touca e enxágue.',
-    resultado: 'Cabelos mais fortes, hidratados e brilhantes.',
-    ingredientes: [
-      { qty: '1 colher', id: 'oleo-abacate', nome: 'Óleo de Abacate' },
-      { qty: '1 colher', id: 'oleo-coco',    nome: 'Óleo de Coco' },
-      { qty: '1 colher', id: 'glicerina',    nome: 'Glicerina Sobral' },
-    ],
-  },
-  {
-    titulo: 'Lavagem revitalizante',
-    aplicacao: 'Adicione ao seu shampoo favorito. Massageie o couro cabeludo durante a lavagem.',
-    resultado: 'Lavagem que nutre, estimula o crescimento e deixa o cabelo com mais brilho.',
-    ingredientes: [
-      { qty: '1 tampa',  id: 'oleo-babosa',  nome: 'Óleo de Babosa' },
-      { qty: '1 tampa',  id: 'oleo-alecrim', nome: 'Óleo de Alecrim' },
-    ],
-  },
-  {
-    titulo: 'Pré-hidratação potente',
-    aplicacao: 'Aplique nos fios úmidos antes da máscara. Deixe 3 min, depois aplique a máscara por cima.',
-    resultado: 'Cabelos nutridos, macios e com brilho duradouro.',
-    ingredientes: [
-      { qty: '1 colher', id: 'oleo-abacate', nome: 'Óleo de Abacate' },
-      { qty: '1 colher', id: 'oleo-uva',     nome: 'Óleo de Semente de Uva' },
-    ],
-  },
-  {
-    titulo: 'Umectação fortalecedora',
-    aplicacao: 'Misture e aplique nos cabelos secos, enluvando mecha por mecha. Deixe agir durante a noite.',
-    resultado: 'Fios mais fortes, nutridos e com mais brilho.',
-    ingredientes: [
-      { qty: 'A gosto',  id: 'oleo-ricino', nome: 'Óleo de Rícino' },
-      { qty: 'A gosto',  id: 'oleo-coco',   nome: 'Óleo de Coco' },
-      { qty: 'A gosto',  id: 'oleo-argan',  nome: 'Óleo de Argan' },
-    ],
-  },
-];
-
-const MISTURINHAS_PELE = [
-  {
-    titulo: 'Pele mais radiante',
-    aplicacao: 'Adicione ao seu creme clareador favorito. Use diariamente conforme orientação do creme base.',
-    resultado: 'Tom da pele uniforme, marcas suavizadas e mais viço.',
-    ingredientes: [
-      { qty: 'Algumas gotas', id: 'rosa-mosqueta-gotas', nome: 'Óleo de Rosa Mosqueta' },
-    ],
-  },
-  {
-    titulo: 'Pós-barba suavizante',
-    aplicacao: 'Após o barbear, aplique na pele limpa ou no creme pós-barba.',
-    resultado: 'Pele calma, macia, sem irritações.',
-    ingredientes: [
-      { qty: 'A gosto', id: 'oleo-karite', nome: 'Óleo de Karité' },
-      { qty: 'A gosto', id: 'oleo-coco',   nome: 'Óleo de Coco' },
-    ],
-  },
-  {
-    titulo: 'Hidratação para as mamães',
-    aplicacao: 'Misture em frasco limpo. Aplique na barriga, seios e coxas 1–2 vezes ao dia.',
-    resultado: 'Pele elástica, hidratada, com prevenção de estrias.',
-    ingredientes: [
-      { qty: '1 tampa', id: 'oleo-amendoas', nome: 'Óleo de Amêndoas' },
-      { qty: '1 tampa', id: 'oleo-girassol', nome: 'Óleo de Girassol' },
-    ],
-  },
-  {
-    titulo: 'Super óleo de banho',
-    aplicacao: 'Agite bem em frasco limpo e aplique na pele úmida após ou durante o banho.',
-    resultado: 'Hidratação intensa com toque suave de perfume.',
-    ingredientes: [
-      { qty: '2 tampas', id: 'oleo-amendoas', nome: 'Óleo de Amêndoas' },
-      { qty: '1 tampa',  id: 'oleo-uva',      nome: 'Óleo de Semente de Uva' },
-    ],
-  },
-  {
-    titulo: 'Calmante natural',
-    aplicacao: 'Aplique direto na pele após depilação ou em áreas com coceira.',
-    resultado: 'Alívio rápido para irritações e coceiras.',
-    ingredientes: [
-      { qty: '1 colher', id: 'oleo-coco',    nome: 'Óleo de Coco' },
-      { qty: '1 colher', id: 'oleo-copaiba', nome: 'Óleo de Copaíba' },
-    ],
-  },
-];
 
 const GUIA_OLEOS = [
   { id:'oleo-alecrim',        nome:'Óleo de Alecrim',        tag:'Fortalecimento capilar' },
@@ -117,16 +19,71 @@ const GUIA_OLEOS = [
 
 export default function MisturinhasPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState('cabelo');
-  const [idx, setIdx] = useState(0);
-  const [productMap, setProductMap] = useState({});
+  const [searchParams] = useSearchParams();
+  const oleoParam = searchParams.get('oleo');
 
+  const [misturinhas,  setMisturinhas]  = useState([]);
+  const [loadingMix,   setLoadingMix]   = useState(true);
+  const [tab,          setTab]          = useState('');
+  const [idx,          setIdx]          = useState(0);
+  const [productMap,   setProductMap]   = useState({});
+
+  // Busca misturinhas da API
+  useEffect(() => {
+    setLoadingMix(true);
+    fetch('/api/misturinhas')
+      .then(r => r.json())
+      .then(data => {
+        const list = Array.isArray(data) ? data : [];
+        setMisturinhas(list);
+        // Define tab inicial
+        const cats = [...new Set(list.map(m => m.categoria))].sort();
+        if (cats.length) setTab(prev => prev || cats[0]);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingMix(false));
+  }, []);
+
+  // Deep link: ?oleo=X → abre diretamente a misturinha com esse ingrediente
+  useEffect(() => {
+    if (!oleoParam || !misturinhas.length) return;
+    const found = misturinhas.find(m =>
+      Array.isArray(m.ingredientes) &&
+      m.ingredientes.some(i => i.product_id === oleoParam)
+    );
+    if (!found) return;
+    const cats   = [...new Set(misturinhas.map(m => m.categoria))].sort();
+    const byTab  = misturinhas.filter(m => m.categoria === found.categoria);
+    const tabIdx = byTab.findIndex(m => m.id === found.id);
+    setTab(found.categoria);
+    setIdx(Math.max(0, tabIdx));
+  }, [oleoParam, misturinhas]);
+
+  // Reset idx ao trocar de tab
+  useEffect(() => { setIdx(0); }, [tab]);
+
+  // Categorias únicas ordenadas
+  const categories = useMemo(() =>
+    [...new Set(misturinhas.map(m => m.categoria))].sort(),
+  [misturinhas]);
+
+  // Lista da tab atual
+  const list = useMemo(() =>
+    misturinhas.filter(m => m.categoria === tab),
+  [misturinhas, tab]);
+
+  const current = list[idx] || null;
+
+  const next = () => setIdx(i => (i + 1) % list.length);
+  const prev = () => setIdx(i => (i - 1 + list.length) % list.length);
+
+  // Carrega imagens dos produtos
   const allIds = useMemo(() => {
     const ids = new Set();
-    [...MISTURINHAS_CABELO, ...MISTURINHAS_PELE].forEach(m => m.ingredientes.forEach(i => ids.add(i.id)));
+    misturinhas.forEach(m => (m.ingredientes || []).forEach(i => ids.add(i.product_id)));
     GUIA_OLEOS.forEach(o => ids.add(o.id));
-    return [...ids];
-  }, []);
+    return [...ids].filter(Boolean);
+  }, [misturinhas]);
 
   useEffect(() => {
     if (!allIds.length) return;
@@ -142,18 +99,10 @@ export default function MisturinhasPage() {
 
   const findP = (id) => productMap[id];
 
-  const list = tab === 'cabelo' ? MISTURINHAS_CABELO : MISTURINHAS_PELE;
-  const current = list[idx];
-
-  useEffect(() => { setIdx(0); }, [tab]);
-
-  const next = () => setIdx((idx + 1) % list.length);
-  const prev = () => setIdx((idx - 1 + list.length) % list.length);
-
-  const refHero    = useScrollReveal();
+  const refHero     = useScrollReveal();
   const refCarrosel = useScrollReveal();
-  const refGuia    = useScrollReveal();
-  const refCta     = useScrollReveal();
+  const refGuia     = useScrollReveal();
+  const refCta      = useScrollReveal();
 
   return (
     <>
@@ -171,7 +120,7 @@ export default function MisturinhasPage() {
             <em className="text-orange not-italic-only italic font-[700]">que mudam tudo.</em>
           </h1>
           <p className="text-[18px] leading-[1.55] text-ink-light max-w-[480px]">
-            10 combinações dos <strong className="text-ink font-[800]">Óleos Sobral</strong> para turbinar sua rotina de pele e cabelo.
+            Combinações dos <strong className="text-ink font-[800]">Óleos Sobral</strong> para turbinar sua rotina de pele e cabelo.
             Use sozinhos ou misturados — sua beleza agradece.
           </p>
         </div>
@@ -187,99 +136,109 @@ export default function MisturinhasPage() {
 
       {/* CARROSSEL */}
       <section ref={refCarrosel} className="reveal max-w-content mx-auto px-10 mt-[60px] mb-10">
-        {/* Tabs */}
-        <div className="flex gap-3 justify-center mb-9">
-          {[
-            { id: 'cabelo', label: 'Cabelo', count: '5 misturinhas' },
-            { id: 'pele',   label: 'Pele',   count: '5 misturinhas' },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`border-2 rounded-full px-6 py-3 flex items-center gap-2 transition-all font-sans text-left
-                ${tab === t.id ? 'border-orange !text-white shadow-[0_4px_14px_rgba(232,90,12,.3)]' : 'border-line text-ink hover:border-orange hover:text-orange'}`}
-              style={tab === t.id ? { background: 'var(--orange)', color: 'white' } : {}}
-            >
-              <div>
-                <div className="font-[900] text-[16px] leading-none mb-0.5">{t.label}</div>
-                <div className="text-[11px] opacity-80 font-semibold">{t.count}</div>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Recipe stage */}
-        <div className="relative">
-          <div className="bg-gradient-to-br from-[#FAF5EC] to-orange-50 rounded-[28px] p-8 lg:px-20 lg:py-14 relative overflow-hidden min-h-[460px]">
-            <div className="absolute -top-[120px] -right-[120px] w-[320px] h-[320px] rounded-full bg-orange opacity-[.07] pointer-events-none" />
-            <div className="absolute -bottom-[80px] -left-[80px] w-[220px] h-[220px] rounded-full border-[10px] border-orange/10 pointer-events-none" />
-
-            <button onClick={prev} aria-label="Anterior"
-              className="absolute top-1/2 -translate-y-1/2 left-2 lg:left-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange text-[28px] font-[900] z-10 transition-all grid place-items-center pb-1 hover:bg-orange hover:text-white hover:scale-110">‹</button>
-            <button onClick={next} aria-label="Próxima"
-              className="absolute top-1/2 -translate-y-1/2 right-2 lg:right-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange text-[28px] font-[900] z-10 transition-all grid place-items-center pb-1 hover:bg-orange hover:text-white hover:scale-110">›</button>
-
-            <div
-              key={`${tab}-${idx}`}
-              className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-[60px] items-center relative z-[1] animate-[m2FadeIn_.45s_ease]"
-            >
-              {/* Bottles */}
-              <div className="flex justify-center items-end gap-3.5 flex-wrap">
-                {current.ingredientes.map((ing, i) => {
-                  const p = findP(ing.id);
-                  return (
-                    <div
-                      key={i}
-                      onClick={() => p && navigate(`/produtos/${p.id}`)}
-                      style={{ animationDelay: `${i * 80}ms` }}
-                      className="flex flex-col items-center cursor-pointer transition-transform w-[110px] animate-[m2BottleIn_.5s_ease_both] hover:-translate-y-1.5"
-                    >
-                      <div className="w-[110px] h-[150px] bg-white rounded-[14px] grid place-items-center shadow-[0_6px_18px_rgba(232,90,12,.12)] p-3 mb-2.5">
-                        {p?.image && <img src={p.image} alt={ing.nome} className="max-w-full max-h-full object-contain" />}
-                      </div>
-                      <div className="bg-orange text-white text-[11px] font-[900] px-2.5 py-1 rounded-full mb-1.5 tracking-[.3px]">{ing.qty}</div>
-                      <div className="text-[12px] font-bold text-ink text-center leading-tight text-balance">{ing.nome}</div>
+        {loadingMix ? (
+          <div className="py-16 text-center text-muted text-[15px]">Carregando misturinhas...</div>
+        ) : misturinhas.length === 0 ? (
+          <div className="py-16 text-center text-muted text-[15px]">Nenhuma misturinha cadastrada.</div>
+        ) : (
+          <>
+            {/* Tabs dinâmicas */}
+            <div className="flex gap-3 justify-center mb-9 flex-wrap">
+              {categories.map(cat => {
+                const count = misturinhas.filter(m => m.categoria === cat).length;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setTab(cat)}
+                    className={`border-2 rounded-full px-6 py-3 flex items-center gap-2 transition-all font-sans text-left
+                      ${tab === cat ? 'border-orange !text-white shadow-[0_4px_14px_rgba(232,90,12,.3)]' : 'border-line text-ink hover:border-orange hover:text-orange'}`}
+                    style={tab === cat ? { background: 'var(--orange)', color: 'white' } : {}}
+                  >
+                    <div>
+                      <div className="font-[900] text-[16px] leading-none mb-0.5 capitalize">{cat}</div>
+                      <div className="text-[11px] opacity-80 font-semibold">{count} misturinha{count !== 1 ? 's' : ''}</div>
                     </div>
-                  );
-                })}
-              </div>
-
-              {/* Text */}
-              <div>
-                <div className="font-display text-[14px] font-bold text-orange mb-2.5 tracking-[1px]">
-                  <span>{String(idx + 1).padStart(2, '0')}</span>
-                  <span className="mx-1 opacity-50">/</span>
-                  <span>{String(list.length).padStart(2, '0')}</span>
-                </div>
-                <h2 className="font-display text-[30px] lg:text-[42px] font-[900] leading-[1.05] mb-7 text-ink tracking-[-.5px] text-balance">
-                  {current.titulo}
-                </h2>
-
-                <div className="mb-6 pl-[18px] border-l-[3px] border-orange-light">
-                  <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-1.5">COMO APLICAR</div>
-                  <p className="text-[15px] leading-[1.6] text-ink-light m-0">{current.aplicacao}</p>
-                </div>
-
-                <div className="bg-white p-4 rounded-[14px] shadow-[0_4px_14px_rgba(232,90,12,.08)]">
-                  <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-1.5">O RESULTADO</div>
-                  <p className="text-[14.5px] leading-[1.5] text-ink m-0 font-semibold">{current.resultado}</p>
-                </div>
-              </div>
+                  </button>
+                );
+              })}
             </div>
-          </div>
 
-          <div className="flex justify-center gap-2 mt-6">
-            {list.map((_, i) => (
-              <button
-                key={i}
-                aria-label={`Ir para ${i + 1}`}
-                onClick={() => setIdx(i)}
-                className={`h-2.5 rounded-full border-none transition-all p-0 cursor-pointer
-                  ${i === idx ? 'bg-orange w-8 rounded-[6px]' : 'bg-orange/25 w-2.5 hover:bg-orange/50'}`}
-              />
-            ))}
-          </div>
-        </div>
+            {/* Recipe stage */}
+            {current && (
+              <div className="relative">
+                <div className="bg-gradient-to-br from-[#FAF5EC] to-orange-50 rounded-[28px] p-8 lg:px-20 lg:py-14 relative overflow-hidden min-h-[460px]">
+                  <div className="absolute -top-[120px] -right-[120px] w-[320px] h-[320px] rounded-full bg-orange opacity-[.07] pointer-events-none" />
+                  <div className="absolute -bottom-[80px] -left-[80px] w-[220px] h-[220px] rounded-full border-[10px] border-orange/10 pointer-events-none" />
+
+                  <button onClick={prev} aria-label="Anterior"
+                    className="absolute top-1/2 -translate-y-1/2 left-2 lg:left-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange text-[28px] font-[900] z-10 transition-all grid place-items-center pb-1 hover:bg-orange hover:text-white hover:scale-110">‹</button>
+                  <button onClick={next} aria-label="Próxima"
+                    className="absolute top-1/2 -translate-y-1/2 right-2 lg:right-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange text-[28px] font-[900] z-10 transition-all grid place-items-center pb-1 hover:bg-orange hover:text-white hover:scale-110">›</button>
+
+                  <div
+                    key={`${tab}-${idx}`}
+                    className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-[60px] items-center relative z-[1] animate-[m2FadeIn_.45s_ease]"
+                  >
+                    {/* Bottles */}
+                    <div className="flex justify-center items-end gap-3.5 flex-wrap">
+                      {(current.ingredientes || []).map((ing, i) => {
+                        const p = findP(ing.product_id);
+                        return (
+                          <div
+                            key={i}
+                            onClick={() => p && navigate(`/produtos/${p.id}`)}
+                            style={{ animationDelay: `${i * 80}ms` }}
+                            className="flex flex-col items-center cursor-pointer transition-transform w-[110px] animate-[m2BottleIn_.5s_ease_both] hover:-translate-y-1.5"
+                          >
+                            <div className="w-[110px] h-[150px] bg-white rounded-[14px] grid place-items-center shadow-[0_6px_18px_rgba(232,90,12,.12)] p-3 mb-2.5">
+                              {p?.image && <img src={p.image} alt={ing.nome} className="max-w-full max-h-full object-contain" />}
+                            </div>
+                            <div className="bg-orange text-white text-[11px] font-[900] px-2.5 py-1 rounded-full mb-1.5 tracking-[.3px]">{ing.qty}</div>
+                            <div className="text-[12px] font-bold text-ink text-center leading-tight text-balance">{ing.nome}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Text */}
+                    <div>
+                      <div className="font-display text-[14px] font-bold text-orange mb-2.5 tracking-[1px]">
+                        <span>{String(idx + 1).padStart(2, '0')}</span>
+                        <span className="mx-1 opacity-50">/</span>
+                        <span>{String(list.length).padStart(2, '0')}</span>
+                      </div>
+                      <h2 className="font-display text-[30px] lg:text-[42px] font-[900] leading-[1.05] mb-7 text-ink tracking-[-.5px] text-balance">
+                        {current.titulo}
+                      </h2>
+
+                      <div className="mb-6 pl-[18px] border-l-[3px] border-orange-light">
+                        <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-1.5">COMO APLICAR</div>
+                        <p className="text-[15px] leading-[1.6] text-ink-light m-0">{current.aplicacao}</p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-[14px] shadow-[0_4px_14px_rgba(232,90,12,.08)]">
+                        <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-1.5">O RESULTADO</div>
+                        <p className="text-[14.5px] leading-[1.5] text-ink m-0 font-semibold">{current.resultado}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-center gap-2 mt-6">
+                  {list.map((_, i) => (
+                    <button
+                      key={i}
+                      aria-label={`Ir para ${i + 1}`}
+                      onClick={() => setIdx(i)}
+                      className={`h-2.5 rounded-full border-none transition-all p-0 cursor-pointer
+                        ${i === idx ? 'bg-orange w-8 rounded-[6px]' : 'bg-orange/25 w-2.5 hover:bg-orange/50'}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </section>
 
       {/* GUIA */}
@@ -335,7 +294,6 @@ export default function MisturinhasPage() {
         </div>
       </section>
 
-      {/* Animações inline para Tailwind via keyframes globais */}
       <style>{`
         @keyframes m2FadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes m2BottleIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }

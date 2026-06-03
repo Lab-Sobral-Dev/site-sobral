@@ -8,6 +8,7 @@ const rateLimit    = require('express-rate-limit');
 
 const productsRouter        = require('./routes/products');
 const categoriesRouter      = require('./routes/categories');
+const misturinhasRouter     = require('./routes/misturinhas');
 const contactRouter         = require('./routes/contact');
 const authRouter            = require('./routes/auth');
 const contentRouter         = require('./routes/content');
@@ -18,6 +19,7 @@ const adminCategoriesRouter = require('./routes/admin-categories');
 const adminContentRouter    = require('./routes/admin-content');
 const adminHeroSlidesRouter = require('./routes/admin-hero-slides');
 const adminStatsRouter      = require('./routes/admin-stats');
+const adminMisturinhasRouter = require('./routes/admin-misturinhas');
 const uploadRouter          = require('./routes/upload');
 const psdImportRouter       = require('./routes/psd-import');
 
@@ -46,6 +48,7 @@ app.use(rateLimit({
 
 app.use('/api/products',            productsRouter);
 app.use('/api/categories',          categoriesRouter);
+app.use('/api/misturinhas',         misturinhasRouter);
 app.use('/api/contact',             contactRouter);
 app.use('/api/auth',                authRouter);
 app.use('/api/content',             contentRouter);
@@ -56,6 +59,7 @@ app.use('/api/admin/categories',    adminCategoriesRouter);
 app.use('/api/admin/content',       adminContentRouter);
 app.use('/api/admin/hero-slides',   adminHeroSlidesRouter);
 app.use('/api/admin/stats',         adminStatsRouter);
+app.use('/api/admin/misturinhas',   adminMisturinhasRouter);
 app.use('/api/upload',              uploadRouter);
 app.use('/api/admin/psd-import',    psdImportRouter);
 
