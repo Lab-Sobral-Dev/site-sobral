@@ -6,6 +6,7 @@ import RichTextEditor from '../../components/admin/RichTextEditor';
 
 const EMPTY_FORM = {
   id: '', name: '', tag: '', category_id: '', brand: '', image: '',
+  gallery: [],
   description: '', caracteristicas: '', apresentacao: '', modo_uso: '',
   precaucoes: '', ingredientes: '', disclaimer: '', nutri_porcoes: '',
   nutri_rows: '', ativo: true, destaque: false,
@@ -17,13 +18,14 @@ export default function AdminProductFormPage() {
   const navigate = useNavigate();
   const { request } = useAdminFetch();
 
-  const [form,       setForm]       = useState(EMPTY_FORM);
-  const [categories, setCategories] = useState([]);
-  const [loading,    setLoading]    = useState(isEdit);
-  const [saving,     setSaving]     = useState(false);
-  const [error,      setError]      = useState('');
-  const [imageFile,  setImageFile]  = useState(null);
-  const [uploading,  setUploading]  = useState(false);
+  const [form,             setForm]             = useState(EMPTY_FORM);
+  const [categories,       setCategories]       = useState([]);
+  const [loading,          setLoading]          = useState(isEdit);
+  const [saving,           setSaving]           = useState(false);
+  const [error,            setError]            = useState('');
+  const [imageFile,        setImageFile]        = useState(null);
+  const [uploading,        setUploading]        = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
 
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
@@ -41,6 +43,7 @@ export default function AdminProductFormPage() {
           category_id:     p.category_id     ?? '',
           brand:           p.brand           ?? '',
           image:           p.image           ?? '',
+          gallery:         Array.isArray(p.gallery) ? p.gallery : [],
           description:     p.description     ?? '',
           caracteristicas: Array.isArray(p.caracteristicas)
             ? p.caracteristicas.join('\n')
@@ -61,6 +64,23 @@ export default function AdminProductFormPage() {
   }, [id, isEdit]);
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+  const uploadGalleryImage = async (file) => {
+    setGalleryUploading(true);
+    const fd = new FormData();
+    fd.append('image', file);
+    try {
+      const res  = await request('/api/upload', { method: 'POST', body: fd });
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro no upload.');
+      set('gallery', [...(form.gallery || []), data.url]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGalleryUploading(false);
+    }
+  };
 
   const uploadImage = async () => {
     if (!imageFile) return null;
@@ -107,6 +127,7 @@ export default function AdminProductFormPage() {
     const body = {
       ...form,
       image:           imageUrl,
+      gallery:         form.gallery || [],
       caracteristicas: form.caracteristicas
         ? form.caracteristicas.split('\n').map(s => s.trim()).filter(Boolean)
         : null,
@@ -162,13 +183,23 @@ export default function AdminProductFormPage() {
 
   return (
     <div className="p-4 md:p-8 max-w-[860px]">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-6 flex-wrap">
         <button onClick={() => navigate('/admin')} className="text-orange text-[13px] font-[600] hover:underline">
           ← Produtos
         </button>
-        <h1 className="text-[22px] font-[800] text-ink">
+        <h1 className="text-[22px] font-[800] text-ink flex-1">
           {isEdit ? 'Editar produto' : 'Novo produto'}
         </h1>
+        {isEdit && (
+          <a
+            href={`/produtos/${id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[13px] font-[600] text-muted hover:text-orange transition-colors flex items-center gap-1"
+          >
+            Ver prévia ↗
+          </a>
+        )}
       </div>
 
       {error && (
@@ -236,6 +267,41 @@ export default function AdminProductFormPage() {
             {form.image && (
               <img src={form.image} alt="" className="w-16 h-16 object-contain rounded border border-line" />
             )}
+          </div>
+        </div>
+
+        {/* Galeria */}
+        <div>
+          <label className="block text-[13px] font-[600] text-ink-light mb-1">
+            Galeria — fotos adicionais (máx. 4)
+          </label>
+          <div className="flex flex-wrap gap-3 items-start">
+            {(form.gallery || []).map((url, i) => (
+              <div key={i} className="relative group">
+                <img src={url} alt="" className="w-20 h-20 object-contain rounded border border-line bg-white" />
+                <button
+                  type="button"
+                  onClick={() => set('gallery', form.gallery.filter((_, j) => j !== i))}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-[13px] leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                  aria-label="Remover"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {(form.gallery || []).length < 4 && (
+              <label className="w-20 h-20 border-2 border-dashed border-line rounded flex flex-col items-center justify-center cursor-pointer hover:border-orange transition-colors text-muted hover:text-orange">
+                <span className="text-[24px] leading-none">+</span>
+                <span className="text-[10px] mt-0.5">foto</span>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp"
+                  className="hidden"
+                  onChange={e => { if (e.target.files[0]) { uploadGalleryImage(e.target.files[0]); e.target.value = ''; } }}
+                />
+              </label>
+            )}
+            {galleryUploading && <span className="text-[12px] text-muted self-center">Enviando...</span>}
           </div>
         </div>
 

@@ -1,0 +1,65 @@
+{
+  "version": "1",
+  "generatedAt": "2026-05-07T19:49:00.328Z",
+  "stack": "react",
+  "agents": [
+    {
+      "name": "code-inspector",
+      "role": "code",
+      "category": null,
+      "description": "",
+      "installType": "copy"
+    },
+    {
+      "name": "code-reviewer",
+      "role": "code",
+      "category": null,
+      "description": "",
+      "installType": "copy"
+    },
+    {
+      "name": "database-reviewer",
+      "role": "database",
+      "category": null,
+      "description": "",
+      "installType": "copy"
+    },
+    {
+      "name": "debugger",
+      "role": null,
+      "category": null,
+      "description": "",
+      "installType": "copy"
+    },
+    {
+      "name": "react-reviewer",
+      "role": "react",
+      "category": null,
+      "description": "",
+      "installType": "copy"
+    },
+    {
+      "name": "security-reviewer",
+      "role": "security",
+      "category": null,
+      "description": "",
+      "installType": "copy"
+    }
+  ],
+  "skills": [
+    {
+      "name": "code-review",
+      "role": null,
+      "category": "code",
+      "description": "",
+      "installType": "copy"
+    },
+    {
+      "name": "commit-conventions",
+      "role": null,
+      "category": "commit",
+      "description": "",
+      "installType": "copy"
+    }
+  ]
+}

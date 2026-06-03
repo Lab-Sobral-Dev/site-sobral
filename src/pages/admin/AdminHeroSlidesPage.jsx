@@ -5,6 +5,7 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from 
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
+import ConfirmModal from '../../components/admin/ConfirmModal';
 
 function SortableSlide({ slide, onToggle, onDelete, onEdit }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: slide.id });
@@ -59,6 +60,7 @@ export default function AdminHeroSlidesPage() {
   const [loading,      setLoading]      = useState(true);
   const [uploading,    setUploading]    = useState(false);
   const [psdUploading, setPsdUploading] = useState(false);
+  const [confirm,      setConfirm]      = useState(null);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -108,8 +110,10 @@ export default function AdminHeroSlidesPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm(`Excluir slide #${id}?`)) return;
+  const handleDelete = async () => {
+    if (!confirm) return;
+    const { id } = confirm;
+    setConfirm(null);
     const res = await request(`/api/admin/hero-slides/${id}`, { method: 'DELETE' });
     if (!res) return;
     if (res.ok) {
@@ -207,7 +211,7 @@ export default function AdminHeroSlidesPage() {
                   key={slide.id}
                   slide={slide}
                   onToggle={handleToggle}
-                  onDelete={handleDelete}
+                  onDelete={id => setConfirm({ id })}
                   onEdit={id => navigate(`/admin/hero-slides/${id}/editar`)}
                 />
               ))}
@@ -215,6 +219,15 @@ export default function AdminHeroSlidesPage() {
           </SortableContext>
         </DndContext>
       )}
+
+      <ConfirmModal
+        open={!!confirm}
+        title="Excluir slide"
+        message={`Tem certeza que deseja excluir o slide #${confirm?.id}? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 }

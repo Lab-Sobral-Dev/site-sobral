@@ -15,6 +15,10 @@ router.get('/', async (req, res) => {
     const cat     = req.query.cat;
     const offset  = (page - 1) * perPage;
 
+    const SORT_MAP = { name: 'name', brand: 'brand', category_id: 'category_id' };
+    const sortField = SORT_MAP[req.query.sort] || 'name';
+    const sortDir   = req.query.dir === 'desc' ? 'DESC' : 'ASC';
+
     const params = [];
     const where  = [];
 
@@ -34,11 +38,11 @@ router.get('/', async (req, res) => {
 
     params.push(perPage, offset);
     const dataRes = await pool.query(
-      `SELECT id, name, tag, category_id, brand, image, description,
+      `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
               ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque
        FROM products ${whereClause}
-       ORDER BY name ASC
+       ORDER BY ${sortField} ${sortDir}
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params
     );
@@ -55,7 +59,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, name, tag, category_id, brand, image, description,
+      `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
               ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque
        FROM products WHERE id = $1`,
@@ -71,18 +75,20 @@ router.get('/:id', async (req, res) => {
 
 // POST /api/admin/products
 router.post('/', validate(['id', 'name', 'category_id']), async (req, res) => {
-  const { id, name, tag, category_id, brand, image, description,
+  const { id, name, tag, category_id, brand, image, gallery, description,
           caracteristicas, apresentacao, modo_uso, precaucoes,
           ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque } = req.body;
   try {
     const { rows } = await pool.query(
-      `INSERT INTO products(id, name, tag, category_id, brand, image, description,
+      `INSERT INTO products(id, name, tag, category_id, brand, image, gallery, description,
                             caracteristicas, apresentacao, modo_uso, precaucoes,
                             ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque)
-       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
        RETURNING *`,
       [
-        id, name, tag || null, category_id, brand || null, image || null, description || null,
+        id, name, tag || null, category_id, brand || null, image || null,
+        Array.isArray(gallery) ? JSON.stringify(gallery) : '[]',
+        description || null,
         caracteristicas || null, apresentacao || null, modo_uso || null, precaucoes || null,
         ingredientes || null, disclaimer || null, nutri_porcoes || null,
         nutri_rows ? JSON.stringify(nutri_rows) : null,
@@ -99,19 +105,21 @@ router.post('/', validate(['id', 'name', 'category_id']), async (req, res) => {
 
 // PUT /api/admin/products/:id
 router.put('/:id', validate(['name', 'category_id']), async (req, res) => {
-  const { name, tag, category_id, brand, image, description,
+  const { name, tag, category_id, brand, image, gallery, description,
           caracteristicas, apresentacao, modo_uso, precaucoes,
           ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque } = req.body;
   try {
     const { rows } = await pool.query(
       `UPDATE products SET
-         name=$1, tag=$2, category_id=$3, brand=$4, image=$5, description=$6,
-         caracteristicas=$7, apresentacao=$8, modo_uso=$9, precaucoes=$10,
-         ingredientes=$11, disclaimer=$12, nutri_porcoes=$13, nutri_rows=$14,
-         ativo=$15, destaque=$16, updated_at=NOW()
-       WHERE id=$17 RETURNING *`,
+         name=$1, tag=$2, category_id=$3, brand=$4, image=$5, gallery=$6, description=$7,
+         caracteristicas=$8, apresentacao=$9, modo_uso=$10, precaucoes=$11,
+         ingredientes=$12, disclaimer=$13, nutri_porcoes=$14, nutri_rows=$15,
+         ativo=$16, destaque=$17, updated_at=NOW()
+       WHERE id=$18 RETURNING *`,
       [
-        name, tag || null, category_id, brand || null, image || null, description || null,
+        name, tag || null, category_id, brand || null, image || null,
+        Array.isArray(gallery) ? JSON.stringify(gallery) : '[]',
+        description || null,
         caracteristicas || null, apresentacao || null, modo_uso || null, precaucoes || null,
         ingredientes || null, disclaimer || null, nutri_porcoes || null,
         nutri_rows ? JSON.stringify(nutri_rows) : null,

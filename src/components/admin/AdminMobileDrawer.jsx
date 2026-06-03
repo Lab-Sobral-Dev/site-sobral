@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function HamburgerIcon() {
   return (
@@ -40,6 +41,8 @@ const NAV_GROUPS = [
 ];
 
 export default function AdminMobileDrawer({ open, onClose, onLogout }) {
+  const { user } = useAuth();
+
   useEffect(() => {
     if (open) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
@@ -77,7 +80,10 @@ export default function AdminMobileDrawer({ open, onClose, onLogout }) {
             </div>
             <div>
               <p className="font-[800] text-[13px] text-white leading-none">Painel Admin</p>
-              <p className="text-[11px] text-white/85 leading-none mt-1">Laboratório Sobral</p>
+              <p className="text-[11px] text-white/85 leading-none mt-0.5">Laboratório Sobral</p>
+              {user?.email && (
+                <p className="text-[11px] text-white/70 leading-none mt-0.5 truncate max-w-[160px]">{user.email}</p>
+              )}
             </div>
           </div>
           <button onClick={onClose} className="text-white p-1.5" aria-label="Fechar menu">

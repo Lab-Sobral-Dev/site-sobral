@@ -13,7 +13,8 @@ export default function ProdutoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [openAccordion, setOpenAccordion] = useState('caracteristicas');
-  const [product, setProduct] = useState(null);
+  const [product,       setProduct]       = useState(null);
+  const [mainImage,     setMainImage]     = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [related, setRelated] = useState([]);
@@ -27,7 +28,7 @@ export default function ProdutoPage() {
         if (r.status === 404) { setNotFound(true); return null; }
         return r.json();
       })
-      .then(data => { if (data) setProduct(data); })
+      .then(data => { if (data) { setProduct(data); setMainImage(null); } })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [id]);
@@ -97,11 +98,26 @@ export default function ProdutoPage() {
           {/* Galeria */}
           <div>
             <div className="aspect-square bg-white border border-line rounded flex items-center justify-center overflow-hidden p-[30px]">
-              {p.image
-                ? <img src={p.image} alt={p.name} className="max-w-full max-h-full object-contain" />
+              {(mainImage || p.image)
+                ? <img src={mainImage || p.image} alt={p.name} className="max-w-full max-h-full object-contain" />
                 : <span className="text-[11px] text-muted font-mono text-center">[ foto: {p.name} ]</span>
               }
             </div>
+            {p.image && Array.isArray(p.gallery) && p.gallery.length > 0 && (
+              <div className="flex gap-2 mt-3 flex-wrap">
+                {[p.image, ...p.gallery].map((url, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setMainImage(url)}
+                    className={`w-14 h-14 rounded border-2 overflow-hidden bg-white flex-shrink-0 transition-colors ${
+                      (mainImage || p.image) === url ? 'border-orange' : 'border-line hover:border-orange'
+                    }`}
+                  >
+                    <img src={url} alt="" className="w-full h-full object-contain p-1" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Info */}

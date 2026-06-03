@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
 
     params.push(perPage, offset);
     const dataRes = await pool.query(
-      `SELECT id, name, tag, category_id, brand, image, description,
+      `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
               ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque
        FROM products ${whereClause}
@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, name, tag, category_id, brand, image, description,
+      `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
               ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque
        FROM products WHERE id = $1`,

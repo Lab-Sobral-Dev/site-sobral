@@ -5,16 +5,20 @@ import { useAuth } from '../../context/AuthContext';
 import AdminMobileDrawer, { HamburgerIcon } from '../../components/admin/AdminMobileDrawer';
 
 export default function AdminLayout() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user, setUser } = useAuth();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) { navigate('/admin/login', { replace: true }); return; }
     fetch('/api/auth/me', { credentials: 'include' })
-      .then(r => { if (r.status === 401) { logout(); navigate('/admin/login', { replace: true }); } })
+      .then(r => {
+        if (r.status === 401) { logout(); navigate('/admin/login', { replace: true }); return null; }
+        return r.json();
+      })
+      .then(data => { if (data?.email) setUser({ email: data.email }); })
       .catch(() => { logout(); navigate('/admin/login', { replace: true }); });
-  }, [isAuthenticated, logout, navigate]);
+  }, [isAuthenticated, logout, navigate, setUser]);
 
   if (!isAuthenticated) return null;
 
@@ -49,6 +53,9 @@ export default function AdminLayout() {
           <img src="/images/logo.png" alt="Sobral" className="w-10 h-10 rounded-full mb-2" />
           <p className="font-[800] text-[14px] text-ink">Painel Admin</p>
           <p className="text-[12px] text-muted">Laboratório Sobral</p>
+          {user?.email && (
+            <p className="text-[11px] text-orange font-[600] truncate mt-1" title={user.email}>{user.email}</p>
+          )}
         </div>
         <nav className="flex flex-col p-3 gap-1 flex-1">
           <div className="px-3 pt-2 pb-1 text-[10px] font-[700] text-[#aaa] uppercase tracking-[.6px]">Catálogo</div>

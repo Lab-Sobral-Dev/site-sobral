@@ -17,6 +17,7 @@ const adminProductsRouter   = require('./routes/admin-products');
 const adminCategoriesRouter = require('./routes/admin-categories');
 const adminContentRouter    = require('./routes/admin-content');
 const adminHeroSlidesRouter = require('./routes/admin-hero-slides');
+const adminStatsRouter      = require('./routes/admin-stats');
 const uploadRouter          = require('./routes/upload');
 const psdImportRouter       = require('./routes/psd-import');
 
@@ -54,6 +55,7 @@ app.use('/api/admin/products',      adminProductsRouter);
 app.use('/api/admin/categories',    adminCategoriesRouter);
 app.use('/api/admin/content',       adminContentRouter);
 app.use('/api/admin/hero-slides',   adminHeroSlidesRouter);
+app.use('/api/admin/stats',         adminStatsRouter);
 app.use('/api/upload',              uploadRouter);
 app.use('/api/admin/psd-import',    psdImportRouter);
 

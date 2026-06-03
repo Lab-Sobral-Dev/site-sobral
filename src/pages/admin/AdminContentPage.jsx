@@ -3,6 +3,8 @@ import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 
+const PAGE_URLS = { home: '/', sobre: '/quem-somos', contato: '/fale-conosco' };
+
 const PAGE_CONFIG = {
   home: {
     title: 'Home',
@@ -142,7 +144,19 @@ export default function AdminContentPage({ page }) {
 
   return (
     <div className="p-4 md:p-8 max-w-[720px]">
-      <h1 className="text-[24px] font-[800] text-ink mb-1">{config.title}</h1>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-[24px] font-[800] text-ink">{config.title}</h1>
+        {PAGE_URLS[page] && (
+          <a
+            href={PAGE_URLS[page]}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[13px] font-[600] text-orange hover:underline flex items-center gap-1"
+          >
+            Ver página ↗
+          </a>
+        )}
+      </div>
       <p className="text-[13px] text-muted mb-6">Alterações publicadas imediatamente no site.</p>
 
       {config.sections.map(section => (
