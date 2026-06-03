@@ -3,13 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import ProductCard from '../components/ProductCard';
 import { useDebounce } from '../hooks/useDebounce';
-import { usePageContent } from '../hooks/usePageContent';
-
-const BANNER_DEFAULTS = {
-  banner_eyebrow:   'CATÁLOGO COMPLETO',
-  banner_titulo:    'Todo o catálogo Sobral',
-  banner_descricao: 'Suplementos, tradicionais, óleos e cosméticos — toda nossa linha em um só lugar.',
-};
 
 function SearchIcon() {
   return (
@@ -32,8 +25,6 @@ export default function ProdutosPage() {
   const [inputValue, setInputValue] = useState(query);
   const debouncedQuery = useDebounce(inputValue, 300);
   const isFirstRender  = useRef(true);
-
-  const banner = usePageContent('produtos', BANNER_DEFAULTS);
 
   const [categories, setCategories] = useState([]);
   const [products,   setProducts]   = useState([]);
@@ -114,10 +105,10 @@ export default function ProdutosPage() {
         {/* Banner */}
         <div className="bg-gradient-to-r from-[#F89B4D] via-orange to-[#E0580A] rounded flex items-center justify-between gap-6 p-[32px_40px] mb-8 shadow-[0_4px_18px_rgba(232,90,12,.2)]">
           <div>
-            <div className="text-[12px] tracking-[3px] font-[900] opacity-90 mb-2 text-white">{banner.banner_eyebrow}</div>
-            <h2 className="font-display text-[38px] font-[900] text-white mb-2 leading-[1.05] tracking-[-.5px]">{banner.banner_titulo}</h2>
+            <div className="text-[12px] tracking-[3px] font-[900] opacity-90 mb-2 text-white">CATÁLOGO COMPLETO</div>
+            <h2 className="font-display text-[38px] font-[900] text-white mb-2 leading-[1.05] tracking-[-.5px]">Todo o catálogo Sobral</h2>
             <p className="text-[15px] opacity-95 m-0 max-w-[520px] text-white leading-[1.5]">
-              {banner.banner_descricao}
+              Suplementos, tradicionais, óleos e cosméticos — toda nossa linha em um só lugar.
             </p>
           </div>
           <img src="/images/logo.png" alt="" className="w-[110px] h-[110px] rounded-full flex-shrink-0" />

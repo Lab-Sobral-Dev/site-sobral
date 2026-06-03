@@ -32,11 +32,10 @@ const NAV_GROUPS = [
   {
     label: 'Conteúdo',
     items: [
-      { to: '/admin/conteudo/home',     label: 'Home' },
-      { to: '/admin/conteudo/sobre',    label: 'Quem Somos' },
-      { to: '/admin/conteudo/contato',  label: 'Fale Conosco' },
-      { to: '/admin/conteudo/produtos', label: 'Produtos' },
-      { to: '/admin/hero-slides',       label: 'Hero Slides' },
+      { to: '/admin/conteudo/home',    label: 'Home' },
+      { to: '/admin/conteudo/sobre',   label: 'Quem Somos' },
+      { to: '/admin/conteudo/contato', label: 'Fale Conosco' },
+      { to: '/admin/hero-slides',      label: 'Hero Slides' },
     ],
   },
 ];
