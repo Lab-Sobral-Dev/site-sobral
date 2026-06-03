@@ -14,7 +14,7 @@
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Ubuntu', system-ui, sans-serif;
     background: #F5F5F5;
     color: #3D3D3D;
     font-size: 15px;
