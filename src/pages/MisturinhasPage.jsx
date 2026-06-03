@@ -256,8 +256,8 @@ export default function MisturinhasPage() {
                 onClick={() => p && navigate(`/produtos/${p.id}`)}
                 className="bg-white rounded-[12px] p-3.5 flex items-center gap-3 border border-line cursor-pointer transition-all hover:border-orange hover:translate-x-0.5 hover:shadow-[0_4px_12px_rgba(243,112,33,.1)]"
               >
-                <div className="w-12 h-12 bg-orange-50 rounded-lg grid place-items-center flex-shrink-0 p-1">
-                  {p?.image && <img src={p.image} alt={o.nome} className="max-w-full max-h-full object-contain" />}
+                <div className="w-[52px] h-[68px] bg-orange-50 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center p-1.5">
+                  {p?.image && <img src={p.image} alt={o.nome} className="w-full h-full object-contain" />}
                 </div>
                 <div>
                   <div className="font-[800] text-[14px] text-ink mb-0.5">{o.nome}</div>
