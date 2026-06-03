@@ -76,7 +76,7 @@ export default function QuemSomosPage() {
           </div>
 
           <div className="order-1 md:order-2">
-            <div className="aspect-[16/9] rounded-[4px] bg-[#EAEAEA] overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,.12)]">
+            <div className="aspect-[16/9] rounded-[20px] bg-[#EAEAEA] overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,.12)]">
               <img src={content.historia_imagem} alt="Fachada do Laboratório Sobral" className="w-full h-full object-cover" />
             </div>
           </div>

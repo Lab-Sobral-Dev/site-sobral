@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MobileDrawer, { HamburgerIcon } from './MobileDrawer';
 
@@ -49,21 +49,48 @@ export default function Header() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const onClick = (e) => {
       if (!e.target.closest('.nav-item')) setOpenDropdown(null);
+      if (searchRef.current && !searchRef.current.contains(e.target)) setShowSuggestions(false);
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
   }, []);
 
+  useEffect(() => {
+    if (query.length < 2) { setSuggestions([]); return; }
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/products?q=${encodeURIComponent(query)}&per_page=6`);
+        const json = await res.json();
+        setSuggestions(Array.isArray(json.data) ? json.data : []);
+        setShowSuggestions(true);
+      } catch { setSuggestions([]); }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [query]);
+
   const handleSearch = (e) => {
+    if (e.key === 'Escape') { setShowSuggestions(false); return; }
     if (e.key === 'Enter' && query.trim()) {
       navigate(`/produtos?q=${encodeURIComponent(query.trim())}`);
       setQuery('');
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
+  };
+
+  const pickSuggestion = (id) => {
+    navigate(`/produtos/${id}`);
+    setQuery('');
+    setSuggestions([]);
+    setShowSuggestions(false);
   };
 
   return (
@@ -125,7 +152,7 @@ export default function Header() {
           </nav>
 
           {/* Busca — desktop */}
-          <div className="hidden lg:block relative w-[240px] flex-shrink-0">
+          <div ref={searchRef} className="hidden lg:block relative w-[240px] flex-shrink-0">
             <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none">
               <SearchIcon />
             </span>
@@ -135,8 +162,35 @@ export default function Header() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleSearch}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] text-ink outline-none transition-[border-color,box-shadow] focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)] placeholder:text-muted"
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-line rounded-[14px] shadow-[0_8px_24px_rgba(0,0,0,.12)] z-50 overflow-hidden">
+                {suggestions.map(prod => (
+                  <div
+                    key={prod.id}
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-orange-50 cursor-pointer transition-colors"
+                    onMouseDown={(e) => { e.preventDefault(); pickSuggestion(prod.id); }}
+                  >
+                    {prod.image
+                      ? <img src={prod.image} alt="" className="w-8 h-8 object-contain flex-shrink-0 rounded" />
+                      : <div className="w-8 h-8 bg-[#f5f5f5] rounded flex-shrink-0" />
+                    }
+                    <div className="min-w-0">
+                      <div className="text-[13px] font-semibold text-ink truncate">{prod.name}</div>
+                      {prod.brand && <div className="text-[11px] text-muted">{prod.brand}</div>}
+                    </div>
+                  </div>
+                ))}
+                <div
+                  className="px-3 py-2 text-[12px] text-orange font-[700] hover:bg-orange-50 cursor-pointer border-t border-line"
+                  onMouseDown={(e) => { e.preventDefault(); navigate(`/produtos?q=${encodeURIComponent(query.trim())}`); setQuery(''); setSuggestions([]); setShowSuggestions(false); }}
+                >
+                  Ver todos os resultados para "{query}"
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Hambúrguer — mobile */}

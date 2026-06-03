@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
+import RichTextEditor from '../../components/admin/RichTextEditor';
 
 const EMPTY_FORM = {
   id: '', name: '', tag: '', category_id: '', brand: '', image: '',
@@ -135,7 +136,9 @@ export default function AdminProductFormPage() {
   const field = (label, key, type = 'text', opts = {}) => (
     <div>
       <label className="block text-[13px] font-[600] text-ink-light mb-1">{label}</label>
-      {type === 'textarea' ? (
+      {type === 'richtext' ? (
+        <RichTextEditor value={form[key]} onChange={val => set(key, val)} />
+      ) : type === 'textarea' ? (
         <textarea
           value={form[key]}
           onChange={e => set(key, e.target.value)}
@@ -236,12 +239,12 @@ export default function AdminProductFormPage() {
           </div>
         </div>
 
-        {field('Descrição', 'description', 'textarea', { rows: 3, placeholder: 'Descrição resumida do produto' })}
+        {field('Descrição', 'description', 'richtext')}
         {field('Características (1 por linha)', 'caracteristicas', 'textarea', { rows: 4, placeholder: 'Cada linha vira um item da lista' })}
-        {field('Apresentação', 'apresentacao', 'textarea', { rows: 2 })}
-        {field('Modo de uso', 'modo_uso', 'textarea', { rows: 2 })}
-        {field('Precauções', 'precaucoes', 'textarea', { rows: 2 })}
-        {field('Ingredientes', 'ingredientes', 'textarea', { rows: 3 })}
+        {field('Apresentação', 'apresentacao', 'richtext')}
+        {field('Modo de uso', 'modo_uso', 'richtext')}
+        {field('Precauções', 'precaucoes', 'richtext')}
+        {field('Ingredientes', 'ingredientes', 'richtext')}
         {field('Disclaimer', 'disclaimer', 'textarea', { rows: 2 })}
         {field('Porções (nutri_porcoes)', 'nutri_porcoes', 'textarea', { rows: 2, placeholder: 'Porções por embalagem: 2\nPorção: 15ml' })}
         {field('Tabela nutricional — JSON (nutri_rows)', 'nutri_rows', 'textarea', {

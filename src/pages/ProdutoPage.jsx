@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import Breadcrumb from '../components/Breadcrumb';
 import ProductCard from '../components/ProductCard';
+
+const safe = (html) => html ? parse(DOMPurify.sanitize(html)) : '—';
+const stripTags = (html) => (html || '').replace(/<[^>]*>/g, '');
 
 export default function ProdutoPage() {
   const { id } = useParams();
@@ -65,19 +70,19 @@ export default function ProdutoPage() {
               {p.caracteristicas.map((item, i) => <li key={i}>{item}</li>)}
             </ul>
           )
-        : <span className="whitespace-pre-wrap">{p.description}</span>,
+        : <div className="[&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.description)}</div>,
     },
-    { id: 'apresentacao', title: 'Apresentação', render: <span className="whitespace-pre-wrap">{p.apresentacao || '—'}</span> },
-    { id: 'modouso',      title: 'Modo de Uso',  render: <span className="whitespace-pre-wrap">{p.modo_uso    || '—'}</span> },
+    { id: 'apresentacao', title: 'Apresentação', render: <div className="[&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.apresentacao)}</div> },
+    { id: 'modouso',      title: 'Modo de Uso',  render: <div className="[&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.modo_uso)}</div> },
   ];
 
   return (
     <>
       <Helmet>
         <title>{p.name} | Laboratório Sobral</title>
-        <meta name="description" content={p.description ? p.description.slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />
+        <meta name="description" content={p.description ? stripTags(p.description).slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />
         <meta property="og:title" content={`${p.name} | Laboratório Sobral`} />
-        <meta property="og:description" content={p.description ? p.description.slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />
+        <meta property="og:description" content={p.description ? stripTags(p.description).slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />
         {p.image && <meta property="og:image" content={p.image} />}
         <meta property="og:type" content="product" />
       </Helmet>
@@ -102,7 +107,7 @@ export default function ProdutoPage() {
           {/* Info */}
           <div>
             <h1 className="text-[28px] md:text-[36px] font-bold mb-[14px] text-ink-light">{p.name}</h1>
-            <p className="text-[15px] leading-[1.6] text-ink-light mb-7 whitespace-pre-wrap">{p.description}</p>
+            <div className="text-[15px] leading-[1.6] text-ink-light mb-7 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.description)}</div>
 
             <div>
               {accordionData.map(item => (
