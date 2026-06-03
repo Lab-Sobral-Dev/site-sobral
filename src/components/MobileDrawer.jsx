@@ -35,7 +35,6 @@ const NAV_SECTIONS = [
     label: 'O Sobral',
     items: [
       { label: 'Quem Somos',         to: '/quem-somos' },
-      { label: 'Nossa História',     to: '/quem-somos' },
       { label: 'Trabalhe Conosco',   to: '/fale-conosco' },
     ],
   },
@@ -49,6 +48,14 @@ const NAV_SECTIONS = [
       { label: 'Movimex',                   to: '/produtos?cat=movimex' },
       { label: 'Óleos',                     to: '/produtos?cat=oleos' },
       { label: 'Dicas de Misturinhas',      to: '/misturinhas' },
+    ],
+  },
+  {
+    id: 'contato',
+    label: 'Fale Conosco',
+    items: [
+      { label: 'Fale Conosco', to: '/fale-conosco' },
+      { label: 'Relatório de Transparência Salarial', to: 'https://drive.google.com/file/d/1JWe_OkLG8Ro6jCGAaRdOBIsynoj3Rped/view', external: true },
     ],
   },
 ];
@@ -141,7 +148,18 @@ export default function MobileDrawer({ open, onClose }) {
                 </button>
                 {isOpen && (
                   <div className="pb-3 pl-3 flex flex-col gap-1.5">
-                    {section.items.map((it) => (
+                    {section.items.map((it) => it.external ? (
+                      <a
+                        key={it.label}
+                        href={it.to}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={onClose}
+                        className="text-left text-[14px] font-semibold text-ink-light py-1.5 hover:text-orange"
+                      >
+                        {it.label}
+                      </a>
+                    ) : (
                       <button
                         key={it.label}
                         onClick={() => go(it.to)}
@@ -155,13 +173,6 @@ export default function MobileDrawer({ open, onClose }) {
               </div>
             );
           })}
-
-          <button
-            onClick={() => go('/fale-conosco')}
-            className="w-full text-left py-3.5 font-bold text-[15px] text-ink border-b border-line"
-          >
-            Fale Conosco
-          </button>
 
           {/* Redes sociais */}
           <div className="pt-5 pb-2">
@@ -199,12 +210,6 @@ export default function MobileDrawer({ open, onClose }) {
                   <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
                 </svg>
                 TikTok
-              </a>
-              <a href="https://wa.me/558921012202" target="_blank" rel="noreferrer" className="flex items-center gap-3 py-2 text-[14px] font-semibold text-ink-light hover:text-orange transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                </svg>
-                WhatsApp
               </a>
             </div>
           </div>

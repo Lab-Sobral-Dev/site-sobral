@@ -138,19 +138,6 @@ export default function FaleConoscoPage() {
               </div>
             ))}
 
-            <a
-              href="https://drive.google.com/file/d/1JWe_OkLG8Ro6jCGAaRdOBIsynoj3Rped/view"
-              target="_blank"
-              rel="noreferrer"
-              className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line hover:border-orange transition-colors group block"
-            >
-              <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-2">
-                TRANSPARÊNCIA
-              </div>
-              <div className="text-[14px] text-ink-light group-hover:text-orange transition-colors">
-                Relatório de Transparência Salarial
-              </div>
-            </a>
           </div>
         </div>
 

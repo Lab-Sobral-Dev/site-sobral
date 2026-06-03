@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import MobileDrawer, { HamburgerIcon } from './MobileDrawer';
 
 function SearchIcon() {
@@ -50,7 +50,6 @@ export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const onClick = (e) => {
@@ -67,8 +66,6 @@ export default function Header() {
     }
   };
 
-  const isFaleConosco = location.pathname === '/fale-conosco';
-
   return (
     <>
       <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -77,11 +74,11 @@ export default function Header() {
         <div className="flex items-center gap-4 lg:gap-8 max-w-content mx-auto px-4 md:px-10 py-[14px]">
           {/* Logo */}
           <div
-            className="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
+            className="w-14 h-14 lg:w-[72px] lg:h-[72px] rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
             onClick={() => navigate('/')}
             title="Laboratório Sobral"
           >
-            <img src="/images/logo.png" alt="Laboratório Sobral" width={56} height={56} className="w-full h-full object-cover rounded-full" />
+            <img src="/images/logo.png" alt="Laboratório Sobral" width={72} height={72} className="w-full h-full object-cover rounded-full" />
           </div>
 
           {/* Nav — desktop */}
@@ -91,7 +88,6 @@ export default function Header() {
               onToggle={setOpenDropdown} onNavigate={navigate}
               items={[
                 { label: 'Quem Somos', to: '/quem-somos' },
-                { label: 'Nossa História', to: '/quem-somos' },
                 { label: 'Trabalhe Conosco', to: '/fale-conosco' },
               ]}
             />
@@ -116,15 +112,16 @@ export default function Header() {
                 { label: 'YouTube', to: 'https://www.youtube.com/channel/UCUEAkwfnRsBmRm3An6Vhb2g', external: true },
                 { label: 'LinkedIn', to: 'https://www.linkedin.com/in/labsobral/', external: true },
                 { label: 'TikTok', to: 'https://www.tiktok.com/@labsobral', external: true },
-                { label: 'WhatsApp', to: 'https://wa.me/558921012202', external: true },
               ]}
             />
-            <div
-              className={`font-bold text-[15px] py-2.5 cursor-pointer transition-colors hover:text-orange ${isFaleConosco ? 'text-orange' : 'text-ink'}`}
-              onClick={() => navigate('/fale-conosco')}
-            >
-              Fale Conosco
-            </div>
+            <NavDropdown
+              id="contato" label="Fale Conosco" open={openDropdown === 'contato'}
+              onToggle={setOpenDropdown} onNavigate={navigate}
+              items={[
+                { label: 'Fale Conosco', to: '/fale-conosco' },
+                { label: 'Relatório de Transparência Salarial', to: 'https://drive.google.com/file/d/1JWe_OkLG8Ro6jCGAaRdOBIsynoj3Rped/view', external: true },
+              ]}
+            />
           </nav>
 
           {/* Busca — desktop */}

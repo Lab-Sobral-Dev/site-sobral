@@ -75,10 +75,7 @@ export default function Footer() {
 
       <div className="mt-10 border-t border-white/20 py-4 flex flex-wrap justify-between items-center gap-2 text-[13px] font-semibold max-w-content mx-auto">
         <span>© {new Date().getFullYear()} Laboratório Sobral. Todos os direitos reservados.</span>
-        <span className="flex gap-3">
-          <Link to="/privacidade" className="underline">Política de Privacidade</Link>
-          <Link to="/privacidade" className="underline">Política de Cookies</Link>
-        </span>
+        <Link to="/privacidade" className="underline">Política de Privacidade e Cookies</Link>
       </div>
     </footer>
   );
