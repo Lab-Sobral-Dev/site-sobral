@@ -85,7 +85,7 @@ export default function ProdutoPage() {
               href={`/misturinhas?oleo=${p.id}`}
               className="inline-flex items-center gap-1.5 text-[13px] font-[700] text-orange hover:underline mt-4"
             >
-              <span>✦</span> Ver receitas com este óleo
+              <span>✦</span> Ver dicas de misturinhas
             </a>
           )}
         </div>
