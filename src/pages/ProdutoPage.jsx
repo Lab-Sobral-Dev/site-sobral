@@ -122,7 +122,7 @@ export default function ProdutoPage() {
 
           {/* Info */}
           <div>
-            <h1 className="text-[28px] md:text-[36px] font-bold mb-[14px] text-ink-light">{p.name}</h1>
+            <h1 className="text-[28px] md:text-[36px] font-sans font-[800] mb-[14px] text-orange">{p.name}</h1>
             <div className="text-[15px] leading-[1.6] text-ink-light mb-7 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.description)}</div>
 
             <div>
