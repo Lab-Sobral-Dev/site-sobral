@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 
-const PAGE_URLS = { home: '/', sobre: '/quem-somos', contato: '/fale-conosco' };
+const PAGE_URLS = { home: '/', sobre: '/quem-somos', contato: '/fale-conosco', produtos: '/produtos' };
 
 const PAGE_CONFIG = {
   home: {
@@ -60,6 +60,19 @@ const PAGE_CONFIG = {
           { key: 'historia_texto_3',   label: 'Parágrafo 3 (1973...)',                 type: 'richtext' },
           { key: 'historia_pullquote', label: 'Pull-quote (sobreposição na foto)',     type: 'text' },
           { key: 'historia_imagem',    label: 'Foto da fachada',                       type: 'image' },
+        ],
+      },
+    ],
+  },
+  produtos: {
+    title: 'Produtos',
+    sections: [
+      {
+        label: 'Banner superior',
+        fields: [
+          { key: 'banner_eyebrow', label: 'Eyebrow (ex: CATÁLOGO COMPLETO)', type: 'text' },
+          { key: 'banner_titulo',  label: 'Título',                          type: 'text' },
+          { key: 'banner_descricao', label: 'Descrição',                     type: 'text' },
         ],
       },
     ],
