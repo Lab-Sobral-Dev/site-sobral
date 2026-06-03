@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 
 const AuthContext = createContext(null);
 const AUTH_FLAG     = 'sobral_admin_auth';
@@ -12,16 +12,16 @@ export function AuthProvider({ children }) {
     try { return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || 'null'); } catch { return null; }
   });
 
-  const login = (userData) => {
+  const login = useCallback((userData) => {
     localStorage.setItem(AUTH_FLAG, 'true');
     if (userData) {
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
       setUserState(userData);
     }
     setIsAuthenticated(true);
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     localStorage.removeItem(AUTH_FLAG);
     localStorage.removeItem(AUTH_USER_KEY);
     setIsAuthenticated(false);
@@ -29,12 +29,15 @@ export function AuthProvider({ children }) {
     try {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch {}
-  };
+  }, []);
 
-  const setUser = (userData) => {
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
-    setUserState(userData);
-  };
+  const setUser = useCallback((userData) => {
+    setUserState(prev => {
+      if (prev?.email === userData?.email) return prev;
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
+      return userData;
+    });
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout, user, setUser }}>

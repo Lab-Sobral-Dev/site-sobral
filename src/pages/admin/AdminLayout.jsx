@@ -18,7 +18,7 @@ export default function AdminLayout() {
       })
       .then(data => { if (data?.email) setUser({ email: data.email }); })
       .catch(() => { logout(); navigate('/admin/login', { replace: true }); });
-  }, [isAuthenticated, logout, navigate, setUser]);
+  }, [isAuthenticated, logout, navigate]); // setUser é estável (useCallback), mas não pertence às deps — evita loop
 
   if (!isAuthenticated) return null;
 
