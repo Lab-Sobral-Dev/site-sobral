@@ -80,7 +80,7 @@ export default function MisturinhasPage() {
   // Carrega imagens dos produtos
   const allIds = useMemo(() => {
     const ids = new Set();
-    misturinhas.forEach(m => (m.ingredientes || []).forEach(i => ids.add(i.product_id)));
+    misturinhas.forEach(m => (Array.isArray(m.ingredientes) ? m.ingredientes : []).forEach(i => ids.add(i.product_id)));
     GUIA_OLEOS.forEach(o => ids.add(o.id));
     return [...ids].filter(Boolean);
   }, [misturinhas]);
@@ -181,7 +181,7 @@ export default function MisturinhasPage() {
                   >
                     {/* Bottles */}
                     <div className="flex justify-center items-end gap-3.5 flex-wrap">
-                      {(current.ingredientes || []).map((ing, i) => {
+                      {(Array.isArray(current.ingredientes) ? current.ingredientes : []).map((ing, i) => {
                         const p = findP(ing.product_id);
                         return (
                           <div

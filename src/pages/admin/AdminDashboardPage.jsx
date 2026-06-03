@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white border border-line rounded-[10px] p-4">
             <div className="text-[10px] font-[700] text-muted uppercase tracking-[.8px] mb-2">Por categoria</div>
             <div className="flex flex-col gap-1">
-              {stats.byCategory.map(c => (
+              {(Array.isArray(stats.byCategory) ? stats.byCategory : []).map(c => (
                 <div key={c.id} className="flex justify-between items-center text-[12px]">
                   <span className="text-ink-light">{c.label}</span>
                   <span className="font-[700] text-ink">{c.total}</span>
