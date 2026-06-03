@@ -74,7 +74,23 @@ export default function ProdutoPage() {
         : <div className="[&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.description)}</div>,
     },
     { id: 'apresentacao', title: 'Apresentação', render: <div className="[&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.apresentacao)}</div> },
-    { id: 'modouso',      title: 'Modo de Uso',  render: <div className="[&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.modo_uso)}</div> },
+    {
+      id: 'modouso',
+      title: 'Modo de Uso',
+      render: (
+        <div>
+          <div className="[&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.modo_uso)}</div>
+          {p.category_id === 'oleos' && (
+            <a
+              href={`/misturinhas?oleo=${p.id}`}
+              className="inline-flex items-center gap-1.5 text-[13px] font-[700] text-orange hover:underline mt-4"
+            >
+              <span>✦</span> Ver receitas com este óleo
+            </a>
+          )}
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -123,14 +139,6 @@ export default function ProdutoPage() {
           {/* Info */}
           <div>
             <h1 className="text-[28px] md:text-[36px] font-sans font-[800] mb-[14px] text-orange">{p.name}</h1>
-            {p.category_id === 'oleos' && (
-              <a
-                href={`/misturinhas?oleo=${p.id}`}
-                className="inline-flex items-center gap-1.5 text-[13px] font-[700] text-orange hover:underline mb-5"
-              >
-                <span>✦</span> Ver receitas com este óleo
-              </a>
-            )}
             <div className="text-[15px] leading-[1.6] text-ink-light mb-7 whitespace-pre-wrap [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.description)}</div>
 
             <div>
