@@ -1,13 +1,23 @@
 const { workerData, parentPort } = require('worker_threads');
-const path = require('path');
-const fs   = require('fs');
-const PSD  = require('psd');
+const path  = require('path');
+const fs    = require('fs');
+const PSD   = require('psd');
+const sharp = require('sharp');
 const { newId, CANVAS_W, CANVAS_H } = require('../utils/normalizeLayers');
 
 const { tmpPath, publicImgDir, targetRatio } = workerData;
 
 function slugify(str) {
   return (str || 'layer').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'layer';
+}
+
+// Salva um buffer de imagem usando sharp, redimensionado para (targetW × targetH).
+// Retorna o caminho final salvo.
+async function saveResized(srcBuffer, outPath, targetW, targetH) {
+  await sharp(srcBuffer)
+    .resize(Math.round(targetW), Math.round(targetH), { fit: 'cover', withoutEnlargement: false })
+    .webp({ quality: 92 })
+    .toFile(outPath);
 }
 
 async function run() {
@@ -34,15 +44,21 @@ async function run() {
     return;
   }
 
+  // Fator de escala do PSD para o canvas (pode ser < 1 ou > 1)
+  const scaleX = CANVAS_W / psdW;
+  const scaleY = CANVAS_H / psdH;
+
   const layers = [];
 
+  // 1. Composite (fundo) — redimensionado para exatamente CANVAS_W × CANVAS_H
   try {
     const tree = psd.tree();
     if (typeof tree.toPng === 'function') {
       const composite = tree.toPng();
       if (composite) {
-        const bgFilename = `psd-bg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
-        fs.writeFileSync(path.join(publicImgDir, bgFilename), composite);
+        const bgFilename = `psd-bg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.webp`;
+        const bgPath = path.join(publicImgDir, bgFilename);
+        await saveResized(composite, bgPath, CANVAS_W, CANVAS_H);
         layers.push({
           id: newId(),
           type: 'image',
@@ -59,29 +75,40 @@ async function run() {
     console.warn('psd-worker: composite ignorado —', compErr.message);
   }
 
+  // 2. Camadas individuais — cada uma redimensionada para suas dimensões no canvas
   for (const layer of [...psd.layers].reverse()) {
     if (!layer.image) continue;
     const w = typeof layer.width  === 'function' ? layer.width()  : layer.width;
     const h = typeof layer.height === 'function' ? layer.height() : layer.height;
     if (!w || !h) continue;
 
+    // Dimensões de exibição no canvas 1920×600
+    const displayW = Math.round(w * scaleX);
+    const displayH = Math.round(h * scaleY);
+    if (displayW < 1 || displayH < 1) continue;
+
     try {
       const slug     = slugify(layer.name);
-      const filename = `psd-${slug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
+      const filename = `psd-${slug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.webp`;
       const outPath  = path.join(publicImgDir, filename);
 
-      let saved = false;
-      if (typeof layer.image.saveAsPng === 'function') {
-        try { await Promise.resolve(layer.image.saveAsPng(outPath)); saved = true; }
-        catch (e) { console.warn(`psd-worker: saveAsPng falhou para "${layer.name}" —`, e.message); }
+      // Obtém o buffer da camada
+      let srcBuffer = null;
+      if (typeof layer.image.toPng === 'function') {
+        try { srcBuffer = layer.image.toPng(); } catch {}
       }
-      if (!saved && typeof layer.image.toPng === 'function') {
+      if (!srcBuffer && typeof layer.image.saveAsPng === 'function') {
+        const tmpLayer = outPath.replace('.webp', '_tmp.png');
         try {
-          const buf = layer.image.toPng();
-          if (buf) { fs.writeFileSync(outPath, buf); saved = true; }
-        } catch (e) { console.warn(`psd-worker: toPng falhou para "${layer.name}" —`, e.message); }
+          await Promise.resolve(layer.image.saveAsPng(tmpLayer));
+          srcBuffer = fs.readFileSync(tmpLayer);
+          fs.unlink(tmpLayer, () => {});
+        } catch {}
       }
-      if (!saved) continue;
+      if (!srcBuffer) continue;
+
+      // Salva redimensionado para o tamanho de exibição exato
+      await saveResized(srcBuffer, outPath, displayW, displayH);
 
       layers.push({
         id: newId(),
@@ -90,8 +117,8 @@ async function run() {
         url: `/images/produtos/${filename}`,
         x:      Math.round((layer.left / psdW) * CANVAS_W),
         y:      Math.round((layer.top  / psdH) * CANVAS_H),
-        width:  Math.round((w / psdW) * CANVAS_W),
-        height: Math.round((h / psdH) * CANVAS_H),
+        width:  displayW,
+        height: displayH,
         visible: true,
         animation: null,
       });
