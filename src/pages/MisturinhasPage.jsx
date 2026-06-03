@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CATALOG } from '../data/catalog';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const MISTURINHAS_CABELO = [
@@ -116,14 +115,32 @@ const GUIA_OLEOS = [
   { id:'glicerina',           nome:'Glicerina Sobral',       tag:'Hidratante universal' },
 ];
 
-function findP(id) {
-  return CATALOG.find(p => p.id === id);
-}
-
 export default function MisturinhasPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('cabelo');
   const [idx, setIdx] = useState(0);
+  const [productMap, setProductMap] = useState({});
+
+  const allIds = useMemo(() => {
+    const ids = new Set();
+    [...MISTURINHAS_CABELO, ...MISTURINHAS_PELE].forEach(m => m.ingredientes.forEach(i => ids.add(i.id)));
+    GUIA_OLEOS.forEach(o => ids.add(o.id));
+    return [...ids];
+  }, []);
+
+  useEffect(() => {
+    if (!allIds.length) return;
+    fetch(`/api/products?ids=${allIds.join(',')}&per_page=50`)
+      .then(r => r.json())
+      .then(json => {
+        const map = {};
+        (json.data || []).forEach(p => { map[p.id] = p; });
+        setProductMap(map);
+      })
+      .catch(() => {});
+  }, [allIds]);
+
+  const findP = (id) => productMap[id];
 
   const list = tab === 'cabelo' ? MISTURINHAS_CABELO : MISTURINHAS_PELE;
   const current = list[idx];
