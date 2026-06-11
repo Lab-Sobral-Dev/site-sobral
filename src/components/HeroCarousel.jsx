@@ -22,7 +22,9 @@ function Layer({ layer }) {
       <img
         src={layer.url}
         alt={layer.name || ''}
-        style={style}
+        // objectFit cover: sem isto o padrão do <img> é "fill" e estica a
+        // imagem para a caixa 1920×600, distorcendo o que não for 16:5
+        style={{ ...style, objectFit: 'cover' }}
         className={animClass}
         draggable={false}
       />

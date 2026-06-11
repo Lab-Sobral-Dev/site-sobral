@@ -82,7 +82,8 @@ router.post('/', requireAuth, (req, res) => {
     }
 
     // PERF-03: converter para WebP com sharp (largura e qualidade por tipo)
-    const MAX_WIDTH = { hero: 1920, cms: 1400, produtos: 900 };
+    // hero: 2560px cobre telas retina/2x (o hero é full-bleed); demais mantêm 1x
+    const MAX_WIDTH = { hero: 2560, cms: 1400, produtos: 900 };
     const QUALITY   = { hero: 92,   cms: 88,   produtos: 85  };
     const maxWidth  = MAX_WIDTH[type]  || 900;
     const quality   = QUALITY[type]    || 85;
@@ -95,7 +96,9 @@ router.post('/', requireAuth, (req, res) => {
     try {
       await sharp(filePath)
         .resize({ width: maxWidth, withoutEnlargement: true })
-        .webp({ quality })
+        // effort:6 = melhor compressão; smartSubsample evita borrar bordas de
+        // texto/cores chapadas (4:4:4) — preserva nitidez em banners
+        .webp({ quality, effort: 6, smartSubsample: true })
         .toFile(tmpPath);
 
       fs.renameSync(tmpPath, webpPath);
