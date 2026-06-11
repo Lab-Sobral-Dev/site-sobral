@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Serializa deploys: evita que duas execuções recriem o container ao mesmo
+# tempo (conflito de nome). Não cancela um deploy em andamento — enfileira.
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy na VPS
