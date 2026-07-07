@@ -38,9 +38,9 @@ export default function QuemSomosPage() {
         <meta property="og:description" content="Mais de 100 anos cuidando da saúde dos brasileiros. Conheça nossa história, missão, visão e valores." />
         <meta property="og:type" content="website" />
       </Helmet>
-      <div className="bg-gradient-to-b from-orange to-[#E85A0C] text-white text-center py-7 px-5 font-display text-[32px] font-[900] tracking-[-.3px]">
+      <h1 className="bg-gradient-to-b from-orange to-[#E85A0C] text-white text-center py-7 px-5 font-display text-[32px] font-[900] tracking-[-.3px]">
         Quem Somos
-      </div>
+      </h1>
 
       {/* MVV — Stack horizontal editorial */}
       <section ref={refMVV} className="reveal max-w-content mx-auto px-4 md:px-10 mt-10">

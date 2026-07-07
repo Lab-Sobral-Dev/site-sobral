@@ -13,6 +13,7 @@ const contactRouter         = require('./routes/contact');
 const authRouter            = require('./routes/auth');
 const contentRouter         = require('./routes/content');
 const heroSlidesRouter      = require('./routes/hero-slides');
+const sitemapRouter         = require('./routes/sitemap');
 
 const adminProductsRouter   = require('./routes/admin-products');
 const adminCategoriesRouter = require('./routes/admin-categories');
@@ -53,6 +54,7 @@ app.use('/api/contact',             contactRouter);
 app.use('/api/auth',                authRouter);
 app.use('/api/content',             contentRouter);
 app.use('/api/hero-slides',         heroSlidesRouter);
+app.use('/sitemap.xml',             sitemapRouter);
 
 app.use('/api/admin/products',      adminProductsRouter);
 app.use('/api/admin/categories',    adminCategoriesRouter);

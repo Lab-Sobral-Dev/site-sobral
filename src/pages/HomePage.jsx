@@ -30,6 +30,7 @@ export default function HomePage() {
         <meta property="og:description" content="Há mais de 100 anos o Laboratório Sobral cuida da saúde dos brasileiros. Conheça nossas linhas de suplementos, tradicionais, óleos e cosméticos." />
         <meta property="og:type" content="website" />
       </Helmet>
+      <h1 className="sr-only">Laboratório Sobral — saúde e bem-estar para sua família</h1>
       <HeroCarousel />
 
       <ProductCarousel />

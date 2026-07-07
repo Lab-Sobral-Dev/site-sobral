@@ -102,6 +102,17 @@ export default function ProdutoPage() {
         <meta property="og:description" content={p.description ? stripTags(p.description).slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />
         {p.image && <meta property="og:image" content={p.image} />}
         <meta property="og:type" content="product" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: p.name,
+            ...(p.image ? { image: p.image } : {}),
+            ...(p.description ? { description: stripTags(p.description).slice(0, 300) } : {}),
+            ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand } } : {}),
+            manufacturer: { '@type': 'Organization', name: 'Laboratório Sobral' },
+          })}
+        </script>
       </Helmet>
       <Breadcrumb trail={[
         { label: 'Home', to: '/' },

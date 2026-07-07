@@ -87,6 +87,7 @@ export default function FaleConoscoPage() {
         <meta property="og:type" content="website" />
       </Helmet>
       <Breadcrumb trail={[{ label: 'Home', to: '/' }, { label: 'Fale Conosco' }]} />
+      <h1 className="sr-only">Fale Conosco — Laboratório Sobral</h1>
 
       <section className="max-w-content mx-auto px-4 md:px-10 mt-10 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-8 md:gap-12 mb-12">

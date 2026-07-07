@@ -17,7 +17,7 @@ export default function PrivacidadePage() {
       <section className="max-w-[920px] mx-auto px-10 mt-10 pb-16">
 
         {/* POLÍTICA DE PRIVACIDADE */}
-        <h2 className="text-[22px] font-[800] text-orange mb-4">Política de Privacidade</h2>
+        <h1 className="text-[22px] font-[800] text-orange mb-4">Política de Privacidade</h1>
         <p className="text-[15px] leading-[1.7] text-ink-light mb-4">
           A Política tem como prioridade a proteção dos dados pessoais, mantendo todos os aspectos devidos de segurança e privacidade.
           O comprometimento engloba, também, a transparência do processo de tratamento de dados pessoais dos stakeholders. Por isso,
