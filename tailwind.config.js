@@ -1,6 +1,20 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  // Classes montadas dinamicamente (layer-anim-${type}, slide-enter-${transition})
+  // não aparecem literais no código, então o Tailwind as purgaria do build.
+  // Sem isto, as animações dos hero slides e a transição entre slides somem em produção.
+  safelist: [
+    'layer-anim-fade',
+    'layer-anim-slide-up',
+    'layer-anim-slide-left',
+    'layer-anim-slide-right',
+    'layer-anim-zoom',
+    'layer-anim-none',
+    'slide-enter-fade',
+    'slide-enter-slide',
+    'slide-enter-cut',
+  ],
   theme: {
     extend: {
       colors: {
