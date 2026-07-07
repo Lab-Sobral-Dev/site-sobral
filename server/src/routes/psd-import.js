@@ -46,7 +46,7 @@ function parsePsdInWorker(tmpPath) {
         const err = Object.assign(new Error(msg.error), { status: 422, extra: msg });
         reject(err);
       } else {
-        resolve(msg.layers);
+        resolve({ layers: msg.layers, skipped: msg.skipped || [] });
       }
     });
 
@@ -65,8 +65,8 @@ router.post('/', (req, res) => {
 
     const tmpPath = req.file.path;
     try {
-      const layers = await parsePsdInWorker(tmpPath);
-      res.json({ layers });
+      const { layers, skipped } = await parsePsdInWorker(tmpPath);
+      res.json({ layers, skipped });
     } catch (e) {
       console.error('POST /api/admin/psd-import:', e.message);
       const { status = 422, extra = {} } = e;

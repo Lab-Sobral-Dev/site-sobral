@@ -6,6 +6,14 @@ const validate    = require('../middleware/validate');
 const router = Router();
 router.use(requireAuth);
 
+// misturinhas.id é SERIAL (inteiro). Rejeita id não-numérico com 404.
+router.param('id', (req, res, next, val) => {
+  const id = Number(val);
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'Não encontrada.' });
+  req.misturaId = id;
+  next();
+});
+
 router.get('/', async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -44,7 +52,7 @@ router.put('/:id', validate(['titulo', 'categoria']), async (req, res) => {
        WHERE id=$8 RETURNING *`,
       [titulo, categoria, aplicacao || null, resultado || null,
        JSON.stringify(Array.isArray(ingredientes) ? ingredientes : []),
-       Number(ordem) || 0, ativo !== false, req.params.id]
+       Number(ordem) || 0, ativo !== false, req.misturaId]
     );
     if (!rows.length) return res.status(404).json({ error: 'Não encontrada.' });
     res.json(rows[0]);
@@ -58,7 +66,7 @@ router.patch('/:id/ativo', async (req, res) => {
   try {
     const { rows } = await pool.query(
       'UPDATE misturinhas SET ativo = NOT ativo WHERE id=$1 RETURNING id, ativo',
-      [req.params.id]
+      [req.misturaId]
     );
     if (!rows.length) return res.status(404).json({ error: 'Não encontrada.' });
     res.json(rows[0]);
@@ -70,7 +78,7 @@ router.patch('/:id/ativo', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const { rowCount } = await pool.query('DELETE FROM misturinhas WHERE id=$1', [req.params.id]);
+    const { rowCount } = await pool.query('DELETE FROM misturinhas WHERE id=$1', [req.misturaId]);
     if (!rowCount) return res.status(404).json({ error: 'Não encontrada.' });
     res.json({ ok: true });
   } catch (err) {

@@ -27,6 +27,16 @@ async function run() {
   const psdW = psd.header.width;
   const psdH = psd.header.height;
 
+  // Guarda anti-exaustão de memória: um PSD pode declarar dimensões enormes
+  // e explodir a memória antes de qualquer resize.
+  const MAX_PIXELS = 50 * 1000 * 1000; // 50 megapixels
+  if (!psdW || !psdH || psdW * psdH > MAX_PIXELS) {
+    parentPort.postMessage({
+      error: `PSD com dimensões inválidas ou grandes demais (${psdW} × ${psdH} px). Máximo: 50 MP.`,
+    });
+    return;
+  }
+
   const actualRatio = psdW / psdH;
   const deviation   = Math.abs(actualRatio - targetRatio) / targetRatio;
   if (deviation > 0.05) {
@@ -49,6 +59,7 @@ async function run() {
   const scaleY = CANVAS_H / psdH;
 
   const layers = [];
+  const skipped = []; // camadas descartadas: { name, reason }
 
   // 1. Composite (fundo) — redimensionado para exatamente CANVAS_W × CANVAS_H
   try {
@@ -73,6 +84,7 @@ async function run() {
     }
   } catch (compErr) {
     console.warn('psd-worker: composite ignorado —', compErr.message);
+    skipped.push({ name: 'fundo', reason: compErr.message });
   }
 
   // 2. Camadas individuais — cada uma redimensionada para suas dimensões no canvas
@@ -94,8 +106,9 @@ async function run() {
 
       // Obtém o buffer da camada
       let srcBuffer = null;
+      let bufferErr = null;
       if (typeof layer.image.toPng === 'function') {
-        try { srcBuffer = layer.image.toPng(); } catch {}
+        try { srcBuffer = layer.image.toPng(); } catch (e) { bufferErr = e.message; }
       }
       if (!srcBuffer && typeof layer.image.saveAsPng === 'function') {
         const tmpLayer = outPath.replace('.webp', '_tmp.png');
@@ -103,9 +116,12 @@ async function run() {
           await Promise.resolve(layer.image.saveAsPng(tmpLayer));
           srcBuffer = fs.readFileSync(tmpLayer);
           fs.unlink(tmpLayer, () => {});
-        } catch {}
+        } catch (e) { bufferErr = e.message; }
       }
-      if (!srcBuffer) continue;
+      if (!srcBuffer) {
+        skipped.push({ name: layer.name || 'Camada', reason: bufferErr || 'buffer de imagem indisponível' });
+        continue;
+      }
 
       // Salva redimensionado para o tamanho de exibição exato
       await saveResized(srcBuffer, outPath, displayW, displayH);
@@ -124,10 +140,11 @@ async function run() {
       });
     } catch (layerErr) {
       console.warn(`psd-worker: camada "${layer.name}" ignorada —`, layerErr.message);
+      skipped.push({ name: layer.name || 'Camada', reason: layerErr.message });
     }
   }
 
-  parentPort.postMessage({ layers });
+  parentPort.postMessage({ layers, skipped });
 }
 
 run().catch(err => parentPort.postMessage({ error: err.message }));

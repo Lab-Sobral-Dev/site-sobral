@@ -5,6 +5,15 @@ const { normalizeLayers } = require('../utils/normalizeLayers');
 const router = Router();
 router.use(requireAuth);
 
+// hero_slides.id é SERIAL (inteiro). Rejeita id não-numérico com 404 em vez de
+// deixar o Postgres lançar 22P02 (que viraria 500).
+router.param('id', (req, res, next, val) => {
+  const id = Number(val);
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'Slide não encontrado.' });
+  req.slideId = id;
+  next();
+});
+
 router.get('/', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT id, image_url, ordem, ativo, created_at, layers FROM hero_slides ORDER BY ordem ASC, id ASC');
@@ -18,12 +27,15 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   const { image_url, ordem, layers } = req.body;
-  if (typeof image_url !== 'string') return res.status(400).json({ error: 'image_url deve ser string.' });
+  if (typeof image_url !== 'string' || image_url.trim() === '') {
+    return res.status(400).json({ error: 'image_url é obrigatório.' });
+  }
   if (layers !== undefined && !Array.isArray(layers)) return res.status(400).json({ error: 'layers deve ser array.' });
+  const ordemNum = Number.isFinite(Number(ordem)) ? Number(ordem) : 99;
   try {
     const { rows } = await pool.query(
       'INSERT INTO hero_slides (image_url, ordem, layers) VALUES ($1, $2, $3) RETURNING *',
-      [image_url, ordem ?? 99, JSON.stringify(layers ?? [])]
+      [image_url, ordemNum, JSON.stringify(layers ?? [])]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -61,7 +73,7 @@ router.put('/:id', async (req, res) => {
   try {
     const { rows } = await pool.query(
       'UPDATE hero_slides SET layers = $1 WHERE id = $2 RETURNING *',
-      [JSON.stringify(layers), req.params.id]
+      [JSON.stringify(layers), req.slideId]
     );
     if (!rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
     res.json(rows[0]);
@@ -75,7 +87,7 @@ router.patch('/:id/ativo', async (req, res) => {
   try {
     const { rows } = await pool.query(
       'UPDATE hero_slides SET ativo = NOT ativo WHERE id = $1 RETURNING id, ativo',
-      [req.params.id]
+      [req.slideId]
     );
     if (!rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
     res.json(rows[0]);
@@ -87,7 +99,7 @@ router.patch('/:id/ativo', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const { rowCount } = await pool.query('DELETE FROM hero_slides WHERE id = $1', [req.params.id]);
+    const { rowCount } = await pool.query('DELETE FROM hero_slides WHERE id = $1', [req.slideId]);
     if (!rowCount) return res.status(404).json({ error: 'Slide não encontrado.' });
     res.json({ ok: true });
   } catch (err) {

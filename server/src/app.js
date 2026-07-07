@@ -36,7 +36,7 @@ app.use(cors({
   optionsSuccessStatus: 200,
 }));
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ limit: '200kb' }));
 
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -67,17 +67,17 @@ if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(__dirname, '../../dist');
   app.use('/images', express.static(path.join(__dirname, '../../public/images')));
   app.use(express.static(distPath));
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api/')) return next();
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
+  // 404 JSON para rotas de API inexistentes (antes do fallback SPA)
+  app.use('/api', (req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
+  app.get('*', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
 } else {
   app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 }
 
 app.use((err, req, res, _next) => {
-  console.error('Erro não tratado:', err.message);
-  res.status(500).json({ error: 'Erro interno.' });
+  const status = err.status || err.statusCode || 500;
+  if (status >= 500) console.error('Erro não tratado:', err.stack || err.message);
+  res.status(status).json({ error: status === 400 ? 'Requisição inválida.' : 'Erro interno.' });
 });
 
 module.exports = app;
