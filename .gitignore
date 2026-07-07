@@ -1,5 +1,12 @@
 .claude/settings.json
 .claude/settings.local.json
+
+# Segredos — nunca commitar
+.env
+*.env
+!.env.example
+server/.env
+
 node_modules/
 dist/
 .playwright-mcp/
