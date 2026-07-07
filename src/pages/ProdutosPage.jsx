@@ -75,13 +75,6 @@ export default function ProdutosPage() {
     setSearchParams(p);
   };
 
-  const setQuery = (val) => {
-    const p = new URLSearchParams(searchParams);
-    if (val) p.set('q', val); else p.delete('q');
-    p.delete('page');
-    setSearchParams(p);
-  };
-
   const setPage = (n) => {
     const p = new URLSearchParams(searchParams);
     if (n === 1) p.delete('page'); else p.set('page', n);

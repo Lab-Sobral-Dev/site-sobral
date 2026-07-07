@@ -21,7 +21,7 @@ Arquitetura do projeto:
       main.jsx                        ← entry point; envolve <App> com <AuthProvider>
       App.jsx                         ← React Router v6: rotas públicas + /admin/*
       context/
-        AuthContext.jsx               ← estado auth global, token JWT via localStorage
+        AuthContext.jsx               ← estado auth global; JWT em cookie httpOnly (localStorage guarda só flag/e-mail)
       components/
         Header.jsx                    ← cabeçalho público
         Footer.jsx                    ← rodapé público
@@ -93,7 +93,7 @@ Convenções do projeto:
   Fontes:      via Google Fonts (Nunito padrão)
   Roteamento:  React Router v6 (BrowserRouter)
   Dados:       API REST em /api/* (backend); fallback estático em src/data/catalog.js
-  Auth:        JWT HS256, expiração 8h, armazenado em localStorage
+  Auth:        JWT HS256, expiração 8h, em cookie httpOnly+secure+sameSite:strict
   Backend:     Node.js 20 LTS + Express 4
   Banco:       PostgreSQL 16, driver `pg` (raw SQL, sem ORM)
   E-mail:      Nodemailer + SMTP
