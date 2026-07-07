@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -8,16 +8,30 @@ import ProdutosPage from './pages/ProdutosPage';
 import ProdutoPage from './pages/ProdutoPage';
 import FaleConoscoPage from './pages/FaleConoscoPage';
 import PrivacidadePage from './pages/PrivacidadePage';
-import AdminLoginPage        from './pages/admin/AdminLoginPage';
-import AdminLayout           from './pages/admin/AdminLayout';
-import AdminDashboardPage    from './pages/admin/AdminDashboardPage';
-import AdminProductFormPage  from './pages/admin/AdminProductFormPage';
-import AdminCategoriesPage   from './pages/admin/AdminCategoriesPage';
-import AdminContentPage    from './pages/admin/AdminContentPage';
-import AdminHeroSlidesPage    from './pages/admin/AdminHeroSlidesPage';
-import AdminSlideBuilderPage from './pages/admin/AdminSlideBuilderPage';
-import AdminMisturinhasPage  from './pages/admin/AdminMisturinhasPage';
 import MisturinhasPage from './pages/MisturinhasPage';
+
+// Rotas admin carregadas sob demanda (TipTap, dnd-kit e editores pesados ficam
+// em chunks separados que o visitante público nunca baixa).
+const AdminLoginPage        = lazy(() => import('./pages/admin/AdminLoginPage'));
+const AdminLayout           = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboardPage    = lazy(() => import('./pages/admin/AdminDashboardPage'));
+const AdminProductFormPage  = lazy(() => import('./pages/admin/AdminProductFormPage'));
+const AdminCategoriesPage   = lazy(() => import('./pages/admin/AdminCategoriesPage'));
+const AdminContentPage      = lazy(() => import('./pages/admin/AdminContentPage'));
+const AdminHeroSlidesPage   = lazy(() => import('./pages/admin/AdminHeroSlidesPage'));
+const AdminSlideBuilderPage = lazy(() => import('./pages/admin/AdminSlideBuilderPage'));
+const AdminMisturinhasPage  = lazy(() => import('./pages/admin/AdminMisturinhasPage'));
+
+function AdminFallback() {
+  return (
+    <div className="min-h-screen grid place-items-center text-ink-light">
+      Carregando…
+    </div>
+  );
+}
+
+// Envolve um elemento admin em Suspense para o carregamento sob demanda.
+const admin = (el) => <Suspense fallback={<AdminFallback />}>{el}</Suspense>;
 
 const DEFAULTS = {
   theme: 'orange-classic',
@@ -128,21 +142,21 @@ const router = createBrowserRouter([
       { path: 'privacidade',   element: <PrivacidadePage /> },
     ],
   },
-  { path: '/admin/login', element: <AdminLoginPage /> },
+  { path: '/admin/login', element: admin(<AdminLoginPage />) },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: admin(<AdminLayout />),
     children: [
-      { index: true,                 element: <AdminDashboardPage /> },
-      { path: 'produtos/novo',       element: <AdminProductFormPage /> },
-      { path: 'produtos/:id/editar', element: <AdminProductFormPage /> },
-      { path: 'categorias',          element: <AdminCategoriesPage /> },
-      { path: 'conteudo/home',    element: <AdminContentPage page="home" /> },
-      { path: 'conteudo/sobre',   element: <AdminContentPage page="sobre" /> },
-      { path: 'conteudo/contato', element: <AdminContentPage page="contato" /> },
-      { path: 'misturinhas',                element: <AdminMisturinhasPage /> },
-      { path: 'hero-slides',                element: <AdminHeroSlidesPage /> },
-      { path: 'hero-slides/:id/editar',    element: <AdminSlideBuilderPage /> },
+      { index: true,                 element: admin(<AdminDashboardPage />) },
+      { path: 'produtos/novo',       element: admin(<AdminProductFormPage />) },
+      { path: 'produtos/:id/editar', element: admin(<AdminProductFormPage />) },
+      { path: 'categorias',          element: admin(<AdminCategoriesPage />) },
+      { path: 'conteudo/home',    element: admin(<AdminContentPage page="home" />) },
+      { path: 'conteudo/sobre',   element: admin(<AdminContentPage page="sobre" />) },
+      { path: 'conteudo/contato', element: admin(<AdminContentPage page="contato" />) },
+      { path: 'misturinhas',                element: admin(<AdminMisturinhasPage />) },
+      { path: 'hero-slides',                element: admin(<AdminHeroSlidesPage />) },
+      { path: 'hero-slides/:id/editar',    element: admin(<AdminSlideBuilderPage />) },
     ],
   },
 ]);

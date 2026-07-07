@@ -86,6 +86,8 @@ export default function HeroCarousel() {
       <img
         src="/images/hero-banner.png"
         alt="Laboratório Sobral"
+        fetchpriority="high"
+        decoding="async"
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
       />
 
