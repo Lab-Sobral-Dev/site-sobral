@@ -145,32 +145,35 @@ export default function FaleConoscoPage() {
         <h2 className="text-[22px] font-[800] text-orange mb-[18px]">Fale Conosco</h2>
 
         {sent && (
-          <div className="py-[14px] px-5 mb-[18px] bg-[#E8F5E8] text-[#2D6A2D] rounded font-bold text-[14px]">
+          <div role="status" className="py-[14px] px-5 mb-[18px] bg-[#E8F5E8] text-[#2D6A2D] rounded font-bold text-[14px]">
             ✓ Mensagem enviada com sucesso! Retornaremos em breve.
           </div>
         )}
 
         {errors.submit && (
-          <div className="py-[14px] px-5 mb-[18px] bg-red-50 text-red-600 rounded font-bold text-[14px]">
+          <div role="alert" className="py-[14px] px-5 mb-[18px] bg-red-50 text-red-600 rounded font-bold text-[14px]">
             {errors.submit}
           </div>
         )}
 
         <form className="grid grid-cols-1 md:grid-cols-2 gap-[14px] bg-[#EEEEEE] p-5 md:p-7 rounded" onSubmit={handleSubmit}>
-          <input placeholder="Nome*" className={inputClass('nome')} value={form.nome} onChange={handleChange('nome')} />
-          <input placeholder="Sobrenome*" className={inputClass('sobrenome')} value={form.sobrenome} onChange={handleChange('sobrenome')} />
-          <input placeholder="E-mail*" type="email" className={inputClass('email')} value={form.email} onChange={handleChange('email')} />
-          <input placeholder="Celular*" className={inputClass('celular')} value={form.celular} onChange={handleChange('celular')} />
-          <input placeholder="Endereço" className={inputClass('endereco')} value={form.endereco} onChange={handleChange('endereco')} />
-          <select className={inputClass('estado')} value={form.estado} onChange={handleChange('estado')}>
+          <input aria-label="Nome" aria-required="true" aria-invalid={!!errors.nome} placeholder="Nome*" className={inputClass('nome')} value={form.nome} onChange={handleChange('nome')} />
+          <input aria-label="Sobrenome" aria-required="true" aria-invalid={!!errors.sobrenome} placeholder="Sobrenome*" className={inputClass('sobrenome')} value={form.sobrenome} onChange={handleChange('sobrenome')} />
+          <input aria-label="E-mail" aria-required="true" aria-invalid={!!errors.email} placeholder="E-mail*" type="email" className={inputClass('email')} value={form.email} onChange={handleChange('email')} />
+          <input aria-label="Celular" aria-required="true" aria-invalid={!!errors.celular} placeholder="Celular*" className={inputClass('celular')} value={form.celular} onChange={handleChange('celular')} />
+          <input aria-label="Endereço" placeholder="Endereço" className={inputClass('endereco')} value={form.endereco} onChange={handleChange('endereco')} />
+          <select aria-label="Estado" className={inputClass('estado')} value={form.estado} onChange={handleChange('estado')}>
             <option value="">Estado</option>
             {UFS.map(uf => <option key={uf} value={uf}>{uf}</option>)}
           </select>
           <div className="col-span-2">
-            <input placeholder="Assunto*" className={inputClass('assunto')} value={form.assunto} onChange={handleChange('assunto')} />
+            <input aria-label="Assunto" aria-required="true" aria-invalid={!!errors.assunto} placeholder="Assunto*" className={inputClass('assunto')} value={form.assunto} onChange={handleChange('assunto')} />
           </div>
           <div className="col-span-2">
             <textarea
+              aria-label="Mensagem"
+              aria-required="true"
+              aria-invalid={!!errors.mensagem}
               placeholder="Mensagem*"
               className={`w-full py-[14px] px-[18px] rounded-[18px] border bg-white font-sans text-[14px] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-muted min-h-[140px] resize-y ${
                 errors.mensagem

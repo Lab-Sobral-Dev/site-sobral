@@ -10,7 +10,7 @@ export default {
         'orange-50':     'var(--orange-50)',
         ink:             '#3D3D3D',
         'ink-light':     '#6B6B6B',
-        muted:           '#9A9A9A',
+        muted:           '#767676',
         line:            '#E5E5E5',
         bg:              '#F5F5F5',
       },

@@ -118,8 +118,9 @@ function Layout() {
   return (
     <>
       <ScrollRestoration />
+      <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
       <Header />
-      <main key={location.pathname} className="page-fade">
+      <main id="conteudo" key={location.pathname} className="page-fade">
         <Outlet />
       </main>
       <Footer />

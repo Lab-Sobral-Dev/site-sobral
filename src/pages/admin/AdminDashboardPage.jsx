@@ -120,6 +120,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col md:flex-row gap-3 mb-5">
         <input
           type="text"
+          aria-label="Buscar produto"
           placeholder="Buscar..."
           value={query}
           onChange={e => { setQuery(e.target.value); setPage(1); }}

@@ -13,16 +13,23 @@ function SearchIcon() {
 
 function NavDropdown({ id, label, items, open, onToggle, onNavigate }) {
   return (
-    <div
-      className={`nav-item relative font-bold text-[15px] py-2.5 flex items-center gap-1.5 cursor-pointer select-none transition-colors hover:text-orange ${open ? 'open text-orange' : 'text-ink'}`}
-      onClick={(e) => { e.stopPropagation(); onToggle(open ? null : id); }}
-    >
-      {label}
-      <span className="caret" />
-      <div className="nav-dropdown">
+    <div className={`nav-item relative ${open ? 'open' : ''}`}>
+      <button
+        type="button"
+        aria-haspopup="true"
+        aria-expanded={open}
+        className={`font-bold text-[15px] py-2.5 flex items-center gap-1.5 select-none transition-colors hover:text-orange ${open ? 'text-orange' : 'text-ink'}`}
+        onClick={(e) => { e.stopPropagation(); onToggle(open ? null : id); }}
+        onKeyDown={(e) => { if (e.key === 'Escape') onToggle(null); }}
+      >
+        {label}
+        <span className="caret" />
+      </button>
+      <div className="nav-dropdown" role="menu">
         {items.map((it) => it.external ? (
           <a
             key={it.label}
+            role="menuitem"
             href={it.to}
             target="_blank"
             rel="noreferrer"
@@ -32,13 +39,15 @@ function NavDropdown({ id, label, items, open, onToggle, onNavigate }) {
             {it.label}
           </a>
         ) : (
-          <a
+          <button
             key={it.label}
-            className="block px-4 py-2 text-[14px] font-semibold text-ink-light transition-all hover:bg-orange-50 hover:text-orange cursor-pointer"
+            role="menuitem"
+            type="button"
+            className="block w-full text-left px-4 py-2 text-[14px] font-semibold text-ink-light transition-all hover:bg-orange-50 hover:text-orange"
             onClick={(e) => { e.stopPropagation(); onNavigate(it.to); onToggle(null); }}
           >
             {it.label}
-          </a>
+          </button>
         ))}
       </div>
     </div>
@@ -158,6 +167,7 @@ export default function Header() {
             </span>
             <input
               type="text"
+              aria-label="Pesquisar produto"
               placeholder="Pesquisar produto"
               value={query}
               onChange={(e) => setQuery(e.target.value)}

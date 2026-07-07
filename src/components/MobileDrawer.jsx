@@ -145,6 +145,7 @@ export default function MobileDrawer({ open, onClose }) {
             </span>
             <input
               type="text"
+              aria-label="Pesquisar produto"
               placeholder="Pesquisar produto"
               value={query}
               onChange={(e) => setQuery(e.target.value)}

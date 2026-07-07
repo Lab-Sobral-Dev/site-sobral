@@ -131,6 +131,7 @@ export default function ProdutosPage() {
             <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none"><SearchIcon /></span>
             <input
               type="text"
+              aria-label="Buscar produto"
               placeholder="Buscar produto..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
