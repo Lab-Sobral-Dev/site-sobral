@@ -192,7 +192,7 @@ export default function AdminHeroSlidesPage() {
           </label>
           <label className={`cursor-pointer text-center bg-orange hover:bg-[#E0580A] text-white font-[700] px-5 py-2.5 rounded-[8px] text-[14px] transition-colors ${uploading ? 'opacity-60 pointer-events-none' : ''}`}>
             {uploading ? 'Enviando...' : '+ Novo slide'}
-            <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={e => { if (e.target.files[0]) { handleUpload(e.target.files[0]); e.target.value = ''; } }} />
+            <input type="file" accept=".jpg,.jpeg,.png,.webp,.svg" className="hidden" onChange={e => { if (e.target.files[0]) { handleUpload(e.target.files[0]); e.target.value = ''; } }} />
           </label>
         </div>
       </div>

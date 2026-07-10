@@ -8,8 +8,8 @@ const requireAuth = require('../middleware/requireAuth');
 const router = Router();
 
 const ALLOWED_TYPES = ['produtos', 'hero', 'cms'];
-const allowedExts  = ['.jpg', '.jpeg', '.png', '.webp'];
-const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+const allowedExts  = ['.jpg', '.jpeg', '.png', '.webp', '.svg'];
+const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
 
 // SEC-01: detecção por magic bytes (ignora MIME informado pelo browser)
 function detectMime(buffer) {
@@ -20,6 +20,20 @@ function detectMime(buffer) {
     buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50
   ) return 'image/webp';
   return null;
+}
+
+// SVG não tem magic bytes binários: verifica se o conteúdo real contém um <svg>.
+// Lê só o início do arquivo (SVG válido declara a tag logo após um prólogo curto).
+function looksLikeSvg(filePath) {
+  try {
+    const fd = fs.openSync(filePath, 'r');
+    const buf = Buffer.alloc(65536);
+    const read = fs.readSync(fd, buf, 0, buf.length, 0);
+    fs.closeSync(fd);
+    return /<svg[\s>]/i.test(buf.toString('utf8', 0, read));
+  } catch {
+    return false;
+  }
 }
 
 // PERF-04: destino dinâmico por tipo
@@ -58,7 +72,7 @@ router.post('/', requireAuth, (req, res) => {
       }
       return res.status(400).json({ error: err.message });
     }
-    if (!req.file) return res.status(400).json({ error: 'Arquivo ausente ou tipo inválido (jpg/png/webp).' });
+    if (!req.file) return res.status(400).json({ error: 'Arquivo ausente ou tipo inválido (jpg/png/webp/svg).' });
 
     const filePath = req.file.path;
     const type = ALLOWED_TYPES.includes(req.query.type) ? req.query.type : 'produtos';
@@ -75,11 +89,13 @@ router.post('/', requireAuth, (req, res) => {
       return res.status(400).json({ error: 'Não foi possível verificar o arquivo.' });
     }
 
-    const realMime = detectMime(header);
+    // SVG não é detectado por magic bytes: cai no sniff de conteúdo.
+    const realMime = detectMime(header) || (looksLikeSvg(filePath) ? 'image/svg+xml' : null);
     if (!realMime || !allowedMimes.includes(realMime)) {
       try { fs.unlinkSync(filePath); } catch {}
       return res.status(400).json({ error: 'Tipo de arquivo inválido.' });
     }
+    const isSvg = realMime === 'image/svg+xml';
 
     // PERF-03: converter para WebP com sharp (largura e qualidade por tipo)
     // hero: 2560px cobre telas retina/2x (o hero é full-bleed); demais mantêm 1x
@@ -94,8 +110,20 @@ router.post('/', requireAuth, (req, res) => {
     const tmpPath  = path.join(dir, `${baseName}-tmp.webp`);
 
     try {
-      await sharp(filePath)
-        .resize({ width: maxWidth, withoutEnlargement: true })
+      let input = sharp(filePath);
+
+      // SVG é vetorial: rasteriza com densidade calculada p/ atingir a largura
+      // alvo com nitidez (senão librsvg renderiza no tamanho natural e borra ao
+      // ampliar). Densidade limitada p/ não estourar memória com SVGs minúsculos.
+      if (isSvg) {
+        const meta = await input.metadata();
+        const svgWidth = meta.width || maxWidth;
+        const density = Math.min(2400, Math.max(72, Math.round((72 * maxWidth) / svgWidth)));
+        input = sharp(filePath, { density });
+      }
+
+      await input
+        .resize({ width: maxWidth, withoutEnlargement: !isSvg })
         // effort:6 = melhor compressão; smartSubsample evita borrar bordas de
         // texto/cores chapadas (4:4:4) — preserva nitidez em banners
         .webp({ quality, effort: 6, smartSubsample: true })
@@ -109,6 +137,12 @@ router.post('/', requireAuth, (req, res) => {
       return res.json({ url: `/images/${type}/${baseName}.webp` });
     } catch (sharpErr) {
       console.error('sharp conversion failed:', sharpErr.message);
+      try { fs.unlinkSync(tmpPath); } catch {}
+      // SVG cru pode conter <script> (XSS): nunca é servido sem rasterizar.
+      if (isSvg) {
+        try { fs.unlinkSync(filePath); } catch {}
+        return res.status(400).json({ error: 'Não foi possível processar o SVG. Verifique o arquivo.' });
+      }
       return res.json({ url: `/images/${type}/${path.basename(filePath)}` });
     }
   });
