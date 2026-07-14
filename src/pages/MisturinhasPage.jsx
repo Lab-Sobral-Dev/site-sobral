@@ -2,6 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
+function ChevronIcon({ dir = 'left' }) {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points={dir === 'left' ? '15 18 9 12 15 6' : '9 18 15 12 9 6'} />
+    </svg>
+  );
+}
+
 const GUIA_OLEOS = [
   { id:'oleo-alecrim',        nome:'Óleo de Alecrim',        tag:'Fortalecimento capilar' },
   { id:'oleo-uva',            nome:'Óleo de Semente de Uva', tag:'Peles acneicas, cicatrizes' },
@@ -171,9 +179,9 @@ export default function MisturinhasPage() {
                   <div className="absolute -bottom-[80px] -left-[80px] w-[220px] h-[220px] rounded-full border-[10px] border-orange/10 pointer-events-none" />
 
                   <button onClick={prev} aria-label="Anterior"
-                    className="absolute top-1/2 -translate-y-1/2 left-2 lg:left-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange text-[28px] font-[900] z-10 transition-all grid place-items-center pb-1 hover:bg-orange hover:text-white hover:scale-110">‹</button>
+                    className="absolute top-1/2 -translate-y-1/2 left-2 lg:left-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange z-10 transition-all grid place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="left" /></button>
                   <button onClick={next} aria-label="Próxima"
-                    className="absolute top-1/2 -translate-y-1/2 right-2 lg:right-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange text-[28px] font-[900] z-10 transition-all grid place-items-center pb-1 hover:bg-orange hover:text-white hover:scale-110">›</button>
+                    className="absolute top-1/2 -translate-y-1/2 right-2 lg:right-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange z-10 transition-all grid place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="right" /></button>
 
                   <div
                     key={`${tab}-${idx}`}

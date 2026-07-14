@@ -3,6 +3,14 @@ import { useState, useEffect, useCallback } from 'react';
 const CANVAS_W = 1920;
 const CANVAS_H = 600;
 
+function ChevronIcon({ dir = 'left' }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points={dir === 'left' ? '15 18 9 12 15 6' : '9 18 15 12 9 6'} />
+    </svg>
+  );
+}
+
 function Layer({ layer }) {
   if (!layer.visible) return null;
 
@@ -105,16 +113,16 @@ export default function HeroCarousel() {
           <button
             onClick={prev}
             aria-label="Slide anterior"
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-orange flex items-center justify-center text-[22px] shadow transition-all z-10 leading-none"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-orange flex items-center justify-center shadow transition-all z-10"
           >
-            ‹
+            <ChevronIcon dir="left" />
           </button>
           <button
             onClick={next}
             aria-label="Próximo slide"
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-orange flex items-center justify-center text-[22px] shadow transition-all z-10 leading-none"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-orange flex items-center justify-center shadow transition-all z-10"
           >
-            ›
+            <ChevronIcon dir="right" />
           </button>
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
             {slides.map((_, i) => (
