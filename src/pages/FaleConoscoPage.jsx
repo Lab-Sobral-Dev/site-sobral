@@ -7,11 +7,12 @@ import { usePageContent } from '../hooks/usePageContent';
 
 const safe = (html) => parse(DOMPurify.sanitize(html));
 
-function toWhatsApp(phone) {
-  const digits = phone.replace(/\D/g, '');
-  if (digits.startsWith('0800') || digits.length < 10) return null;
-  const num = digits.startsWith('55') ? digits : `55${digits}`;
-  return `https://wa.me/${num}`;
+function WhatsAppIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="flex-shrink-0">
+      <path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.66.15-.2.3-.76.96-.93 1.15-.17.2-.34.22-.64.08-.3-.15-1.25-.46-2.38-1.47-.88-.79-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.34.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.66-1.6-.9-2.19-.24-.57-.48-.5-.66-.5-.17 0-.37-.03-.56-.03-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35zM12 2a10 10 0 0 0-8.6 15.06L2 22l5.06-1.33A10 10 0 1 0 12 2zm0 18.2a8.16 8.16 0 0 1-4.16-1.14l-.3-.18-3 .79.8-2.92-.2-.3A8.2 8.2 0 1 1 12 20.2z"/>
+    </svg>
+  );
 }
 
 const CONTATO_DEFAULTS = {
@@ -108,16 +109,20 @@ export default function FaleConoscoPage() {
               {
                 label: 'SAC',
                 phone: content.sac_telefone,
+                wa: 'https://wa.me/5589994606485?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20atendimento.',
+                waLabel: '(89) 99460-6485',
                 email: content.sac_email,
               },
               {
                 label: 'MARKETING',
                 wa: 'https://wa.me/5589994021056?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20atendimento.',
+                waLabel: '(89) 99402-1056',
                 email: content.marketing_email,
               },
               {
                 label: 'AGENDE UMA VISITA',
                 wa: 'https://wa.me/5589999270207?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20agendar%20uma%20visita%20na%20ind%C3%BAstria.',
+                waLabel: '(89) 99927-0207',
                 email: 'rh@laboratoriosobral.com.br',
               },
             ].map(({ label, phone, wa, waLabel, email }) => (
@@ -127,12 +132,19 @@ export default function FaleConoscoPage() {
                 </div>
                 {phone && <div className="text-[14px] text-ink-light mt-1">{phone}</div>}
                 {wa && (
-                  <a href={wa} target="_blank" rel="noreferrer" className="block text-[14px] text-ink-light hover:text-orange transition-colors mt-1">
-                    {waLabel || 'Falar pelo WhatsApp'}
+                  <a
+                    href={wa}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 mt-1.5 py-1.5 px-3 rounded-full bg-[#25D366] text-white font-bold text-[13px] transition-all hover:bg-[#1DA851] hover:-translate-y-px"
+                    aria-label={`Falar pelo WhatsApp ${waLabel || ''}`.trim()}
+                  >
+                    <WhatsAppIcon />
+                    {waLabel ? `WhatsApp ${waLabel}` : 'Falar pelo WhatsApp'}
                   </a>
                 )}
                 {email && (
-                  <a href={`mailto:${email}`} className="block text-[14px] text-ink-light hover:text-orange transition-colors">
+                  <a href={`mailto:${email}`} className="block text-[14px] text-ink-light hover:text-orange transition-colors mt-2">
                     {email}
                   </a>
                 )}

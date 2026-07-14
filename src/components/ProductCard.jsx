@@ -15,7 +15,7 @@ export default function ProductCard({ product, onClick }) {
           : <span className="text-[11px] text-muted font-mono text-center p-3 leading-snug">[ foto: {product.name} ]</span>
         }
       </div>
-      <div className="font-[800] text-[15px] text-ink mb-1 text-center">{product.name}</div>
+      <div className="font-[800] text-[15px] text-orange mb-1 text-center">{product.name}</div>
       <div className="text-[12.5px] text-ink-light text-center mb-[14px] min-h-[36px]">{product.tag}</div>
       <button
         className="btn-outline btn-ripple inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-orange bg-white text-orange font-bold text-[14px] transition-colors hover:bg-orange-50"

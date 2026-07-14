@@ -9,6 +9,7 @@ export default function ProductCarousel() {
 
   const [products, setProducts] = useState([]);
   const [pageIdx, setPageIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     fetch('/api/products?destaque=true&per_page=50')
@@ -22,20 +23,31 @@ export default function ProductCarousel() {
   const next = useCallback(() => setPageIdx(i => (i + 1) % totalPages), [totalPages]);
   const prev = useCallback(() => setPageIdx(i => (i - 1 + totalPages) % totalPages), [totalPages]);
 
+  // Avanço automático das páginas ("passar sozinho"); pausa ao passar o mouse
+  useEffect(() => {
+    if (totalPages <= 1 || paused) return;
+    const t = setInterval(next, 5000);
+    return () => clearInterval(t);
+  }, [totalPages, paused, next]);
+
   if (!products.length) return null;
 
   const visible = products.slice(pageIdx * CARDS_PER_PAGE, (pageIdx + 1) * CARDS_PER_PAGE);
   const showControls = totalPages > 1;
 
   return (
-    <section className="max-w-content mx-auto px-4 md:px-10 mt-[60px]">
+    <section
+      className="max-w-content mx-auto px-4 md:px-10 mt-[60px]"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       <div className="text-center mt-10 mb-7">
         <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-1.5">PRODUTOS EM DESTAQUE</div>
         <h2 className="font-display text-[28px] md:text-[36px] font-[900] tracking-[-.5px] leading-none">Conheça nossos produtos</h2>
       </div>
 
       <div className="relative">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div key={pageIdx} className="grid grid-cols-2 md:grid-cols-4 gap-5 slide-enter-fade">
           {visible.map(p => (
             <ProductCard key={p.id} product={p} onClick={() => navigate(`/produtos/${p.id}`)} />
           ))}
