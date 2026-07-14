@@ -15,6 +15,7 @@ export default function ProdutoPage() {
   const [openAccordion, setOpenAccordion] = useState('caracteristicas');
   const [product,       setProduct]       = useState(null);
   const [mainImage,     setMainImage]     = useState(null);
+  const [zoom,          setZoom]          = useState({ active: false, x: 50, y: 50 });
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [related, setRelated] = useState([]);
@@ -124,9 +125,29 @@ export default function ProdutoPage() {
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr] gap-8 md:gap-16 items-start">
           {/* Galeria */}
           <div>
-            <div className="aspect-square bg-white border border-line rounded flex items-center justify-center overflow-hidden p-[30px]">
+            <div
+              className={`aspect-square bg-white border border-line rounded flex items-center justify-center overflow-hidden p-[30px] ${(mainImage || p.image) ? 'cursor-zoom-in' : ''}`}
+              onMouseMove={(mainImage || p.image) ? (e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                setZoom({
+                  active: true,
+                  x: ((e.clientX - r.left) / r.width) * 100,
+                  y: ((e.clientY - r.top) / r.height) * 100,
+                });
+              } : undefined}
+              onMouseLeave={() => setZoom(z => ({ ...z, active: false }))}
+            >
               {(mainImage || p.image)
-                ? <img src={mainImage || p.image} alt={p.name} className="max-w-full max-h-full object-contain" />
+                ? <img
+                    src={mainImage || p.image}
+                    alt={p.name}
+                    className="max-w-full max-h-full object-contain transition-transform duration-150 ease-out"
+                    style={{
+                      transformOrigin: `${zoom.x}% ${zoom.y}%`,
+                      transform: zoom.active ? 'scale(2.2)' : 'scale(1)',
+                    }}
+                    draggable={false}
+                  />
                 : <span className="text-[11px] text-muted font-mono text-center">[ foto: {p.name} ]</span>
               }
             </div>
