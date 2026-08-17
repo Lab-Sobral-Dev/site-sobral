@@ -1,4 +1,32 @@
 import { Link } from 'react-router-dom';
+import WhatsAppIcon from './WhatsAppIcon';
+
+const mapsUrl = (endereco) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+
+const UNIDADES = [
+  {
+    rotulo:   'Unidade Fabril',
+    linhas:   ['Rua Bento Leão, 25, Centro', 'Floriano–PI, CEP 64800-062'],
+    endereco: 'Laboratório Sobral, Rua Bento Leão, 25, Centro, Floriano - PI, 64800-062',
+  },
+  {
+    rotulo:   'Escritório Comercial',
+    linhas:   ['Av. Homero Castelo Branco, 637, Jóquei', 'Teresina–PI, CEP 64049-505'],
+    endereco: 'Av. Homero Castelo Branco, 637, Jóquei, Teresina - PI, 64049-505',
+  },
+];
+
+const SAC_WHATSAPP = 'https://wa.me/5589994606485?text=Ol%C3%A1%2C%20acessei%20o%20site%20e%20gostaria%20de%20atendimento.';
+
+function MapPinIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="flex-shrink-0">
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
 
 export default function Footer() {
   return (
@@ -10,28 +38,49 @@ export default function Footer() {
           <div className="w-[72px] h-[72px] rounded-full border-2 border-white overflow-hidden mb-[14px]">
             <img src="/images/logo.png" alt="Laboratório Sobral" className="w-full h-full object-cover" />
           </div>
-          <div className="text-[13.5px] leading-relaxed font-semibold">
-            <div className="text-[10px] uppercase tracking-[1.5px] opacity-70 mb-0.5">Unidade Fabril</div>
-            Rua Bento Leão, 25, Centro<br />
-            Floriano–PI, CEP 64800-062
-          </div>
-          <div className="mt-3 text-[13.5px] leading-relaxed font-semibold">
-            <div className="text-[10px] uppercase tracking-[1.5px] opacity-70 mb-0.5">Escritório Comercial</div>
-            Av. Homero Castelo Branco, 637, Jóquei<br />
-            Teresina–PI, CEP 64049-505
-          </div>
-          <div className="mt-3 text-[10px] font-[800] tracking-[2px] opacity-70 uppercase">
-            Empresa Brasileira desde 1911
-          </div>
+          {UNIDADES.map(({ rotulo, linhas, endereco }, i) => (
+            <div key={rotulo} className={`text-[13.5px] leading-relaxed font-semibold ${i > 0 ? 'mt-3' : ''}`}>
+              <div className="text-[10px] uppercase tracking-[1.5px] opacity-70 mb-0.5">{rotulo}</div>
+              {linhas.map(linha => <div key={linha}>{linha}</div>)}
+              <a
+                href={mapsUrl(endereco)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 mt-1 text-[12.5px] font-[700] underline underline-offset-2 hover:opacity-80 transition-opacity"
+                aria-label={`Ver ${rotulo} no Google Maps`}
+              >
+                <MapPinIcon />
+                Ver no mapa
+              </a>
+            </div>
+          ))}
         </div>
 
         {/* Col 2 — Fale Conosco */}
         <div>
           <h4 className="text-[16px] font-[800] mb-[14px] tracking-[.3px]">Fale Conosco</h4>
           <ul className="list-none p-0 m-0 space-y-2">
-            <li className="text-[13.5px] font-semibold opacity-95">(89) 2101-2202</li>
-            <li className="text-[13px] font-semibold opacity-90 break-all">sac@laboratoriosobral.com.br</li>
-            <li className="text-[13.5px] font-[800] mt-3 opacity-95">SAC 0800 979 5040</li>
+            <li className="text-[13.5px] font-semibold opacity-95">
+              <a href="tel:+558921012202" className="hover:underline">(89) 2101-2202</a>
+            </li>
+            <li className="text-[13px] font-semibold opacity-90 break-all">
+              <a href="mailto:sac@laboratoriosobral.com.br" className="hover:underline">sac@laboratoriosobral.com.br</a>
+            </li>
+            <li className="text-[13.5px] font-[800] mt-3 opacity-95">
+              <a href="tel:08009795040" className="hover:underline">SAC 0800 979 5040</a>
+            </li>
+            <li>
+              <a
+                href={SAC_WHATSAPP}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 mt-1 py-1.5 px-3 rounded-full bg-white text-[#128C4B] font-[800] text-[13px] shadow-sm transition-transform hover:-translate-y-px"
+                aria-label="Falar com o SAC pelo WhatsApp (89) 99460-6485"
+              >
+                <WhatsAppIcon />
+                WhatsApp SAC (89) 99460-6485
+              </a>
+            </li>
           </ul>
         </div>
 

@@ -35,7 +35,7 @@ const admin = (el) => <Suspense fallback={<AdminFallback />}>{el}</Suspense>;
 
 const DEFAULTS = {
   theme: 'orange-classic',
-  typography: 'nunito',
+  typography: 'ubuntu',
   productCardStyle: 'pill-outline',
   heroVariant: 'split',
 };
@@ -72,7 +72,10 @@ function Tweaks() {
       root.style.setProperty('--orange-light', '#5AAE6B');
       root.style.setProperty('--orange-50', '#EBF5ED');
     }
-    if (config.typography === 'nunito') document.body.style.fontFamily = "'Nunito', system-ui, sans-serif";
+    // 'ubuntu' é a tipografia oficial do site: limpa o override inline para o
+    // body voltar a herdar a fonte definida em index.css / tailwind.config.js.
+    if (config.typography === 'ubuntu') document.body.style.removeProperty('font-family');
+    else if (config.typography === 'nunito') document.body.style.fontFamily = "'Nunito', system-ui, sans-serif";
     else if (config.typography === 'serif') document.body.style.fontFamily = "'Source Serif 4', Georgia, serif";
     else if (config.typography === 'dm-sans') document.body.style.fontFamily = "'DM Sans', system-ui, sans-serif";
     document.body.dataset.cardStyle = config.productCardStyle;
@@ -89,7 +92,7 @@ function Tweaks() {
 
   const rows = [
     { label: 'Paleta', key: 'theme', options: [['orange-classic','Laranja clássico'],['deep-clinical','Azul clínico'],['nature-green','Verde natural']] },
-    { label: 'Tipografia', key: 'typography', options: [['nunito','Nunito'],['dm-sans','DM Sans'],['serif','Serifada']] },
+    { label: 'Tipografia', key: 'typography', options: [['ubuntu','Ubuntu'],['nunito','Nunito'],['dm-sans','DM Sans'],['serif','Serifada']] },
     { label: 'Card produto', key: 'productCardStyle', options: [['pill-outline','Pílula laranja'],['filled','Botão sólido'],['minimal','Minimalista']] },
     { label: 'Hero', key: 'heroVariant', options: [['split','Split laranja'],['bold','Gradiente amplo'],['clean','Clean']] },
   ];

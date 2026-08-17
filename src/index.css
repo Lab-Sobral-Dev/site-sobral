@@ -86,7 +86,8 @@
     overflow: hidden;
     transition: max-height .3s ease;
   }
-  .accordion-item.open .accordion-content { max-height: 400px; }
+  /* Alto o bastante para não cortar abas longas (características/apresentação). */
+  .accordion-item.open .accordion-content { max-height: 2000px; }
   .accordion-item.open .arrow { transform: rotate(180deg); }
   .arrow { transition: transform .2s; }
 

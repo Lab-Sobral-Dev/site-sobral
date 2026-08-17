@@ -3,28 +3,36 @@ import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import Breadcrumb from '../components/Breadcrumb';
+import WhatsAppIcon from '../components/WhatsAppIcon';
 import { usePageContent } from '../hooks/usePageContent';
 
 const safe = (html) => parse(DOMPurify.sanitize(html));
-
-function WhatsAppIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="flex-shrink-0">
-      <path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.66.15-.2.3-.76.96-.93 1.15-.17.2-.34.22-.64.08-.3-.15-1.25-.46-2.38-1.47-.88-.79-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.34.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.66-1.6-.9-2.19-.24-.57-.48-.5-.66-.5-.17 0-.37-.03-.56-.03-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35zM12 2a10 10 0 0 0-8.6 15.06L2 22l5.06-1.33A10 10 0 1 0 12 2zm0 18.2a8.16 8.16 0 0 1-4.16-1.14l-.3-.18-3 .79.8-2.92-.2-.3A8.2 8.2 0 1 1 12 20.2z"/>
-    </svg>
-  );
-}
+const stripTags = (html) => (html || '').replace(/<[^>]*>/g, '').trim();
 
 const CONTATO_DEFAULTS = {
-  unidade_fabril:       '<p><strong>Rua Bento Leão, 25, Centro</strong><br>Floriano | PI | CEP 64800-062.<br>Telefone: (89) 2101-2202</p>',
-  escritorio_comercial: '<p><strong>Av. Homero Castelo Branco, 637, Jóquei</strong><br>Teresina–PI | CEP 64049-505</p>',
   sac_telefone:         '0800 979 5040',
   sac_email:            'sac@laboratoriosobral.com.br',
   rh_telefone:          '(89) 99999-9999',
   rh_email:             'rh@laboratoriosobral.com.br',
   marketing_telefone:   '(89) 99999-9999',
   marketing_email:      'marketing@laboratoriosobral.com.br',
+
+  faq_titulo: 'Perguntas Frequentes',
+  faq_1_p: 'Como falo com o SAC do Laboratório Sobral?',
+  faq_1_r: '<p>Pelo telefone gratuito <strong>0800 979 5040</strong>, pelo WhatsApp <strong>(89) 99460-6485</strong> ou pelo e-mail <strong>sac@laboratoriosobral.com.br</strong>. Você também pode usar o formulário no fim desta página.</p>',
+  faq_2_p: 'Onde encontro os produtos Sobral?',
+  faq_2_r: '<p>Nossos produtos são distribuídos em farmácias e drogarias de todo o Brasil. Se não encontrar um item na sua região, fale com o SAC que indicamos o ponto de venda mais próximo.</p>',
+  faq_3_p: 'O Laboratório Sobral ainda fabrica medicamentos?',
+  faq_3_r: '<p>Hoje o Sobral está focado em <strong>suplementos alimentares</strong> — em especial vitaminas e minerais — e em <strong>cosméticos</strong>, com a mesma tradição e qualidade de sempre, agora com foco na prevenção e no bem-estar.</p>',
+  faq_4_p: 'Como agendo uma visita à indústria?',
+  faq_4_r: '<p>Fale com a gente pelo WhatsApp <strong>(89) 99927-0207</strong> e combinamos a melhor data para receber você ou seu grupo.</p>',
+  faq_5_p: 'Como envio meu currículo para trabalhar no Sobral?',
+  faq_5_r: '<p>Envie seu currículo para <strong>rh@laboratoriosobral.com.br</strong>. As vagas abertas também são divulgadas nas nossas redes sociais.</p>',
+  faq_6_p: 'Onde consulto o Relatório de Transparência Salarial?',
+  faq_6_r: '<p>O relatório fica disponível publicamente. Acesse pelo menu <strong>Fale Conosco → Relatório de Transparência Salarial</strong>, no topo do site.</p>',
 };
+
+const FAQ_KEYS = [1, 2, 3, 4, 5, 6];
 
 const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 const EMPTY_FORM = { nome: '', sobrenome: '', email: '', celular: '', endereco: '', estado: '', assunto: '', mensagem: '' };
@@ -34,8 +42,15 @@ export default function FaleConoscoPage() {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState({});
+  const [openFaq, setOpenFaq] = useState(null);
 
   const content = usePageContent('contato', CONTATO_DEFAULTS);
+
+  // Só entram no acordeão as perguntas que têm pergunta E resposta preenchidas,
+  // para que apagar um par no CMS remova o item em vez de deixar linha vazia.
+  const faqItems = FAQ_KEYS
+    .map(n => ({ n, pergunta: (content[`faq_${n}_p`] || '').trim(), resposta: content[`faq_${n}_r`] || '' }))
+    .filter(item => item.pergunta && stripTags(item.resposta));
 
   const handleChange = (field) => (e) => {
     setForm(f => ({ ...f, [field]: e.target.value }));
@@ -82,29 +97,32 @@ export default function FaleConoscoPage() {
     <>
       <Helmet>
         <title>Fale Conosco | Laboratório Sobral</title>
-        <meta name="description" content="Entre em contato com o Laboratório Sobral. Formulário de contato, endereços, telefones e SAC gratuito." />
+        <meta name="description" content="Entre em contato com o Laboratório Sobral: formulário, SAC gratuito, WhatsApp e perguntas frequentes." />
         <meta property="og:title" content="Fale Conosco | Laboratório Sobral" />
-        <meta property="og:description" content="Entre em contato com o Laboratório Sobral. Formulário de contato, endereços, telefones e SAC." />
+        <meta property="og:description" content="Entre em contato com o Laboratório Sobral. Formulário de contato, SAC, WhatsApp e perguntas frequentes." />
         <meta property="og:type" content="website" />
+        {faqItems.length > 0 && (
+          <script type="application/ld+json">
+            {JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: faqItems.map(({ pergunta, resposta }) => ({
+                '@type': 'Question',
+                name: pergunta,
+                acceptedAnswer: { '@type': 'Answer', text: stripTags(resposta) },
+              })),
+            })}
+          </script>
+        )}
       </Helmet>
       <Breadcrumb trail={[{ label: 'Home', to: '/' }, { label: 'Fale Conosco' }]} />
       <h1 className="sr-only">Fale Conosco — Laboratório Sobral</h1>
 
       <section className="max-w-content mx-auto px-4 md:px-10 mt-10 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-8 md:gap-12 mb-12">
-          <div>
-            <h2 className="text-[22px] font-[800] text-orange mb-[18px]">LABORATÓRIO SOBRAL</h2>
-            <div className="mb-[22px] text-[14.5px] leading-[1.6]">
-              <div className="font-[800] mb-1">Unidade Fabril</div>
-              <div>{safe(content.unidade_fabril)}</div>
-            </div>
-            <div className="text-[14.5px] leading-[1.6]">
-              <div className="font-[800] mb-1">Escritório Comercial</div>
-              <div>{safe(content.escritorio_comercial)}</div>
-            </div>
-          </div>
+        <div className="mb-12">
+          <h2 className="text-[22px] font-[800] text-orange mb-[18px]">LABORATÓRIO SOBRAL</h2>
 
-          <div className="flex flex-col gap-3.5 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 items-start">
             {[
               {
                 label: 'SAC',
@@ -126,7 +144,7 @@ export default function FaleConoscoPage() {
                 email: 'rh@laboratoriosobral.com.br',
               },
             ].map(({ label, phone, wa, waLabel, email }) => (
-              <div key={label} className="bg-white rounded-[14px] py-[14px] px-[22px] w-full max-w-[360px] shadow-sm border border-line">
+              <div key={label} className="bg-white rounded-[14px] py-[14px] px-[22px] w-full h-full shadow-sm border border-line">
                 <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-2">
                   {label}
                 </div>
@@ -153,6 +171,34 @@ export default function FaleConoscoPage() {
 
           </div>
         </div>
+
+        {/* Perguntas Frequentes */}
+        {faqItems.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-[22px] font-[800] text-orange mb-[18px]">{content.faq_titulo}</h2>
+            <div className="bg-white rounded-[14px] border border-line shadow-sm px-5 md:px-7">
+              {faqItems.map(({ n, pergunta, resposta }) => (
+                <div key={n} className={`accordion-item border-b border-line last:border-0 ${openFaq === n ? 'open' : ''}`}>
+                  <button
+                    type="button"
+                    aria-expanded={openFaq === n}
+                    aria-controls={`faq-resposta-${n}`}
+                    className="flex justify-between items-center gap-4 w-full py-[16px] bg-transparent border-none text-left font-bold text-[15px] text-ink cursor-pointer"
+                    onClick={() => setOpenFaq(openFaq === n ? null : n)}
+                  >
+                    {pergunta}
+                    <span className="arrow text-orange text-[18px] flex-shrink-0">▾</span>
+                  </button>
+                  <div className="accordion-content" id={`faq-resposta-${n}`} role="region">
+                    <div className="pb-4 text-[14.5px] text-ink-light leading-[1.65] [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_a]:text-orange [&_a]:underline">
+                      {safe(resposta)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <h2 className="text-[22px] font-[800] text-orange mb-[18px]">Fale Conosco</h2>
 

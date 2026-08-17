@@ -9,6 +9,19 @@ import ProductCard from '../components/ProductCard';
 const safe = (html) => html ? parse(DOMPurify.sanitize(html)) : '—';
 const stripTags = (html) => (html || '').replace(/<[^>]*>/g, '');
 
+// Só embute vídeos de origens conhecidas — evita que uma URL inválida no CMS
+// vire um iframe com esquema arbitrário (javascript:, data:, etc.).
+const EMBED_HOSTS = ['www.youtube.com', 'youtube.com', 'www.youtube-nocookie.com', 'player.vimeo.com'];
+function videoEmbedUrl(url) {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'https:' && EMBED_HOSTS.includes(u.hostname) ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function ProdutoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -61,6 +74,7 @@ export default function ProdutoPage() {
   }
 
   const p = product;
+  const videoUrl = videoEmbedUrl(p.video);
 
   const accordionData = [
     {
@@ -164,6 +178,25 @@ export default function ProdutoPage() {
                     <img src={url} alt="" className="w-full h-full object-contain p-1" />
                   </button>
                 ))}
+              </div>
+            )}
+
+            {videoUrl && (
+              <div className="mt-6">
+                <h2 className="text-[13px] font-[800] tracking-[1.5px] text-orange uppercase mb-2.5">
+                  Vídeo
+                </h2>
+                <div className="aspect-video rounded overflow-hidden bg-black border border-line">
+                  <iframe
+                    src={videoUrl}
+                    title={`Vídeo — ${p.name}`}
+                    className="w-full h-full"
+                    loading="lazy"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
               </div>
             )}
           </div>

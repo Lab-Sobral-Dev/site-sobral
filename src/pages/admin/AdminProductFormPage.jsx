@@ -9,8 +9,16 @@ const EMPTY_FORM = {
   gallery: [],
   description: '', caracteristicas: '', apresentacao: '', modo_uso: '',
   precaucoes: '', ingredientes: '', disclaimer: '', nutri_porcoes: '',
-  nutri_rows: '', ativo: true, destaque: false,
+  nutri_rows: '', ativo: true, destaque: false, video: '',
 };
+
+// Aceita link normal, curto ou de embed do YouTube e devolve sempre a URL de embed.
+function normalizarVideo(url) {
+  const v = (url || '').trim();
+  if (!v) return '';
+  const m = v.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : v;
+}
 
 export default function AdminProductFormPage() {
   const { id }  = useParams();
@@ -57,6 +65,7 @@ export default function AdminProductFormPage() {
           nutri_rows:      p.nutri_rows      ? JSON.stringify(p.nutri_rows, null, 2) : '',
           ativo:           p.ativo,
           destaque:        p.destaque ?? false,
+          video:           p.video           ?? '',
         });
       })
       .catch(() => setError('Erro ao carregar produto.'))
@@ -132,6 +141,7 @@ export default function AdminProductFormPage() {
         ? form.caracteristicas.split('\n').map(s => s.trim()).filter(Boolean)
         : null,
       nutri_rows:      nutriRows ?? null,
+      video:           normalizarVideo(form.video) || null,
     };
     if (!isEdit) delete body.ativo;
 
@@ -304,6 +314,10 @@ export default function AdminProductFormPage() {
             {galleryUploading && <span className="text-[12px] text-muted self-center">Enviando...</span>}
           </div>
         </div>
+
+        {field('Vídeo do YouTube (opcional)', 'video', 'text', {
+          placeholder: 'Cole o link do vídeo — ex: https://www.youtube.com/watch?v=56rFNfbPOyU',
+        })}
 
         {field('Descrição', 'description', 'richtext')}
         {field('Características (1 por linha)', 'caracteristicas', 'textarea', { rows: 4, placeholder: 'Cada linha vira um item da lista' })}

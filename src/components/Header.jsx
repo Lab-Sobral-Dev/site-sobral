@@ -107,18 +107,18 @@ export default function Header() {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="h-[6px] bg-gradient-to-r from-[#FFB46B] via-orange to-[#FFB46B]" />
 
-        <div className="flex items-center gap-4 lg:gap-8 max-w-content mx-auto px-4 md:px-10 py-[14px]">
+        <div className="flex items-center gap-4 lg:gap-6 max-w-content mx-auto px-4 md:px-10 py-[14px]">
           {/* Logo */}
           <div
-            className="w-14 h-14 lg:w-[72px] lg:h-[72px] rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
+            className="w-16 h-16 lg:w-[92px] lg:h-[92px] rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
             onClick={() => navigate('/')}
             title="Laboratório Sobral"
           >
-            <img src="/images/logo.png" alt="Laboratório Sobral" width={72} height={72} className="w-full h-full object-cover rounded-full" />
+            <img src="/images/logo.png" alt="Laboratório Sobral" width={92} height={92} className="w-full h-full object-cover rounded-full" />
           </div>
 
           {/* Nav — desktop */}
-          <nav className="hidden lg:flex items-center gap-7 flex-1 justify-center">
+          <nav className="hidden lg:flex items-center gap-10 xl:gap-14 flex-1 justify-center">
             <NavDropdown
               id="sobral" label="O Sobral" open={openDropdown === 'sobral'}
               onToggle={setOpenDropdown} onNavigate={navigate}

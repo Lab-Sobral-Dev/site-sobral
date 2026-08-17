@@ -9,6 +9,17 @@ const CATEGORIES = [
   { id: 'oleos',        label: 'Óleos',        ordem: 4 },
 ];
 
+// Vídeos migrados do site institucional antigo (laboratoriosobral.com.br).
+// Mantidos fora da lista de PRODUCTS para não poluir as linhas de catálogo.
+const VIDEOS = {
+  'aqualema':           'https://www.youtube.com/embed/56rFNfbPOyU',
+  'calciolax-articule': 'https://www.youtube.com/embed/K6Fdd_2_id8',
+  'calciolax-fixa':     'https://www.youtube.com/embed/csq00dd1S8g',
+  'laxdose':            'https://www.youtube.com/embed/eL3L09OILvg',
+  'laxdose-kids':       'https://www.youtube.com/embed/eL3L09OILvg',
+  'oleo-girassol-age':  'https://www.youtube.com/embed/EvUP5dfTwFk',
+};
+
 const PRODUCTS = [
   // Calciolax
   { id: 'calciolax-articule',  name: 'Calciolax Articule',           tag: 'Cálcio + Vitamina D + Colágeno tipo II',   category_id: 'calciolax',    brand: 'Calciolax',    image: '/images/produtos/calciolax-articule.png',   description: 'Suplemento alimentar com cálcio, vitamina D e colágeno tipo II para mobilidade articular e saúde óssea.' },
@@ -82,8 +93,8 @@ async function seed() {
     for (const p of PRODUCTS) {
       await client.query(
         `INSERT INTO products(id, name, tag, category_id, brand, image, description,
-                              ingredientes, disclaimer, nutri_porcoes, nutri_rows)
-         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+                              ingredientes, disclaimer, nutri_porcoes, nutri_rows, video)
+         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
          ON CONFLICT(id) DO UPDATE SET
            name         = EXCLUDED.name,
            tag          = EXCLUDED.tag,
@@ -95,6 +106,8 @@ async function seed() {
            disclaimer   = EXCLUDED.disclaimer,
            nutri_porcoes= EXCLUDED.nutri_porcoes,
            nutri_rows   = EXCLUDED.nutri_rows,
+           -- preserva vídeo cadastrado no admin quando o seed não traz um
+           video        = COALESCE(EXCLUDED.video, products.video),
            updated_at   = NOW()`,
         [
           p.id, p.name, p.tag ?? null, p.category_id, p.brand ?? null,
@@ -102,6 +115,7 @@ async function seed() {
           p.ingredientes ?? null, p.disclaimer ?? null,
           p.nutri_porcoes ?? null,
           p.nutri_rows ? JSON.stringify(p.nutri_rows) : null,
+          VIDEOS[p.id] ?? null,
         ]
       );
     }

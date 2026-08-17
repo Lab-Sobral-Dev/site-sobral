@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
     const dataRes = await pool.query(
       `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
-              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque
+              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video
        FROM products ${whereClause}
        ORDER BY ${sortField} ${sortDir}
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -61,7 +61,7 @@ router.get('/:id', async (req, res) => {
     const { rows } = await pool.query(
       `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
-              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque
+              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video
        FROM products WHERE id = $1`,
       [req.params.id]
     );
@@ -77,13 +77,13 @@ router.get('/:id', async (req, res) => {
 router.post('/', validate(['id', 'name', 'category_id']), async (req, res) => {
   const { id, name, tag, category_id, brand, image, gallery, description,
           caracteristicas, apresentacao, modo_uso, precaucoes,
-          ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque } = req.body;
+          ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque, video } = req.body;
   try {
     const { rows } = await pool.query(
       `INSERT INTO products(id, name, tag, category_id, brand, image, gallery, description,
                             caracteristicas, apresentacao, modo_uso, precaucoes,
-                            ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque)
-       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+                            ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque, video)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
        RETURNING *`,
       [
         id, name, tag || null, category_id, brand || null, image || null,
@@ -93,6 +93,7 @@ router.post('/', validate(['id', 'name', 'category_id']), async (req, res) => {
         ingredientes || null, disclaimer || null, nutri_porcoes || null,
         nutri_rows ? JSON.stringify(nutri_rows) : null,
         destaque === true,
+        video || null,
       ]
     );
     res.status(201).json(rows[0]);
@@ -107,15 +108,15 @@ router.post('/', validate(['id', 'name', 'category_id']), async (req, res) => {
 router.put('/:id', validate(['name', 'category_id']), async (req, res) => {
   const { name, tag, category_id, brand, image, gallery, description,
           caracteristicas, apresentacao, modo_uso, precaucoes,
-          ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque } = req.body;
+          ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video } = req.body;
   try {
     const { rows } = await pool.query(
       `UPDATE products SET
          name=$1, tag=$2, category_id=$3, brand=$4, image=$5, gallery=$6, description=$7,
          caracteristicas=$8, apresentacao=$9, modo_uso=$10, precaucoes=$11,
          ingredientes=$12, disclaimer=$13, nutri_porcoes=$14, nutri_rows=$15,
-         ativo=$16, destaque=$17, updated_at=NOW()
-       WHERE id=$18 RETURNING *`,
+         ativo=$16, destaque=$17, video=$18, updated_at=NOW()
+       WHERE id=$19 RETURNING *`,
       [
         name, tag || null, category_id, brand || null, image || null,
         Array.isArray(gallery) ? JSON.stringify(gallery) : '[]',
@@ -125,6 +126,7 @@ router.put('/:id', validate(['name', 'category_id']), async (req, res) => {
         nutri_rows ? JSON.stringify(nutri_rows) : null,
         ativo !== undefined ? ativo : true,
         destaque === true,
+        video || null,
         req.params.id,
       ]
     );
