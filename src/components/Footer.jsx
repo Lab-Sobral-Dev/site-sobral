@@ -74,11 +74,11 @@ export default function Footer() {
                 href={SAC_WHATSAPP}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 mt-1 py-1.5 px-3 rounded-full bg-white text-[#128C4B] font-[800] text-[13px] shadow-sm transition-transform hover:-translate-y-px"
+                className="inline-flex items-center gap-1.5 mt-1 text-[13.5px] font-[800] opacity-95 hover:underline"
                 aria-label="Falar com o SAC pelo WhatsApp (89) 99460-6485"
               >
                 <WhatsAppIcon />
-                WhatsApp SAC (89) 99460-6485
+                (89) 99460-6485
               </a>
             </li>
           </ul>

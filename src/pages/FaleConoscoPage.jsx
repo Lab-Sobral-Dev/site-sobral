@@ -154,11 +154,11 @@ export default function FaleConoscoPage() {
                     href={wa}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 mt-1.5 py-1.5 px-3 rounded-full bg-[#25D366] text-white font-bold text-[13px] transition-all hover:bg-[#1DA851] hover:-translate-y-px"
+                    className="inline-flex items-center gap-1.5 mt-1.5 text-[14px] text-ink-light font-bold hover:text-orange transition-colors"
                     aria-label={`Falar pelo WhatsApp ${waLabel || ''}`.trim()}
                   >
                     <WhatsAppIcon />
-                    {waLabel ? `WhatsApp ${waLabel}` : 'Falar pelo WhatsApp'}
+                    {waLabel || 'Falar pelo WhatsApp'}
                   </a>
                 )}
                 {email && (
