@@ -33,11 +33,14 @@ export default function Footer() {
     <footer className="mt-[60px] bg-gradient-to-br from-[#F89B4D] via-[#E85A0C] to-[#F89B4D] text-white pt-12 px-4 md:px-10 pb-0">
       <div className="max-w-content mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.2fr_1fr_1.2fr_1fr] gap-8 md:gap-10">
 
-        {/* Col 1 — Logo + Endereço + Tagline */}
+        {/* Logo ocupa a linha inteira: as quatro colunas abaixo comecam no
+            mesmo topo, na linha dos enderecos */}
+        <div className="sm:col-span-2 md:col-span-4 w-[72px] h-[72px] rounded-full border-2 border-white overflow-hidden">
+          <img src="/images/logo.png" alt="Laboratório Sobral" className="w-full h-full object-cover" />
+        </div>
+
+        {/* Col 1 — Endereços */}
         <div>
-          <div className="w-[72px] h-[72px] rounded-full border-2 border-white overflow-hidden mb-[14px]">
-            <img src="/images/logo.png" alt="Laboratório Sobral" className="w-full h-full object-cover" />
-          </div>
           {UNIDADES.map(({ rotulo, linhas, endereco }, i) => (
             <div key={rotulo} className={`text-[13.5px] leading-relaxed font-semibold ${i > 0 ? 'mt-3' : ''}`}>
               <div className="text-[10px] uppercase tracking-[1.5px] opacity-70 mb-0.5">{rotulo}</div>
