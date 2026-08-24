@@ -141,11 +141,11 @@ export default function ProdutoPage() {
           {/* Galeria */}
           <div>
             {videoActive && videoUrl ? (
-              <div className="aspect-square bg-black border border-line rounded overflow-hidden flex items-center justify-center">
+              <div className="aspect-square bg-white border border-line rounded overflow-hidden flex items-center justify-center px-[10px]">
                 <iframe
                   src={videoUrl}
                   title={`Vídeo — ${p.name}`}
-                  className="w-full aspect-video"
+                  className="w-full aspect-video rounded"
                   loading="lazy"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

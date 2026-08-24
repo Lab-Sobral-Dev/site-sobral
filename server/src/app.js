@@ -28,7 +28,20 @@ const app = express();
 
 app.set('trust proxy', 1);
 
-app.use(helmet());
+// CSP: mantem os defaults do helmet e libera apenas os players de video
+// usados nas paginas de produto (mesma lista de EMBED_HOSTS do front).
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      'frame-src': [
+        "'self'",
+        'https://www.youtube.com',
+        'https://www.youtube-nocookie.com',
+        'https://player.vimeo.com',
+      ],
+    },
+  },
+}));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? process.env.CORS_ORIGIN
