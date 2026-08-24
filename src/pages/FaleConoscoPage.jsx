@@ -37,6 +37,24 @@ const FAQ_KEYS = [1, 2, 3, 4, 5, 6];
 const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 const EMPTY_FORM = { nome: '', sobrenome: '', email: '', celular: '', endereco: '', estado: '', assunto: '', mensagem: '' };
 
+// Icones dos cards de contato: mesma caixa 16x16 do WhatsAppIcon, para as
+// tres linhas (telefone, WhatsApp, e-mail) alinharem na mesma coluna.
+function PhoneIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="flex-shrink-0">
+      <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .7-.2 1l-2.3 2.2z" />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="flex-shrink-0">
+      <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4.2-8 4.8-8-4.8V6l8 4.8L20 6v2.2z" />
+    </svg>
+  );
+}
+
 export default function FaleConoscoPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [sent, setSent] = useState(false);
@@ -144,17 +162,25 @@ export default function FaleConoscoPage() {
                 email: 'rh@laboratoriosobral.com.br',
               },
             ].map(({ label, phone, wa, waLabel, email }) => (
-              <div key={label} className="bg-white rounded-[14px] py-[14px] px-[22px] w-full h-full shadow-sm border border-line">
-                <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full inline-block mb-2">
+              <div
+                key={label}
+                className="bg-white rounded-[14px] py-[18px] px-[22px] w-full h-full shadow-sm border border-line flex flex-col items-start gap-2"
+              >
+                <div className="bg-gradient-to-b from-[#F89B4D] to-[#E0580A] text-white font-[800] text-[14px] tracking-[.5px] py-2 px-[18px] rounded-full mb-1">
                   {label}
                 </div>
-                {phone && <div className="text-[14px] text-ink-light mt-1">{phone}</div>}
+                {phone && (
+                  <span className="inline-flex items-center gap-1.5 text-[14px] text-ink-light">
+                    <PhoneIcon />
+                    {phone}
+                  </span>
+                )}
                 {wa && (
                   <a
                     href={wa}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 mt-1.5 text-[14px] text-ink-light font-bold hover:text-orange transition-colors"
+                    className="inline-flex items-center gap-1.5 text-[14px] text-ink-light font-bold hover:text-orange transition-colors"
                     aria-label={`Falar pelo WhatsApp ${waLabel || ''}`.trim()}
                   >
                     <WhatsAppIcon />
@@ -162,7 +188,11 @@ export default function FaleConoscoPage() {
                   </a>
                 )}
                 {email && (
-                  <a href={`mailto:${email}`} className="block text-[14px] text-ink-light hover:text-orange transition-colors mt-2">
+                  <a
+                    href={`mailto:${email}`}
+                    className="inline-flex items-center gap-1.5 text-[14px] text-ink-light hover:text-orange transition-colors break-all"
+                  >
+                    <MailIcon />
                     {email}
                   </a>
                 )}
