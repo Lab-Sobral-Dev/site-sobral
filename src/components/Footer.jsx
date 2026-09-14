@@ -97,7 +97,8 @@ export default function Footer() {
               ['/produtos', 'Produtos'],
               ['/fale-conosco', 'Fale Conosco'],
               ['/fale-conosco', 'Trabalhe Conosco'], /* TODO: link para página/formulário dedicado */
-              ['/privacidade', 'Política de Privacidade'],
+              ['/medicamentos', 'Medicamentos Sobral'],
+              ['/privacidade', 'Privacidade e Proteção de Dados'],
             ].map(([to, label]) => (
               <li key={label} className="text-[14px] font-semibold opacity-95">
                 <Link to={to} className="hover:underline">{label}</Link>

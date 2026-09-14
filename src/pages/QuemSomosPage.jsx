@@ -92,8 +92,7 @@ function Bloco({ titulo, texto }) {
 
 export default function QuemSomosPage() {
   const content = usePageContent('sobre', SOBRE_DEFAULTS);
-  const refMVV      = useScrollReveal();
-  const refHistoria = useScrollReveal();
+  const refMVV = useScrollReveal();
 
   return (
     <>
@@ -129,7 +128,9 @@ export default function QuemSomosPage() {
       </section>
 
       {/* Nossa História — texto e fotos do site institucional */}
-      <section ref={refHistoria} className="reveal max-w-[860px] mx-auto px-4 md:px-10 mt-14 md:mt-20 pb-20">
+      {/* Sem scroll-reveal: por ficar abaixo da dobra, o texto só apareceria
+          depois de rolar a página. */}
+      <section className="max-w-content mx-auto px-4 md:px-10 mt-14 md:mt-20 pb-20">
         <div className="text-[12px] tracking-[3px] text-orange font-[900] mb-[18px]">{content.historia_eyebrow}</div>
 
         <h2 className="font-display text-[30px] md:text-[42px] font-[900] leading-[1.1] mb-4 text-ink tracking-[-.5px] text-balance">

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function Breadcrumb({ trail }) {
   return (
-    <div className="bg-orange text-white px-10 py-2.5 text-[13px] font-semibold">
+    <div className="bg-orange text-white px-4 md:px-10 py-2.5 text-[13px] font-semibold">
       <div className="max-w-content mx-auto flex items-center flex-wrap">
         {trail.map((item, i) => (
           <span key={i} className="flex items-center">

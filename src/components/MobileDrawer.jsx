@@ -34,8 +34,10 @@ const NAV_SECTIONS = [
     id: 'sobral',
     label: 'O Sobral',
     items: [
-      { label: 'Quem Somos',         to: '/quem-somos' },
-      { label: 'Trabalhe Conosco',   to: '/fale-conosco' },
+      { label: 'Quem Somos',                        to: '/quem-somos' },
+      { label: 'Privacidade e Proteção de Dados',   to: '/privacidade' },
+      { label: 'Medicamentos Sobral',               to: '/medicamentos' },
+      { label: 'Trabalhe Conosco',                  to: '/fale-conosco' },
     ],
   },
   {
@@ -181,6 +183,16 @@ export default function MobileDrawer({ open, onClose }) {
           </div>
 
           <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-2">MENU</div>
+
+          <div className="border-b border-line">
+            <button
+              onClick={() => go('/')}
+              className="w-full flex justify-between items-center py-3.5 text-left font-bold text-[15px] text-ink"
+            >
+              Início
+              <span className="text-orange text-[13px]">›</span>
+            </button>
+          </div>
 
           {NAV_SECTIONS.map((section) => {
             const isOpen = expanded === section.id;

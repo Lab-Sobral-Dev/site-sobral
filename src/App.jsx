@@ -2,6 +2,7 @@ import { useEffect, useState, lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import FloatingActions from './components/FloatingActions';
 import HomePage from './pages/HomePage';
 import QuemSomosPage from './pages/QuemSomosPage';
 import ProdutosPage from './pages/ProdutosPage';
@@ -9,6 +10,7 @@ import ProdutoPage from './pages/ProdutoPage';
 import FaleConoscoPage from './pages/FaleConoscoPage';
 import PrivacidadePage from './pages/PrivacidadePage';
 import MisturinhasPage from './pages/MisturinhasPage';
+import MedicamentosPage from './pages/MedicamentosPage';
 
 // Rotas admin carregadas sob demanda (TipTap, dnd-kit e editores pesados ficam
 // em chunks separados que o visitante público nunca baixa).
@@ -127,6 +129,7 @@ function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <FloatingActions />
       <Tweaks />
     </>
   );
@@ -144,6 +147,7 @@ const router = createBrowserRouter([
       { path: 'misturinhas',  element: <MisturinhasPage /> },
       { path: 'fale-conosco', element: <FaleConoscoPage /> },
       { path: 'privacidade',   element: <PrivacidadePage /> },
+      { path: 'medicamentos', element: <MedicamentosPage /> },
     ],
   },
   { path: '/admin/login', element: admin(<AdminLoginPage />) },

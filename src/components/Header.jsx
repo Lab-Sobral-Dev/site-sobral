@@ -112,18 +112,31 @@ export default function Header() {
           <div
             className="w-16 h-16 lg:w-[92px] lg:h-[92px] rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
             onClick={() => navigate('/')}
-            title="Laboratório Sobral"
+            title="Laboratório Sobral — ir para a página inicial"
+            role="link"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/'); } }}
+            aria-label="Laboratório Sobral — ir para a página inicial"
           >
             <img src="/images/logo.png" alt="Laboratório Sobral" width={92} height={92} className="w-full h-full object-cover rounded-full" />
           </div>
 
           {/* Nav — desktop */}
           <nav className="hidden lg:flex items-center gap-10 xl:gap-14 flex-1 justify-center">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="font-bold text-[15px] py-2.5 text-ink transition-colors hover:text-orange"
+            >
+              Início
+            </button>
             <NavDropdown
               id="sobral" label="O Sobral" open={openDropdown === 'sobral'}
               onToggle={setOpenDropdown} onNavigate={navigate}
               items={[
                 { label: 'Quem Somos', to: '/quem-somos' },
+                { label: 'Privacidade e Proteção de Dados', to: '/privacidade' },
+                { label: 'Medicamentos Sobral', to: '/medicamentos' },
                 { label: 'Trabalhe Conosco', to: '/fale-conosco' },
               ]}
             />

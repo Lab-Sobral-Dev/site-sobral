@@ -94,7 +94,7 @@ export default function ProdutosPage() {
         Produtos
       </div>
 
-      <section className="max-w-content mx-auto px-10 mt-9 pb-16">
+      <section className="max-w-content mx-auto px-4 md:px-10 mt-9 pb-16">
         {/* Banner */}
         <div className="bg-gradient-to-r from-[#F89B4D] via-orange to-[#E0580A] rounded flex items-center justify-between gap-6 p-[32px_40px] mb-8 shadow-[0_4px_18px_rgba(232,90,12,.2)]">
           <div>
