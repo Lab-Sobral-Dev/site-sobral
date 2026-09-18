@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
 import { useDebounce } from '../../hooks/useDebounce';
+import ConfirmModal from '../../components/admin/ConfirmModal';
 
 function SortIcon({ active, dir }) {
   if (!active) return <span className="opacity-30 ml-1">↕</span>;
@@ -25,6 +26,7 @@ export default function AdminDashboardPage() {
   const [sort,       setSort]       = useState('name');
   const [sortDir,    setSortDir]    = useState('asc');
   const [stats,      setStats]      = useState(null);
+  const [confirm,    setConfirm]    = useState(null);
 
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
@@ -52,13 +54,35 @@ export default function AdminDashboardPage() {
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
+  const refreshStats = () => {
+    request('/api/admin/stats').then(r => r?.json()).then(d => { if (d && !d.error) setStats(d); }).catch(() => {});
+  };
+
+  const handleDelete = async () => {
+    if (!confirm) return;
+    const { id, name } = confirm;
+    setConfirm(null);
+    const res = await request(`/api/admin/products/${id}`, { method: 'DELETE' });
+    if (!res) return;
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast.error(data.error || 'Erro ao excluir produto');
+      return;
+    }
+    toast.success(`"${name}" excluído`);
+    // Ao remover o último item da página, volta uma página para não ficar vazia.
+    if (products.length === 1 && page > 1) setPage(page - 1);
+    else fetchProducts();
+    refreshStats();
+  };
+
   const toggleAtivo = async (id) => {
     const res = await request(`/api/admin/products/${id}/ativo`, { method: 'PATCH' });
     if (!res) return;
     if (res.ok) {
       toast.success('Status atualizado');
       fetchProducts();
-      request('/api/admin/stats').then(r => r?.json()).then(d => { if (d && !d.error) setStats(d); }).catch(() => {});
+      refreshStats();
     } else {
       toast.error('Erro ao atualizar status');
     }
@@ -212,6 +236,12 @@ export default function AdminDashboardPage() {
                         >
                           ↗
                         </a>
+                        <button
+                          onClick={() => setConfirm({ id: p.id, name: p.name })}
+                          className="text-red-400 hover:underline font-[600]"
+                        >
+                          Excluir
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -254,6 +284,12 @@ export default function AdminDashboardPage() {
                       Editar →
                     </button>
                     <a href={`/produtos/${p.id}`} target="_blank" rel="noreferrer" className="text-muted text-[13px]" title="Ver no site">↗</a>
+                    <button
+                      onClick={() => setConfirm({ id: p.id, name: p.name })}
+                      className="text-red-400 font-[600] text-[13px]"
+                    >
+                      Excluir
+                    </button>
                   </div>
                 </div>
               </div>
@@ -284,6 +320,15 @@ export default function AdminDashboardPage() {
           )}
         </>
       )}
+
+      <ConfirmModal
+        open={!!confirm}
+        title="Excluir produto"
+        message={`Tem certeza que deseja excluir "${confirm?.name}"? Esta ação não pode ser desfeita. Para apenas tirar o produto do site, use o botão Ativo/Inativo.`}
+        confirmLabel="Excluir"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 }

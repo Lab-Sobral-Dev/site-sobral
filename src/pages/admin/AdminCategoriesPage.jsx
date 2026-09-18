@@ -20,6 +20,7 @@ export default function AdminCategoriesPage() {
   const [editSaving, setEditSaving] = useState(false);
 
   const [confirm,    setConfirm]    = useState(null);
+  const [moveTo,     setMoveTo]     = useState('');
 
   const fetchCategories = () => {
     setLoading(true);
@@ -60,6 +61,13 @@ export default function AdminCategoriesPage() {
     setEditOrdem(c.ordem);
   };
 
+  const openConfirm = (c) => {
+    const count = c.product_count ?? 0;
+    const destino = categories.find(d => d.id !== 'all' && d.id !== c.id);
+    setMoveTo(count > 0 ? (destino?.id ?? '') : '');
+    setConfirm({ id: c.id, label: c.label, count });
+  };
+
   const handleEdit = async () => {
     setEditSaving(true);
     setError('');
@@ -83,19 +91,25 @@ export default function AdminCategoriesPage() {
 
   const handleDelete = async () => {
     if (!confirm) return;
-    const { id, label } = confirm;
+    const { id, label, count } = confirm;
+    const destino = count > 0 ? moveTo : '';
     setConfirm(null);
     try {
-      const res  = await request(`/api/admin/categories/${id}`, { method: 'DELETE' });
+      const url  = `/api/admin/categories/${id}` + (destino ? `?move_to=${encodeURIComponent(destino)}` : '');
+      const res  = await request(url, { method: 'DELETE' });
       if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erro ao remover.');
-      toast.success(`Categoria "${label}" removida`);
+      toast.success(data.moved
+        ? `Categoria "${label}" removida — ${data.moved} produto${data.moved !== 1 ? 's' : ''} movido${data.moved !== 1 ? 's' : ''}`
+        : `Categoria "${label}" removida`);
       fetchCategories();
     } catch (err) {
       setError(err.message);
     }
   };
+
+  const destinos = categories.filter(c => c.id !== 'all' && c.id !== confirm?.id);
 
   return (
     <div className="p-4 md:p-8 max-w-[720px]">
@@ -225,7 +239,7 @@ export default function AdminCategoriesPage() {
                                 Editar
                               </button>
                               <button
-                                onClick={() => setConfirm({ id: c.id, label: c.label })}
+                                onClick={() => openConfirm(c)}
                                 className="text-red-400 hover:underline font-[600]"
                               >
                                 Deletar
@@ -284,7 +298,7 @@ export default function AdminCategoriesPage() {
                     ) : (
                       <>
                         <button onClick={() => startEdit(c)} className="text-orange hover:underline font-[600] text-[13px]">Editar</button>
-                        <button onClick={() => setConfirm({ id: c.id, label: c.label })} className="text-red-400 hover:underline font-[600] text-[13px]">Deletar</button>
+                        <button onClick={() => openConfirm(c)} className="text-red-400 hover:underline font-[600] text-[13px]">Deletar</button>
                       </>
                     )}
                   </div>
@@ -298,7 +312,28 @@ export default function AdminCategoriesPage() {
       <ConfirmModal
         open={!!confirm}
         title="Remover categoria"
-        message={`Tem certeza que deseja remover a categoria "${confirm?.label}"? Esta ação só é possível se não houver produtos vinculados.`}
+        message={
+          confirm?.count > 0 ? (
+            destinos.length ? (
+              <>
+                A categoria "{confirm.label}" tem {confirm.count} produto{confirm.count !== 1 ? 's' : ''} vinculado{confirm.count !== 1 ? 's' : ''}.
+                Escolha para qual categoria eles serão movidos:
+                <select
+                  value={moveTo}
+                  onChange={e => setMoveTo(e.target.value)}
+                  aria-label="Categoria de destino dos produtos"
+                  className="block w-full mt-3 border border-line rounded-[8px] px-3 py-2 text-[14px] text-ink outline-none focus:border-orange bg-white"
+                >
+                  {destinos.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}
+                </select>
+              </>
+            ) : (
+              `A categoria "${confirm.label}" tem ${confirm.count} produto(s) vinculado(s) e não há outra categoria para recebê-los. Crie outra categoria antes de remover esta.`
+            )
+          ) : (
+            `Tem certeza que deseja remover a categoria "${confirm?.label}"?`
+          )
+        }
         confirmLabel="Remover"
         onConfirm={handleDelete}
         onCancel={() => setConfirm(null)}

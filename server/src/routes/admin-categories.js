@@ -38,24 +38,59 @@ router.put('/:id', validate(['label']), async (req, res) => {
   }
 });
 
-// DELETE /api/admin/categories/:id
+// DELETE /api/admin/categories/:id[?move_to=<id>]
+// Sem move_to: só remove categorias sem produtos vinculados (FK barra o resto).
+// Com move_to: move os produtos para a categoria de destino e remove, em transação.
 router.delete('/:id', async (req, res) => {
-  if (req.params.id === 'all') {
+  const { id } = req.params;
+  const moveTo = String(req.query.move_to || '').trim();
+
+  if (id === 'all') {
     return res.status(403).json({ error: 'A categoria "Todos" é reservada e não pode ser removida.' });
   }
+  if (moveTo === id) {
+    return res.status(400).json({ error: 'A categoria de destino deve ser diferente da que será removida.' });
+  }
+  if (moveTo === 'all') {
+    return res.status(400).json({ error: 'A categoria "Todos" é reservada e não pode receber produtos.' });
+  }
+
+  const client = await pool.connect();
   try {
-    const { rowCount } = await pool.query(
-      'DELETE FROM categories WHERE id = $1',
-      [req.params.id]
-    );
-    if (!rowCount) return res.status(404).json({ error: 'Categoria não encontrada.' });
-    res.json({ ok: true });
+    await client.query('BEGIN');
+
+    const origem = await client.query('SELECT id FROM categories WHERE id = $1 FOR UPDATE', [id]);
+    if (!origem.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Categoria não encontrada.' });
+    }
+
+    let moved = 0;
+    if (moveTo) {
+      const destino = await client.query('SELECT id FROM categories WHERE id = $1', [moveTo]);
+      if (!destino.rowCount) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Categoria de destino não encontrada.' });
+      }
+      const upd = await client.query(
+        'UPDATE products SET category_id = $1, updated_at = NOW() WHERE category_id = $2',
+        [moveTo, id]
+      );
+      moved = upd.rowCount;
+    }
+
+    await client.query('DELETE FROM categories WHERE id = $1', [id]);
+    await client.query('COMMIT');
+    res.json({ ok: true, moved });
   } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
     if (err.code === '23503') {
-      return res.status(409).json({ error: 'Categoria possui produtos vinculados. Remova-os primeiro.' });
+      return res.status(409).json({ error: 'Categoria possui produtos vinculados. Escolha uma categoria de destino para eles.' });
     }
     console.error('DELETE /api/admin/categories/:id:', err.message);
     res.status(500).json({ error: 'Erro interno.' });
+  } finally {
+    client.release();
   }
 });
 
