@@ -42,7 +42,7 @@ export default function ProdutoPage() {
         if (r.status === 404) { setNotFound(true); return null; }
         return r.json();
       })
-      .then(data => { if (data) { setProduct(data); setMainImage(null); setVideoActive(false); } })
+      .then(data => { if (data) { setProduct(data); setMainImage(null); } })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [id]);
