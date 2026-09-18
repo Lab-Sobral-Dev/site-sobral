@@ -28,7 +28,6 @@ export default function ProdutoPage() {
   const [openAccordion, setOpenAccordion] = useState(null);
   const [product,       setProduct]       = useState(null);
   const [mainImage,     setMainImage]     = useState(null);
-  const [videoActive,   setVideoActive]   = useState(false);
   const [zoom,          setZoom]          = useState({ active: false, x: 50, y: 50 });
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -140,74 +139,47 @@ export default function ProdutoPage() {
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr] gap-8 md:gap-16 items-start">
           {/* Galeria */}
           <div>
-            {videoActive && videoUrl ? (
-              <div className="aspect-square bg-white border border-line rounded overflow-hidden flex items-center justify-center px-[10px]">
-                <iframe
-                  src={videoUrl}
-                  title={`Vídeo — ${p.name}`}
-                  className="w-full aspect-video rounded"
-                  loading="lazy"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-            ) : (
-              <div
-                className={`aspect-square bg-white border border-line rounded flex items-center justify-center overflow-hidden p-[30px] ${(mainImage || p.image) ? 'cursor-zoom-in' : ''}`}
-                onMouseMove={(mainImage || p.image) ? (e) => {
-                  const r = e.currentTarget.getBoundingClientRect();
-                  setZoom({
-                    active: true,
-                    x: ((e.clientX - r.left) / r.width) * 100,
-                    y: ((e.clientY - r.top) / r.height) * 100,
-                  });
-                } : undefined}
-                onMouseLeave={() => setZoom(z => ({ ...z, active: false }))}
-              >
-                {(mainImage || p.image)
-                  ? <img
-                      src={mainImage || p.image}
-                      alt={p.name}
-                      className="max-w-full max-h-full object-contain transition-transform duration-150 ease-out"
-                      style={{
-                        transformOrigin: `${zoom.x}% ${zoom.y}%`,
-                        transform: zoom.active ? 'scale(2.2)' : 'scale(1)',
-                      }}
-                      draggable={false}
-                    />
-                  : <span className="text-[11px] text-muted font-mono text-center">[ foto: {p.name} ]</span>
-                }
-              </div>
-            )}
+            <div
+              className={`aspect-square bg-white border border-line rounded flex items-center justify-center overflow-hidden p-[30px] ${(mainImage || p.image) ? 'cursor-zoom-in' : ''}`}
+              onMouseMove={(mainImage || p.image) ? (e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                setZoom({
+                  active: true,
+                  x: ((e.clientX - r.left) / r.width) * 100,
+                  y: ((e.clientY - r.top) / r.height) * 100,
+                });
+              } : undefined}
+              onMouseLeave={() => setZoom(z => ({ ...z, active: false }))}
+            >
+              {(mainImage || p.image)
+                ? <img
+                    src={mainImage || p.image}
+                    alt={p.name}
+                    className="max-w-full max-h-full object-contain transition-transform duration-150 ease-out"
+                    style={{
+                      transformOrigin: `${zoom.x}% ${zoom.y}%`,
+                      transform: zoom.active ? 'scale(2.2)' : 'scale(1)',
+                    }}
+                    draggable={false}
+                  />
+                : <span className="text-[11px] text-muted font-mono text-center">[ foto: {p.name} ]</span>
+              }
+            </div>
 
-            {/* Miniaturas: imagens do produto e, por último, o vídeo */}
-            {(videoUrl || (p.image && Array.isArray(p.gallery) && p.gallery.length > 0)) && (
+            {/* Miniaturas das imagens do produto */}
+            {p.image && Array.isArray(p.gallery) && p.gallery.length > 0 && (
               <div className="flex gap-2 mt-3 flex-wrap">
-                {(p.image ? [p.image, ...(Array.isArray(p.gallery) ? p.gallery : [])] : []).map((url, i) => (
+                {[p.image, ...p.gallery].map((url, i) => (
                   <button
                     key={i}
-                    onClick={() => { setMainImage(url); setVideoActive(false); }}
+                    onClick={() => setMainImage(url)}
                     className={`w-14 h-14 rounded border-2 overflow-hidden bg-white flex-shrink-0 transition-colors ${
-                      !videoActive && (mainImage || p.image) === url ? 'border-orange' : 'border-line hover:border-orange'
+                      (mainImage || p.image) === url ? 'border-orange' : 'border-line hover:border-orange'
                     }`}
                   >
                     <img src={url} alt="" className="w-full h-full object-contain p-1" />
                   </button>
                 ))}
-                {videoUrl && (
-                  <button
-                    onClick={() => setVideoActive(true)}
-                    aria-label={`Ver vídeo de ${p.name}`}
-                    className={`w-14 h-14 rounded border-2 overflow-hidden bg-ink flex-shrink-0 flex items-center justify-center transition-colors ${
-                      videoActive ? 'border-orange' : 'border-line hover:border-orange'
-                    }`}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </button>
-                )}
               </div>
             )}
           </div>
@@ -236,6 +208,23 @@ export default function ProdutoPage() {
           </div>
         </div>
       </section>
+
+      {videoUrl && (
+        <section className={`max-w-content mx-auto px-4 md:px-10 mt-[60px] ${related.length > 0 ? '' : 'mb-16'}`}>
+          <h2 className="font-display text-[24px] md:text-[30px] font-[900] tracking-[-.3px] mb-7">
+            Vídeo
+          </h2>
+          <iframe
+            src={videoUrl}
+            title={`Vídeo — ${p.name}`}
+            className="w-full aspect-video rounded border border-line bg-white"
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="max-w-content mx-auto px-4 md:px-10 mt-[60px] mb-16">
