@@ -230,14 +230,13 @@ export default function AdminProductFormPage() {
         </div>
 
         <div>
-          <label className="block text-[13px] font-[600] text-ink-light mb-1">Categoria *</label>
+          <label className="block text-[13px] font-[600] text-ink-light mb-1">Categoria</label>
           <select
             value={form.category_id}
             onChange={e => set('category_id', e.target.value)}
-            required
             className="w-full border border-line rounded-[8px] px-4 py-2.5 text-[14px] outline-none focus:border-orange bg-white"
           >
-            <option value="">Selecione...</option>
+            <option value="">Sem categoria</option>
             {categories.filter(c => c.id !== 'all').map(c => (
               <option key={c.id} value={c.id}>{c.label}</option>
             ))}

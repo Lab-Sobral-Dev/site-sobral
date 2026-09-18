@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
     setPage(1);
   };
 
-  const catLabel = (id) => categories.find(c => c.id === id)?.label ?? id;
+  const catLabel = (id) => (id ? (categories.find(c => c.id === id)?.label ?? id) : 'Sem categoria');
 
   return (
     <div className="p-4 md:p-8">

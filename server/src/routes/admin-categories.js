@@ -38,15 +38,20 @@ router.put('/:id', validate(['label']), async (req, res) => {
   }
 });
 
-// DELETE /api/admin/categories/:id[?move_to=<id>]
-// Sem move_to: só remove categorias sem produtos vinculados (FK barra o resto).
-// Com move_to: move os produtos para a categoria de destino e remove, em transação.
+// DELETE /api/admin/categories/:id[?move_to=<id>|?desvincular=1]
+// Sem nenhum dos dois: só remove categorias sem produtos vinculados (FK barra o resto).
+// Com move_to:     move os produtos para a categoria de destino e remove, em transação.
+// Com desvincular: deixa os produtos sem categoria (category_id = NULL) e remove.
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   const moveTo = String(req.query.move_to || '').trim();
+  const desvincular = req.query.desvincular === '1' || req.query.desvincular === 'true';
 
   if (id === 'all') {
     return res.status(403).json({ error: 'A categoria "Todos" é reservada e não pode ser removida.' });
+  }
+  if (moveTo && desvincular) {
+    return res.status(400).json({ error: 'Escolha mover os produtos ou deixá-los sem categoria, não os dois.' });
   }
   if (moveTo === id) {
     return res.status(400).json({ error: 'A categoria de destino deve ser diferente da que será removida.' });
@@ -77,15 +82,21 @@ router.delete('/:id', async (req, res) => {
         [moveTo, id]
       );
       moved = upd.rowCount;
+    } else if (desvincular) {
+      const upd = await client.query(
+        'UPDATE products SET category_id = NULL, updated_at = NOW() WHERE category_id = $1',
+        [id]
+      );
+      moved = upd.rowCount;
     }
 
     await client.query('DELETE FROM categories WHERE id = $1', [id]);
     await client.query('COMMIT');
-    res.json({ ok: true, moved });
+    res.json({ ok: true, moved, destino: moveTo || null });
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     if (err.code === '23503') {
-      return res.status(409).json({ error: 'Categoria possui produtos vinculados. Escolha uma categoria de destino para eles.' });
+      return res.status(409).json({ error: 'Categoria possui produtos vinculados. Escolha um destino para eles ou deixe-os sem categoria.' });
     }
     console.error('DELETE /api/admin/categories/:id:', err.message);
     res.status(500).json({ error: 'Erro interno.' });

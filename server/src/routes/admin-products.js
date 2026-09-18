@@ -74,7 +74,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/admin/products
-router.post('/', validate(['id', 'name', 'category_id']), async (req, res) => {
+router.post('/', validate(['id', 'name']), async (req, res) => {
   const { id, name, tag, category_id, brand, image, gallery, description,
           caracteristicas, apresentacao, modo_uso, precaucoes,
           ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque, video } = req.body;
@@ -86,7 +86,7 @@ router.post('/', validate(['id', 'name', 'category_id']), async (req, res) => {
        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
        RETURNING *`,
       [
-        id, name, tag || null, category_id, brand || null, image || null,
+        id, name, tag || null, category_id || null, brand || null, image || null,
         Array.isArray(gallery) ? JSON.stringify(gallery) : '[]',
         description || null,
         caracteristicas || null, apresentacao || null, modo_uso || null, precaucoes || null,
@@ -99,13 +99,14 @@ router.post('/', validate(['id', 'name', 'category_id']), async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     if (err.code === '23505') return res.status(409).json({ error: 'ID já existe.' });
+    if (err.code === '23503') return res.status(400).json({ error: 'Categoria informada não existe.' });
     console.error('POST /api/admin/products:', err.message);
     res.status(500).json({ error: 'Erro interno.' });
   }
 });
 
 // PUT /api/admin/products/:id
-router.put('/:id', validate(['name', 'category_id']), async (req, res) => {
+router.put('/:id', validate(['name']), async (req, res) => {
   const { name, tag, category_id, brand, image, gallery, description,
           caracteristicas, apresentacao, modo_uso, precaucoes,
           ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video } = req.body;
@@ -118,7 +119,7 @@ router.put('/:id', validate(['name', 'category_id']), async (req, res) => {
          ativo=$16, destaque=$17, video=$18, updated_at=NOW()
        WHERE id=$19 RETURNING *`,
       [
-        name, tag || null, category_id, brand || null, image || null,
+        name, tag || null, category_id || null, brand || null, image || null,
         Array.isArray(gallery) ? JSON.stringify(gallery) : '[]',
         description || null,
         caracteristicas || null, apresentacao || null, modo_uso || null, precaucoes || null,
@@ -133,6 +134,7 @@ router.put('/:id', validate(['name', 'category_id']), async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: 'Produto não encontrado.' });
     res.json(rows[0]);
   } catch (err) {
+    if (err.code === '23503') return res.status(400).json({ error: 'Categoria informada não existe.' });
     console.error('PUT /api/admin/products/:id:', err.message);
     res.status(500).json({ error: 'Erro interno.' });
   }

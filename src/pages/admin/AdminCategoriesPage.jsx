@@ -95,14 +95,18 @@ export default function AdminCategoriesPage() {
     const destino = count > 0 ? moveTo : '';
     setConfirm(null);
     try {
-      const url  = `/api/admin/categories/${id}` + (destino ? `?move_to=${encodeURIComponent(destino)}` : '');
+      const acao = count > 0 ? (destino ? `?move_to=${encodeURIComponent(destino)}` : '?desvincular=1') : '';
+      const url  = `/api/admin/categories/${id}` + acao;
       const res  = await request(url, { method: 'DELETE' });
       if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erro ao remover.');
-      toast.success(data.moved
-        ? `Categoria "${label}" removida — ${data.moved} produto${data.moved !== 1 ? 's' : ''} movido${data.moved !== 1 ? 's' : ''}`
-        : `Categoria "${label}" removida`);
+      const plural = data.moved !== 1 ? 's' : '';
+      toast.success(
+        !data.moved            ? `Categoria "${label}" removida`
+        : data.destino         ? `Categoria "${label}" removida — ${data.moved} produto${plural} movido${plural}`
+        : `Categoria "${label}" removida — ${data.moved} produto${plural} ficou${plural ? 'ram' : ''} sem categoria`
+      );
       fetchCategories();
     } catch (err) {
       setError(err.message);
@@ -314,22 +318,19 @@ export default function AdminCategoriesPage() {
         title="Remover categoria"
         message={
           confirm?.count > 0 ? (
-            destinos.length ? (
-              <>
-                A categoria "{confirm.label}" tem {confirm.count} produto{confirm.count !== 1 ? 's' : ''} vinculado{confirm.count !== 1 ? 's' : ''}.
-                Escolha para qual categoria eles serão movidos:
-                <select
-                  value={moveTo}
-                  onChange={e => setMoveTo(e.target.value)}
-                  aria-label="Categoria de destino dos produtos"
-                  className="block w-full mt-3 border border-line rounded-[8px] px-3 py-2 text-[14px] text-ink outline-none focus:border-orange bg-white"
-                >
-                  {destinos.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}
-                </select>
-              </>
-            ) : (
-              `A categoria "${confirm.label}" tem ${confirm.count} produto(s) vinculado(s) e não há outra categoria para recebê-los. Crie outra categoria antes de remover esta.`
-            )
+            <>
+              A categoria "{confirm.label}" tem {confirm.count} produto{confirm.count !== 1 ? 's' : ''} vinculado{confirm.count !== 1 ? 's' : ''}.
+              Escolha o que fazer com {confirm.count !== 1 ? 'eles' : 'ele'}:
+              <select
+                value={moveTo}
+                onChange={e => setMoveTo(e.target.value)}
+                aria-label="O que fazer com os produtos da categoria"
+                className="block w-full mt-3 border border-line rounded-[8px] px-3 py-2 text-[14px] text-ink outline-none focus:border-orange bg-white"
+              >
+                <option value="">Deixar sem categoria</option>
+                {destinos.map(d => <option key={d.id} value={d.id}>Mover para {d.label}</option>)}
+              </select>
+            </>
           ) : (
             `Tem certeza que deseja remover a categoria "${confirm?.label}"?`
           )
