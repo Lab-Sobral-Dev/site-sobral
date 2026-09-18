@@ -238,7 +238,7 @@ export default function AdminDashboardPage() {
                         </a>
                         <button
                           onClick={() => setConfirm({ id: p.id, name: p.name })}
-                          className="text-red-400 hover:underline font-[600]"
+                          className="text-red-600 hover:underline font-[600]"
                         >
                           Excluir
                         </button>
@@ -286,7 +286,7 @@ export default function AdminDashboardPage() {
                     <a href={`/produtos/${p.id}`} target="_blank" rel="noreferrer" className="text-muted text-[13px]" title="Ver no site">↗</a>
                     <button
                       onClick={() => setConfirm({ id: p.id, name: p.name })}
-                      className="text-red-400 font-[600] text-[13px]"
+                      className="text-red-600 font-[600] text-[13px]"
                     >
                       Excluir
                     </button>
