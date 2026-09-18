@@ -210,10 +210,10 @@ export default function ProdutoPage() {
       </section>
 
       {videoUrl && (
-        <section className={`max-w-content mx-auto px-4 md:px-10 mt-[60px] ${related.length > 0 ? '' : 'mb-16'}`}>
-          <h2 className="font-display text-[24px] md:text-[30px] font-[900] tracking-[-.3px] mb-7">
-            Vídeo
-          </h2>
+        <section
+          aria-label={`Vídeo de ${p.name}`}
+          className={`max-w-content mx-auto px-4 md:px-10 mt-[60px] ${related.length > 0 ? '' : 'mb-16'}`}
+        >
           <iframe
             src={videoUrl}
             title={`Vídeo — ${p.name}`}
