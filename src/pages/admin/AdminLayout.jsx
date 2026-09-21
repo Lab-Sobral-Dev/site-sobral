@@ -71,6 +71,8 @@ export default function AdminLayout() {
           <NavLink to="/admin/conteudo/contato" className={navClass}>Fale Conosco</NavLink>
           <NavLink to="/admin/misturinhas"  className={navClass}>Misturinhas</NavLink>
           <NavLink to="/admin/hero-slides"  className={navClass}>Hero Slides</NavLink>
+          <div className="px-3 pt-3 pb-1 text-[10px] font-[700] text-[#aaa] uppercase tracking-[.6px]">Sistema</div>
+          <NavLink to="/admin/historico" className={navClass}>Histórico</NavLink>
         </nav>
         <div className="p-3 border-t border-line">
           <button

@@ -23,6 +23,7 @@ const AdminContentPage      = lazy(() => import('./pages/admin/AdminContentPage'
 const AdminHeroSlidesPage   = lazy(() => import('./pages/admin/AdminHeroSlidesPage'));
 const AdminSlideBuilderPage = lazy(() => import('./pages/admin/AdminSlideBuilderPage'));
 const AdminMisturinhasPage  = lazy(() => import('./pages/admin/AdminMisturinhasPage'));
+const AdminHistoricoPage    = lazy(() => import('./pages/admin/AdminHistoricoPage'));
 
 function AdminFallback() {
   return (
@@ -165,6 +166,7 @@ const router = createBrowserRouter([
       { path: 'misturinhas',                element: admin(<AdminMisturinhasPage />) },
       { path: 'hero-slides',                element: admin(<AdminHeroSlidesPage />) },
       { path: 'hero-slides/:id/editar',    element: admin(<AdminSlideBuilderPage />) },
+      { path: 'historico',                  element: admin(<AdminHistoricoPage />) },
     ],
   },
 ]);

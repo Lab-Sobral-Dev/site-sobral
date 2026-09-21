@@ -39,6 +39,12 @@ const NAV_GROUPS = [
       { to: '/admin/hero-slides',      label: 'Hero Slides' },
     ],
   },
+  {
+    label: 'Sistema',
+    items: [
+      { to: '/admin/historico', label: 'Histórico' },
+    ],
+  },
 ];
 
 export default function AdminMobileDrawer({ open, onClose, onLogout }) {
