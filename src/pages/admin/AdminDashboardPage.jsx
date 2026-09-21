@@ -28,6 +28,15 @@ export default function AdminDashboardPage() {
   const [stats,      setStats]      = useState(null);
   const [confirm,    setConfirm]    = useState(null);
 
+  const [selecionados, setSelecionados] = useState(new Set());
+  const [confirmMassa, setConfirmMassa] = useState(null);
+
+  const alternarSelecao = (id) => setSelecionados(s => {
+    const novo = new Set(s);
+    if (novo.has(id)) novo.delete(id); else novo.add(id);
+    return novo;
+  });
+
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
     request('/api/admin/stats').then(r => r?.json()).then(d => { if (d && !d.error) setStats(d); }).catch(() => {});
@@ -53,6 +62,10 @@ export default function AdminDashboardPage() {
   }, [page, debouncedQuery, cat, sort, sortDir, request]);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
+
+  // Limpa a seleção ao mudar de página, busca ou filtro: sem isto o usuário
+  // aplicaria uma ação em massa a itens que não está mais vendo.
+  useEffect(() => { setSelecionados(new Set()); }, [page, debouncedQuery, cat, sort, sortDir]);
 
   const refreshStats = () => {
     request('/api/admin/stats').then(r => r?.json()).then(d => { if (d && !d.error) setStats(d); }).catch(() => {});
@@ -88,16 +101,53 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const executarMassa = async (acao, valor) => {
+    const ids = [...selecionados];
+    if (ids.length === 0) return;
+    const res = await request('/api/admin/products/bulk', {
+      method: 'POST',
+      body: JSON.stringify({ ids, acao, valor }),
+    });
+    if (!res) return;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { toast.error(data.error || 'Erro ao aplicar a ação.'); return; }
+    const plural = data.afetados !== 1 ? 's' : '';
+    toast.success(`${data.afetados} produto${plural} atualizado${plural}`);
+    setSelecionados(new Set());
+    fetchProducts();
+    refreshStats();
+  };
+
+  const duplicar = async (id) => {
+    const res = await request(`/api/admin/products/${id}/duplicate`, { method: 'POST' });
+    if (!res) return;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { toast.error(data.error || 'Erro ao duplicar.'); return; }
+    toast.success('Cópia criada como inativa');
+    navigate(`/admin/produtos/${data.id}/editar`);
+  };
+
   const toggleSort = (field) => {
     if (sort === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     else { setSort(field); setSortDir('asc'); }
     setPage(1);
   };
 
+  const todosDaPaginaSelecionados =
+    products.length > 0 && products.every(p => selecionados.has(p.id));
+
+  const alternarTodosDaPagina = () => setSelecionados(s => {
+    const novo = new Set(s);
+    if (todosDaPaginaSelecionados) products.forEach(p => novo.delete(p.id));
+    else products.forEach(p => novo.add(p.id));
+    return novo;
+  });
+
   const catLabel = (id) => (id ? (categories.find(c => c.id === id)?.label ?? id) : 'Sem categoria');
 
   return (
-    <div className="p-4 md:p-8">
+    // O padding extra abre espaço para a barra flutuante não cobrir a paginação.
+    <div className={`p-4 md:p-8 ${selecionados.size > 0 ? 'pb-24' : ''}`}>
 
       {/* Métricas */}
       {stats && (
@@ -171,6 +221,15 @@ export default function AdminDashboardPage() {
             <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-line bg-[#FAFAFA] text-left">
+                  <th scope="col" className="px-4 py-3 w-[40px]">
+                    <input
+                      type="checkbox"
+                      checked={todosDaPaginaSelecionados}
+                      onChange={alternarTodosDaPagina}
+                      aria-label="Selecionar todos os produtos desta página"
+                      className="w-4 h-4 accent-orange"
+                    />
+                  </th>
                   <th
                     className="px-4 py-3 font-[700] text-ink-light cursor-pointer hover:text-orange select-none whitespace-nowrap"
                     onClick={() => toggleSort('name')}
@@ -196,6 +255,15 @@ export default function AdminDashboardPage() {
               <tbody>
                 {products.map(p => (
                   <tr key={p.id} className="border-b border-line last:border-0 hover:bg-[#FAFAFA]">
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selecionados.has(p.id)}
+                        onChange={() => alternarSelecao(p.id)}
+                        aria-label={`Selecionar ${p.name}`}
+                        className="w-4 h-4 accent-orange"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         {p.image && (
@@ -227,6 +295,12 @@ export default function AdminDashboardPage() {
                         >
                           Editar
                         </button>
+                        <button
+                          onClick={() => duplicar(p.id)}
+                          className="text-ink-light hover:text-orange font-[600] transition-colors"
+                        >
+                          Duplicar
+                        </button>
                         <a
                           href={`/produtos/${p.id}`}
                           target="_blank"
@@ -255,6 +329,13 @@ export default function AdminDashboardPage() {
             {products.map(p => (
               <div key={p.id} className="bg-white rounded-[10px] border border-line p-4">
                 <div className="flex gap-3 mb-3">
+                  <input
+                    type="checkbox"
+                    checked={selecionados.has(p.id)}
+                    onChange={() => alternarSelecao(p.id)}
+                    aria-label={`Selecionar ${p.name}`}
+                    className="w-4 h-4 accent-orange mt-1 flex-shrink-0"
+                  />
                   {p.image && (
                     <img src={p.image} alt="" className="w-14 h-14 object-contain rounded border border-line flex-shrink-0" />
                   )}
@@ -282,6 +363,12 @@ export default function AdminDashboardPage() {
                       className="text-orange font-[600] text-[13px]"
                     >
                       Editar →
+                    </button>
+                    <button
+                      onClick={() => duplicar(p.id)}
+                      className="text-ink-light font-[600] text-[13px]"
+                    >
+                      Duplicar
                     </button>
                     <a href={`/produtos/${p.id}`} target="_blank" rel="noreferrer" className="text-muted text-[13px]" title="Ver no site">↗</a>
                     <button
@@ -320,6 +407,58 @@ export default function AdminDashboardPage() {
           )}
         </>
       )}
+
+      {selecionados.size > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 lg:left-[220px] bg-white border-t border-line shadow-[0_-2px_10px_rgba(0,0,0,.06)] px-4 py-3 z-50 flex flex-wrap items-center gap-3">
+          <span className="text-[13px] font-[700] text-ink">
+            {selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}
+          </span>
+          <button
+            onClick={() => executarMassa('ativar')}
+            className="text-[13px] font-[600] text-green-700 hover:underline"
+          >
+            Ativar
+          </button>
+          <button
+            onClick={() => executarMassa('desativar')}
+            className="text-[13px] font-[600] text-ink-light hover:underline"
+          >
+            Desativar
+          </button>
+          <select
+            value=""
+            onChange={e => { const v = e.target.value; if (v) executarMassa('mover_categoria', v); }}
+            aria-label="Mover selecionados para a categoria"
+            className="border border-line rounded-[8px] px-2 py-1.5 text-[13px] bg-white outline-none focus:border-orange"
+          >
+            <option value="">Mover para…</option>
+            {categories.filter(c => c.id !== 'all').map(c => (
+              <option key={c.id} value={c.id}>{c.label}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => setConfirmMassa(selecionados.size)}
+            className="text-[13px] font-[700] text-red-600 hover:underline"
+          >
+            Excluir
+          </button>
+          <button
+            onClick={() => setSelecionados(new Set())}
+            className="ml-auto text-[13px] font-[600] text-muted hover:text-ink-light"
+          >
+            Limpar seleção
+          </button>
+        </div>
+      )}
+
+      <ConfirmModal
+        open={!!confirmMassa}
+        title="Excluir produtos"
+        message={`Tem certeza que deseja excluir ${confirmMassa} produto${confirmMassa !== 1 ? 's' : ''}? Esta ação não pode ser desfeita. Para apenas tirá-los do site, use Desativar.`}
+        confirmLabel="Excluir"
+        onConfirm={() => { setConfirmMassa(null); executarMassa('excluir'); }}
+        onCancel={() => setConfirmMassa(null)}
+      />
 
       <ConfirmModal
         open={!!confirm}
