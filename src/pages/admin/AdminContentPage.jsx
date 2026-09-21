@@ -4,6 +4,7 @@ import { useAdminFetch } from '../../hooks/useAdminFetch';
 import { useUnsavedChanges } from '../../hooks/useUnsavedChanges';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import RichTextEditor from '../../components/admin/RichTextEditor';
+import HistoricoCampo from '../../components/admin/HistoricoCampo';
 
 // Indicador de estado de um campo. O estado 'erro' é PERSISTENTE de propósito:
 // antes, uma falha virava um toast de 3s e o campo continuava na tela
@@ -295,6 +296,17 @@ export default function AdminContentPage({ page }) {
                     )}
                   </div>
                 )}
+
+                <HistoricoCampo
+                  page={page}
+                  chave={field.key}
+                  aoRestaurar={(valor) => {
+                    // Já está salvo no servidor: vai direto para 'salvo'.
+                    setContent(c => ({ ...c, [field.key]: valor }));
+                    setValorSalvo(v => ({ ...v, [field.key]: valor }));
+                    setStatus(s => ({ ...s, [field.key]: 'salvo' }));
+                  }}
+                />
               </div>
             ))}
           </div>
