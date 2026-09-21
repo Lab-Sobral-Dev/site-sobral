@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
 import { useUnsavedChanges } from '../../hooks/useUnsavedChanges';
+import { useAtalhoSalvar } from '../../hooks/useAtalhoSalvar';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
 const EMPTY_FORM = { titulo: '', categoria: '', aplicacao: '', resultado: '', ingredientes: [], ordem: 0 };
@@ -114,6 +115,11 @@ export default function AdminMisturinhasPage() {
       setSaving(false);
     }
   };
+
+  // Só vale com o formulário aberto: no modo lista, Ctrl+S não faz nada.
+  useAtalhoSalvar(() => {
+    if (form && !saving) handleSave({ preventDefault: () => {} });
+  }, !!form);
 
   const handleToggle = async (id) => {
     const res = await request(`/api/admin/misturinhas/${id}/ativo`, { method: 'PATCH' });

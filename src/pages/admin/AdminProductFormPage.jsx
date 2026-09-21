@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
 import { useUnsavedChanges } from '../../hooks/useUnsavedChanges';
 import { useRascunho } from '../../hooks/useRascunho';
+import { useAtalhoSalvar } from '../../hooks/useAtalhoSalvar';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 
@@ -46,6 +47,15 @@ export default function AdminProductFormPage() {
 
   const { rascunho, descartar, limpar } = useRascunho(id || 'novo', form, { ativo: !loading });
   const [rascunhoVisivel, setRascunhoVisivel] = useState(true);
+  const [previewLocal,    setPreviewLocal]    = useState('');
+
+  // O objectURL precisa ser revogado, senão o blob fica preso na memória.
+  useEffect(() => {
+    if (!imageFile) { setPreviewLocal(''); return; }
+    const url = URL.createObjectURL(imageFile);
+    setPreviewLocal(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
 
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
@@ -177,6 +187,11 @@ export default function AdminProductFormPage() {
       setSaving(false);
     }
   };
+
+  // Declarado depois de handleSubmit porque const não sofre hoisting.
+  useAtalhoSalvar(() => {
+    if (!saving && !uploading) handleSubmit({ preventDefault: () => {} });
+  }, true);
 
   if (loading) return <div className="p-8 text-muted text-[14px]">Carregando produto...</div>;
 
@@ -312,8 +327,12 @@ export default function AdminProductFormPage() {
                 <p className="text-[12px] text-muted">{imageFile.name} — será enviado ao salvar</p>
               )}
             </div>
-            {form.image && (
-              <img src={form.image} alt="" className="w-16 h-16 object-contain rounded border border-line" />
+            {(previewLocal || form.image) && (
+              <img
+                src={previewLocal || form.image}
+                alt=""
+                className="w-16 h-16 object-contain rounded border border-line"
+              />
             )}
           </div>
         </div>
