@@ -56,6 +56,81 @@ router.get('/', async (req, res) => {
   }
 });
 
+const ACOES_BULK = ['ativar', 'desativar', 'mover_categoria', 'excluir'];
+const LIMITE_BULK = 100;
+
+// POST /api/admin/products/bulk
+// Tudo numa transação: ou aplica em todos os ids, ou em nenhum. Um erro no
+// meio de uma exclusão de 40 produtos não pode deixar metade pelo caminho.
+router.post('/bulk', async (req, res) => {
+  const { ids, acao, valor } = req.body;
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ error: 'Informe ao menos um produto.' });
+  }
+  if (ids.length > LIMITE_BULK) {
+    return res.status(400).json({ error: `No máximo ${LIMITE_BULK} produtos por vez.` });
+  }
+  if (!ACOES_BULK.includes(acao)) {
+    return res.status(400).json({ error: 'Ação inválida.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    // Validar o destino ANTES de abrir a transação evita rollback inútil.
+    if (acao === 'mover_categoria') {
+      if (!valor) return res.status(400).json({ error: 'Escolha a categoria de destino.' });
+      const dst = await client.query('SELECT id FROM categories WHERE id = $1', [valor]);
+      if (!dst.rowCount) return res.status(400).json({ error: 'Categoria de destino não encontrada.' });
+    }
+
+    await client.query('BEGIN');
+
+    let afetados;
+    if (acao === 'excluir') {
+      const r = await client.query('DELETE FROM products WHERE id = ANY($1) RETURNING id', [ids]);
+      afetados = r.rows;
+    } else if (acao === 'mover_categoria') {
+      const r = await client.query(
+        'UPDATE products SET category_id = $1, updated_at = NOW() WHERE id = ANY($2) RETURNING id',
+        [valor, ids]
+      );
+      afetados = r.rows;
+    } else {
+      const novo = acao === 'ativar';
+      const r = await client.query(
+        'UPDATE products SET ativo = $1, updated_at = NOW() WHERE id = ANY($2) RETURNING id',
+        [novo, ids]
+      );
+      afetados = r.rows;
+    }
+
+    await client.query('COMMIT');
+
+    // Auditoria fora da transação: falhar aqui não pode desfazer a operação.
+    for (const linha of afetados) {
+      await registrar(req, {
+        acao: acao === 'excluir' ? 'delete' : 'update',
+        entidade: 'product',
+        entidade_id: linha.id,
+        campo: `bulk:${acao}`,
+        valor_novo: acao === 'mover_categoria' ? valor : (acao === 'ativar'),
+      });
+    }
+
+    res.json({ ok: true, afetados: afetados.length });
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    if (err.code === '23503') {
+      return res.status(409).json({ error: 'Algum produto não pôde ser alterado por vínculo no banco.' });
+    }
+    console.error('POST /api/admin/products/bulk:', err.message);
+    res.status(500).json({ error: 'Erro interno.' });
+  } finally {
+    client.release();
+  }
+});
+
 // POST /api/admin/products/:id/duplicate
 // A cópia referencia a MESMA imagem e galeria do original: nada é copiado em
 // disco. É por isso que a limpeza de imagens órfãs precisa varrer todas as
