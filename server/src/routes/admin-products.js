@@ -2,6 +2,7 @@ const { Router }  = require('express');
 const pool        = require('../db');
 const requireAuth = require('../middleware/requireAuth');
 const validate    = require('../middleware/validate');
+const { registrar } = require('../lib/audit');
 
 const router = Router();
 router.use(requireAuth);
@@ -96,6 +97,10 @@ router.post('/', validate(['id', 'name']), async (req, res) => {
         video || null,
       ]
     );
+    await registrar(req, {
+      acao: 'create', entidade: 'product', entidade_id: rows[0].id,
+      valor_novo: rows[0],
+    });
     res.status(201).json(rows[0]);
   } catch (err) {
     if (err.code === '23505') return res.status(409).json({ error: 'ID já existe.' });
@@ -111,6 +116,7 @@ router.put('/:id', validate(['name']), async (req, res) => {
           caracteristicas, apresentacao, modo_uso, precaucoes,
           ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video } = req.body;
   try {
+    const anterior = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
     const { rows } = await pool.query(
       `UPDATE products SET
          name=$1, tag=$2, category_id=$3, brand=$4, image=$5, gallery=$6, description=$7,
@@ -132,6 +138,10 @@ router.put('/:id', validate(['name']), async (req, res) => {
       ]
     );
     if (!rows.length) return res.status(404).json({ error: 'Produto não encontrado.' });
+    await registrar(req, {
+      acao: 'update', entidade: 'product', entidade_id: req.params.id,
+      valor_anterior: anterior.rows[0] ?? null, valor_novo: rows[0],
+    });
     res.json(rows[0]);
   } catch (err) {
     if (err.code === '23503') return res.status(400).json({ error: 'Categoria informada não existe.' });
@@ -149,6 +159,10 @@ router.patch('/:id/ativo', async (req, res) => {
       [req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Produto não encontrado.' });
+    await registrar(req, {
+      acao: 'update', entidade: 'product', entidade_id: req.params.id,
+      campo: 'ativo', valor_novo: rows[0].ativo,
+    });
     res.json(rows[0]);
   } catch (err) {
     console.error('PATCH /api/admin/products/:id/ativo:', err.message);
@@ -159,8 +173,14 @@ router.patch('/:id/ativo', async (req, res) => {
 // DELETE /api/admin/products/:id
 router.delete('/:id', async (req, res) => {
   try {
-    const { rowCount } = await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
-    if (!rowCount) return res.status(404).json({ error: 'Produto não encontrado.' });
+    const { rows } = await pool.query(
+      'DELETE FROM products WHERE id = $1 RETURNING *', [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Produto não encontrado.' });
+    await registrar(req, {
+      acao: 'delete', entidade: 'product', entidade_id: req.params.id,
+      valor_anterior: rows[0],
+    });
     res.json({ ok: true });
   } catch (err) {
     console.error('DELETE /api/admin/products/:id:', err.message);

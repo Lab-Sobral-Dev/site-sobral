@@ -2,6 +2,7 @@ const { Router }  = require('express');
 const pool        = require('../db');
 const requireAuth = require('../middleware/requireAuth');
 const validate    = require('../middleware/validate');
+const { registrar } = require('../lib/audit');
 
 const router = Router();
 router.use(requireAuth);
@@ -36,6 +37,10 @@ router.post('/', validate(['titulo', 'categoria']), async (req, res) => {
        JSON.stringify(Array.isArray(ingredientes) ? ingredientes : []),
        Number(ordem) || 0]
     );
+    await registrar(req, {
+      acao: 'create', entidade: 'misturinha', entidade_id: String(rows[0].id),
+      valor_novo: rows[0],
+    });
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error('POST /api/admin/misturinhas:', err.message);
@@ -46,6 +51,7 @@ router.post('/', validate(['titulo', 'categoria']), async (req, res) => {
 router.put('/:id', validate(['titulo', 'categoria']), async (req, res) => {
   const { titulo, categoria, aplicacao, resultado, ingredientes, ordem, ativo } = req.body;
   try {
+    const anterior = await pool.query('SELECT * FROM misturinhas WHERE id = $1', [req.misturaId]);
     const { rows } = await pool.query(
       `UPDATE misturinhas SET titulo=$1, categoria=$2, aplicacao=$3, resultado=$4,
          ingredientes=$5, ordem=$6, ativo=$7
@@ -55,6 +61,10 @@ router.put('/:id', validate(['titulo', 'categoria']), async (req, res) => {
        Number(ordem) || 0, ativo !== false, req.misturaId]
     );
     if (!rows.length) return res.status(404).json({ error: 'Não encontrada.' });
+    await registrar(req, {
+      acao: 'update', entidade: 'misturinha', entidade_id: String(req.misturaId),
+      valor_anterior: anterior.rows[0] ?? null, valor_novo: rows[0],
+    });
     res.json(rows[0]);
   } catch (err) {
     console.error('PUT /api/admin/misturinhas/:id:', err.message);
@@ -69,6 +79,10 @@ router.patch('/:id/ativo', async (req, res) => {
       [req.misturaId]
     );
     if (!rows.length) return res.status(404).json({ error: 'Não encontrada.' });
+    await registrar(req, {
+      acao: 'update', entidade: 'misturinha', entidade_id: String(req.misturaId),
+      campo: 'ativo', valor_novo: rows[0].ativo,
+    });
     res.json(rows[0]);
   } catch (err) {
     console.error('PATCH /api/admin/misturinhas/:id/ativo:', err.message);
@@ -78,8 +92,14 @@ router.patch('/:id/ativo', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const { rowCount } = await pool.query('DELETE FROM misturinhas WHERE id=$1', [req.misturaId]);
-    if (!rowCount) return res.status(404).json({ error: 'Não encontrada.' });
+    const { rows } = await pool.query(
+      'DELETE FROM misturinhas WHERE id=$1 RETURNING *', [req.misturaId]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Não encontrada.' });
+    await registrar(req, {
+      acao: 'delete', entidade: 'misturinha', entidade_id: String(req.misturaId),
+      valor_anterior: rows[0],
+    });
     res.json({ ok: true });
   } catch (err) {
     console.error('DELETE /api/admin/misturinhas/:id:', err.message);

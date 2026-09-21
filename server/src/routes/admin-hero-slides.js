@@ -2,6 +2,7 @@ const { Router } = require('express');
 const pool = require('../db');
 const requireAuth = require('../middleware/requireAuth');
 const { normalizeLayers } = require('../utils/normalizeLayers');
+const { registrar } = require('../lib/audit');
 const router = Router();
 router.use(requireAuth);
 
@@ -37,6 +38,10 @@ router.post('/', async (req, res) => {
       'INSERT INTO hero_slides (image_url, ordem, layers) VALUES ($1, $2, $3) RETURNING *',
       [image_url, ordemNum, JSON.stringify(layers ?? [])]
     );
+    await registrar(req, {
+      acao: 'create', entidade: 'hero_slide', entidade_id: String(rows[0].id),
+      valor_novo: rows[0],
+    });
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error('POST /api/admin/hero-slides:', err.message);
@@ -57,6 +62,10 @@ router.put('/reorder', async (req, res) => {
       )
     );
     await client.query('COMMIT');
+    await registrar(req, {
+      acao: 'update', entidade: 'hero_slide', entidade_id: 'reorder',
+      campo: 'ordem', valor_novo: ids,
+    });
     res.json({ ok: true });
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
@@ -71,11 +80,16 @@ router.put('/:id', async (req, res) => {
   const { layers } = req.body;
   if (!Array.isArray(layers)) return res.status(400).json({ error: 'layers deve ser array.' });
   try {
+    const anterior = await pool.query('SELECT * FROM hero_slides WHERE id = $1', [req.slideId]);
     const { rows } = await pool.query(
       'UPDATE hero_slides SET layers = $1 WHERE id = $2 RETURNING *',
       [JSON.stringify(layers), req.slideId]
     );
     if (!rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
+    await registrar(req, {
+      acao: 'update', entidade: 'hero_slide', entidade_id: String(req.slideId),
+      valor_anterior: anterior.rows[0] ?? null, valor_novo: rows[0],
+    });
     res.json(rows[0]);
   } catch (err) {
     console.error('PUT /api/admin/hero-slides/:id:', err.message);
@@ -90,6 +104,10 @@ router.patch('/:id/ativo', async (req, res) => {
       [req.slideId]
     );
     if (!rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
+    await registrar(req, {
+      acao: 'update', entidade: 'hero_slide', entidade_id: String(req.slideId),
+      campo: 'ativo', valor_novo: rows[0].ativo,
+    });
     res.json(rows[0]);
   } catch (err) {
     console.error('PATCH /api/admin/hero-slides/:id/ativo:', err.message);
@@ -99,8 +117,14 @@ router.patch('/:id/ativo', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const { rowCount } = await pool.query('DELETE FROM hero_slides WHERE id = $1', [req.slideId]);
-    if (!rowCount) return res.status(404).json({ error: 'Slide não encontrado.' });
+    const { rows } = await pool.query(
+      'DELETE FROM hero_slides WHERE id = $1 RETURNING *', [req.slideId]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
+    await registrar(req, {
+      acao: 'delete', entidade: 'hero_slide', entidade_id: String(req.slideId),
+      valor_anterior: rows[0],
+    });
     res.json({ ok: true });
   } catch (err) {
     console.error('DELETE /api/admin/hero-slides/:id:', err.message);

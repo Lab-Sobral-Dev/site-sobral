@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const pool = require('../db');
 const requireAuth = require('../middleware/requireAuth');
+const { registrar } = require('../lib/audit');
 const router = Router();
 router.use(requireAuth);
 
@@ -21,6 +22,10 @@ router.put('/:page/:key', async (req, res) => {
   const { value } = req.body;
   if (value === undefined) return res.status(400).json({ error: 'Campo "value" obrigatório.' });
   try {
+    const anterior = await pool.query(
+      'SELECT value FROM page_content WHERE page = $1 AND key = $2',
+      [req.params.page, req.params.key]
+    );
     const { rows } = await pool.query(
       `INSERT INTO page_content (page, key, value, updated_at)
        VALUES ($1, $2, $3, NOW())
@@ -29,6 +34,12 @@ router.put('/:page/:key', async (req, res) => {
        RETURNING *`,
       [req.params.page, req.params.key, value]
     );
+    await registrar(req, {
+      acao: 'update', entidade: 'content', entidade_id: req.params.page,
+      campo: req.params.key,
+      valor_anterior: anterior.rows[0]?.value ?? null,
+      valor_novo: value,
+    });
     res.json(rows[0]);
   } catch (err) {
     console.error('PUT /api/admin/content/:page/:key:', err.message);
