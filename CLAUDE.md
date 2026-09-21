@@ -32,11 +32,14 @@ Arquitetura do projeto:
           RichTextEditor.jsx          ← editor TipTap (bold, italic, listas, H2)
           ConfirmModal.jsx            ← modal de confirmação reutilizável
           SessionExpiryModal.jsx      ← aviso de expiração de sessão (T-5min)
+          HistoricoCampo.jsx          ← histórico + restaurar por campo do CMS
       hooks/
         usePageContent.js             ← busca conteúdo editável da API com fallback
         useAdminFetch.js              ← fetch autenticado + renovação silenciosa da sessão
         useUnsavedChanges.js          ← bloqueia saída com alterações não salvas
         useRascunho.js                ← rascunho local do formulário em localStorage
+        useAtalhoSalvar.js            ← Ctrl+S / Cmd+S nos formulários
+        useDebounce.js                ← debounce de busca
       data/
         catalog.js                    ← array estático de produtos (legado/seed local)
       pages/
@@ -56,6 +59,9 @@ Arquitetura do projeto:
           AdminHeroSlidesPage.jsx     ← gerenciar slides do hero (DnD, upload, toggle)
           AdminSlideBuilderPage.jsx   ← editor de camadas do slide
           AdminMisturinhasPage.jsx    ← CRUD de misturinhas
+          AdminHistoricoPage.jsx      ← histórico de alterações (audit_log)
+          AdminUsuariosPage.jsx       ← gerenciar usuários (só papel admin)
+          AdminContaPage.jsx          ← trocar a própria senha
     public/
       images/                         ← logos, hero, fotos de produtos
     server/                           ← backend Node.js
@@ -87,6 +93,8 @@ Arquitetura do projeto:
           admin-hero-slides.js        ← CRUD+reorder /api/admin/hero-slides (requer auth)
           admin-misturinhas.js        ← CRUD /api/admin/misturinhas (requer auth)
           admin-stats.js              ← GET /api/admin/stats (métricas do dashboard)
+          admin-audit.js              ← GET /api/admin/audit + POST /:id/restore (só conteúdo)
+          admin-users.js              ← CRUD /api/admin/users (papel admin) + PUT /me/senha
           misturinhas.js              ← GET /api/misturinhas (público)
           psd-import.js               ← POST /api/admin/psd-import (importa camadas de PSD)
           sitemap.js                  ← GET /sitemap.xml
@@ -115,6 +123,8 @@ Convenções do projeto:
   Auth:        JWT HS256, expiração 8h renovável, cookie httpOnly+secure+sameSite:strict
                Usuários em admin_users; o .env só vale se não houver usuário ativo
   Auditoria:   Toda alteração administrativa grava em audit_log
+               Restauração só vale para conteúdo de CMS (entidade 'content')
+  Papéis:      admin (tudo + usuários) e editor (tudo menos usuários)
   Backend:     Node.js 20 LTS + Express 4
   Banco:       PostgreSQL 16, driver `pg` (raw SQL, sem ORM)
   E-mail:      Nodemailer + SMTP
