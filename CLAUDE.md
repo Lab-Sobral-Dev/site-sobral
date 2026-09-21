@@ -30,8 +30,13 @@ Arquitetura do projeto:
         HeroCarousel.jsx              ← carrossel do hero (busca slides via API)
         admin/
           RichTextEditor.jsx          ← editor TipTap (bold, italic, listas, H2)
+          ConfirmModal.jsx            ← modal de confirmação reutilizável
+          SessionExpiryModal.jsx      ← aviso de expiração de sessão (T-5min)
       hooks/
         usePageContent.js             ← busca conteúdo editável da API com fallback
+        useAdminFetch.js              ← fetch autenticado + renovação silenciosa da sessão
+        useUnsavedChanges.js          ← bloqueia saída com alterações não salvas
+        useRascunho.js                ← rascunho local do formulário em localStorage
       data/
         catalog.js                    ← array estático de produtos (legado/seed local)
       pages/
@@ -49,6 +54,8 @@ Arquitetura do projeto:
           AdminCategoriesPage.jsx     ← listar, criar, deletar categorias
           AdminContentPage.jsx        ← editor CMS por página (home/sobre/contato)
           AdminHeroSlidesPage.jsx     ← gerenciar slides do hero (DnD, upload, toggle)
+          AdminSlideBuilderPage.jsx   ← editor de camadas do slide
+          AdminMisturinhasPage.jsx    ← CRUD de misturinhas
     public/
       images/                         ← logos, hero, fotos de produtos
     server/                           ← backend Node.js
@@ -57,13 +64,17 @@ Arquitetura do projeto:
         server.js                     ← entry point (porta 3001)
         db/
           index.js                    ← pool pg via DATABASE_URL
-          migrate.js                  ← roda migrations pendentes
+          migrate.js                  ← roda migrations pendentes + semeia admin
           seed.js                     ← seed inicial de produtos e categorias
+          seed-admin.js               ← cria o 1º admin a partir do .env (idempotente)
         middleware/
-          requireAuth.js              ← verifica JWT Bearer
+          requireAuth.js              ← verifica JWT e resolve o usuário em admin_users
+          requirePapel.js             ← exige papel (admin/editor) na rota
           validate.js                 ← validação de campos obrigatórios
+        lib/
+          audit.js                    ← registra alterações em audit_log (nunca lança)
         routes/
-          auth.js                     ← POST /api/auth/login, GET /api/auth/me
+          auth.js                     ← POST /api/auth/login, /logout, /refresh; GET /api/auth/me
           products.js                 ← GET /api/products, GET /api/products/:id
           categories.js               ← GET /api/categories
           contact.js                  ← POST /api/contact (envia e-mail)
@@ -74,13 +85,21 @@ Arquitetura do projeto:
           admin-categories.js         ← CRUD /api/admin/categories (requer auth)
           admin-content.js            ← GET+PUT /api/admin/content/:page/:key (requer auth)
           admin-hero-slides.js        ← CRUD+reorder /api/admin/hero-slides (requer auth)
+          admin-misturinhas.js        ← CRUD /api/admin/misturinhas (requer auth)
+          admin-stats.js              ← GET /api/admin/stats (métricas do dashboard)
+          misturinhas.js              ← GET /api/misturinhas (público)
+          psd-import.js               ← POST /api/admin/psd-import (importa camadas de PSD)
+          sitemap.js                  ← GET /sitemap.xml
         email/
           mailer.js                   ← Nodemailer SMTP
           templates/contact.js        ← template HTML do e-mail de contato
-      migrations/
+      src/db/migrations/
         001_create_categories.sql
         002_create_products.sql
         003_cms.sql                   ← tabelas page_content + hero_slides
+        ...
+        015_admin_users.sql           ← usuários do painel (papel admin/editor)
+        016_audit_log.sql             ← histórico de alterações administrativas
       .env.example                    ← variáveis necessárias (nunca commitar .env)
     vite.config.js                    ← proxy /api → localhost:3001 em dev
     tailwind.config.js
@@ -93,14 +112,16 @@ Convenções do projeto:
   Fontes:      via Google Fonts (Nunito padrão)
   Roteamento:  React Router v6 (BrowserRouter)
   Dados:       API REST em /api/* (backend); fallback estático em src/data/catalog.js
-  Auth:        JWT HS256, expiração 8h, em cookie httpOnly+secure+sameSite:strict
+  Auth:        JWT HS256, expiração 8h renovável, cookie httpOnly+secure+sameSite:strict
+               Usuários em admin_users; o .env só vale se não houver usuário ativo
+  Auditoria:   Toda alteração administrativa grava em audit_log
   Backend:     Node.js 20 LTS + Express 4
   Banco:       PostgreSQL 16, driver `pg` (raw SQL, sem ORM)
   E-mail:      Nodemailer + SMTP
   CMS:         Tabela `page_content` (chave-valor por página) + `hero_slides`
-  Testes:      Nenhum framework configurado
-  CI/CD:       Não configurado
-  Deploy:      A definir
+  Testes:      Jest + supertest no backend (cd server && npm test); CI roda migrations + testes
+  CI/CD:       .github/workflows/ci.yml (migrations + jest) e deploy.yml
+  Deploy:      Automático via GitHub Actions para a VPS (docker compose)
   Commits:     Conventional Commits (feat:, fix:, chore:, style:, refactor:, docs:)
   Branch:      main (único branch — sempre push para main)
 
