@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
 import { useUnsavedChanges } from '../../hooks/useUnsavedChanges';
+import { useRascunho } from '../../hooks/useRascunho';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 
@@ -42,6 +43,9 @@ export default function AdminProductFormPage() {
   // o próprio salvamento, que navega de propósito.
   const dirty = JSON.stringify(form) !== JSON.stringify(formInicial) || !!imageFile;
   const { bloqueio } = useUnsavedChanges(dirty && !saving);
+
+  const { rascunho, descartar, limpar } = useRascunho(id || 'novo', form, { ativo: !loading });
+  const [rascunhoVisivel, setRascunhoVisivel] = useState(true);
 
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
@@ -165,6 +169,7 @@ export default function AdminProductFormPage() {
       if (!res.ok) throw new Error(data.error || 'Erro ao salvar.');
       toast.success(isEdit ? 'Produto atualizado' : 'Produto criado');
       setFormInicial(form);   // limpa o "sujo" para a saída não ser bloqueada
+      limpar();               // rascunho cumpriu o papel: o dado está no servidor
       navigate('/admin');
     } catch (err) {
       setError(err.message);
@@ -222,6 +227,29 @@ export default function AdminProductFormPage() {
           </a>
         )}
       </div>
+
+      {rascunho && rascunhoVisivel && (
+        <div className="mb-4 bg-[#FFF4EB] border border-orange/30 text-ink text-[13px] rounded-[8px] px-4 py-3 flex flex-wrap items-center gap-3">
+          <span className="flex-1">
+            Encontramos um rascunho não salvo de{' '}
+            <b>{new Date(rascunho.salvoEm).toLocaleString('pt-BR')}</b>.
+          </span>
+          <button
+            type="button"
+            onClick={() => { setForm(rascunho.dados); setRascunhoVisivel(false); }}
+            className="font-[700] text-orange hover:underline"
+          >
+            Recuperar
+          </button>
+          <button
+            type="button"
+            onClick={() => { descartar(); setRascunhoVisivel(false); }}
+            className="font-[600] text-muted hover:text-ink-light"
+          >
+            Descartar
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 bg-red-50 border border-red-200 text-red-600 text-[13px] rounded-[8px] px-4 py-3">
