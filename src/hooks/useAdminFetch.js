@@ -2,8 +2,13 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+// Faltando menos que isto para a sessão vencer, qualquer requisição
+// bem-sucedida renova o token em silêncio. Quem está trabalhando nunca chega
+// a ver o aviso de expiração.
+const LIMIAR_RENOVACAO_MS = 30 * 60 * 1000;
+
 export function useAdminFetch() {
-  const { logout } = useAuth();
+  const { logout, expiresAt, renovarSessao } = useAuth();
   const navigate = useNavigate();
 
   const request = useCallback(async (url, options = {}) => {
@@ -25,8 +30,12 @@ export function useAdminFetch() {
       return null;
     }
 
+    if (res.ok && expiresAt && expiresAt - Date.now() < LIMIAR_RENOVACAO_MS) {
+      renovarSessao();   // sem await: não atrasa a resposta ao chamador
+    }
+
     return res;
-  }, [logout, navigate]);
+  }, [logout, navigate, expiresAt, renovarSessao]);
 
   return { request };
 }

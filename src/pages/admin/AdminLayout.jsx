@@ -3,9 +3,10 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import AdminMobileDrawer, { HamburgerIcon } from '../../components/admin/AdminMobileDrawer';
+import SessionExpiryModal from '../../components/admin/SessionExpiryModal';
 
 export default function AdminLayout() {
-  const { isAuthenticated, logout, user, setUser } = useAuth();
+  const { isAuthenticated, logout, user, setUser, expiresAt, setExpiresAt, renovarSessao } = useAuth();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -16,7 +17,10 @@ export default function AdminLayout() {
         if (r.status === 401) { logout(); navigate('/admin/login', { replace: true }); return null; }
         return r.json();
       })
-      .then(data => { if (data?.email) setUser({ email: data.email }); })
+      .then(data => {
+        if (data?.email)     setUser({ email: data.email, nome: data.nome, papel: data.papel });
+        if (data?.expiresAt) setExpiresAt(data.expiresAt);
+      })
       .catch(() => { logout(); navigate('/admin/login', { replace: true }); });
   }, [isAuthenticated, logout, navigate]); // setUser é estável (useCallback), mas não pertence às deps — evita loop
 
@@ -86,6 +90,11 @@ export default function AdminLayout() {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onLogout={handleLogout}
+      />
+      <SessionExpiryModal
+        expiresAt={expiresAt}
+        onRenovar={renovarSessao}
+        onSair={handleLogout}
       />
       <Toaster position="bottom-right" richColors duration={3000} />
     </div>
