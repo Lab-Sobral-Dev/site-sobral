@@ -36,6 +36,11 @@ async function migrate() {
       await client.query('COMMIT');
       console.log(`  apply ${file}`);
     }
+
+    const { seedAdmin } = require('./seed-admin');
+    const resultado = await seedAdmin(client);
+    console.log(`  seed  admin_users: ${resultado}`);
+
     console.log('Migrações concluídas.');
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
