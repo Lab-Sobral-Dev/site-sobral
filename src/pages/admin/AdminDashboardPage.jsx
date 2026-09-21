@@ -5,6 +5,21 @@ import { useAdminFetch } from '../../hooks/useAdminFetch';
 import { useDebounce } from '../../hooks/useDebounce';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
+// Primeira, última, a atual e as vizinhas; o resto vira reticências. Sem isto
+// a paginação cresce sem limite conforme o catálogo aumenta.
+function paginasVisiveis(atual, total) {
+  const set = new Set([1, total, atual, atual - 1, atual + 1]);
+  const paginas = [...set].filter(n => n >= 1 && n <= total).sort((a, b) => a - b);
+  const saida = [];
+  let anterior = 0;
+  for (const n of paginas) {
+    if (anterior && n - anterior > 1) saida.push('…');
+    saida.push(n);
+    anterior = n;
+  }
+  return saida;
+}
+
 function SortIcon({ active, dir }) {
   if (!active) return <span className="opacity-30 ml-1">↕</span>;
   return <span className="ml-1">{dir === 'asc' ? '↑' : '↓'}</span>;
@@ -213,7 +228,44 @@ export default function AdminDashboardPage() {
       </div>
 
       {loading ? (
-        <div className="py-16 text-center text-muted text-[14px]">Carregando...</div>
+        <div className="bg-white rounded-[10px] border border-line overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-line last:border-0">
+              <div className="w-10 h-10 rounded bg-[#EEE] animate-pulse flex-shrink-0" />
+              <div className="flex-1">
+                <div className="h-3 w-1/3 bg-[#EEE] rounded animate-pulse mb-2" />
+                <div className="h-2.5 w-1/4 bg-[#F2F2F2] rounded animate-pulse" />
+              </div>
+              <div className="h-6 w-16 bg-[#EEE] rounded-full animate-pulse" />
+            </div>
+          ))}
+        </div>
+      ) : products.length === 0 ? (
+        <div className="bg-white border border-line rounded-[10px] py-16 px-4 text-center">
+          <p className="text-[15px] font-[700] text-ink mb-1">
+            {query || cat !== 'all' ? 'Nenhum produto encontrado' : 'Nenhum produto no catálogo'}
+          </p>
+          <p className="text-[13px] text-muted mb-4">
+            {query || cat !== 'all'
+              ? 'Tente outro termo de busca ou remova o filtro de categoria.'
+              : 'Cadastre o primeiro produto para ele aparecer no site.'}
+          </p>
+          {(query || cat !== 'all') ? (
+            <button
+              onClick={() => { setQuery(''); setCat('all'); setPage(1); }}
+              className="text-[13px] font-[700] text-orange hover:underline"
+            >
+              Limpar filtros
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/admin/produtos/novo')}
+              className="bg-orange hover:bg-[#E0580A] text-white font-[700] px-5 py-2.5 rounded-[8px] text-[14px] transition-colors"
+            >
+              + Novo produto
+            </button>
+          )}
+        </div>
       ) : (
         <>
           {/* Desktop: tabela */}
@@ -231,25 +283,46 @@ export default function AdminDashboardPage() {
                     />
                   </th>
                   <th
-                    className="px-4 py-3 font-[700] text-ink-light cursor-pointer hover:text-orange select-none whitespace-nowrap"
-                    onClick={() => toggleSort('name')}
+                    scope="col"
+                    aria-sort={sort === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                    className="px-4 py-3 font-[700] text-ink-light whitespace-nowrap"
                   >
-                    Produto <SortIcon active={sort === 'name'} dir={sortDir} />
+                    <button
+                      type="button"
+                      onClick={() => toggleSort('name')}
+                      className="flex items-center gap-1 hover:text-orange transition-colors"
+                    >
+                      Produto <SortIcon active={sort === 'name'} dir={sortDir} />
+                    </button>
                   </th>
                   <th
-                    className="px-4 py-3 font-[700] text-ink-light cursor-pointer hover:text-orange select-none whitespace-nowrap"
-                    onClick={() => toggleSort('category_id')}
+                    scope="col"
+                    aria-sort={sort === 'category_id' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                    className="px-4 py-3 font-[700] text-ink-light whitespace-nowrap"
                   >
-                    Categoria <SortIcon active={sort === 'category_id'} dir={sortDir} />
+                    <button
+                      type="button"
+                      onClick={() => toggleSort('category_id')}
+                      className="flex items-center gap-1 hover:text-orange transition-colors"
+                    >
+                      Categoria <SortIcon active={sort === 'category_id'} dir={sortDir} />
+                    </button>
                   </th>
                   <th
-                    className="px-4 py-3 font-[700] text-ink-light cursor-pointer hover:text-orange select-none whitespace-nowrap"
-                    onClick={() => toggleSort('brand')}
+                    scope="col"
+                    aria-sort={sort === 'brand' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                    className="px-4 py-3 font-[700] text-ink-light whitespace-nowrap"
                   >
-                    Marca <SortIcon active={sort === 'brand'} dir={sortDir} />
+                    <button
+                      type="button"
+                      onClick={() => toggleSort('brand')}
+                      className="flex items-center gap-1 hover:text-orange transition-colors"
+                    >
+                      Marca <SortIcon active={sort === 'brand'} dir={sortDir} />
+                    </button>
                   </th>
-                  <th className="px-4 py-3 font-[700] text-ink-light">Status</th>
-                  <th className="px-4 py-3 font-[700] text-ink-light">Ações</th>
+                  <th scope="col" className="px-4 py-3 font-[700] text-ink-light">Status</th>
+                  <th scope="col" className="px-4 py-3 font-[700] text-ink-light">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -390,17 +463,22 @@ export default function AdminDashboardPage() {
               </p>
               {totalPages > 1 && (
                 <div className="flex justify-center gap-2 flex-wrap">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                    <button
-                      key={n}
-                      onClick={() => setPage(n)}
-                      className={`w-8 h-8 rounded-[6px] border text-[13px] font-bold transition-all ${
-                        page === n ? 'bg-orange border-orange text-white' : 'bg-white border-line text-ink-light hover:border-orange hover:text-orange'
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ))}
+                  {paginasVisiveis(page, totalPages).map((n, i) =>
+                    n === '…' ? (
+                      <span key={`gap-${i}`} className="w-8 h-8 grid place-items-center text-muted text-[13px]">…</span>
+                    ) : (
+                      <button
+                        key={n}
+                        onClick={() => setPage(n)}
+                        aria-current={page === n ? 'page' : undefined}
+                        className={`w-8 h-8 rounded-[6px] border text-[13px] font-bold transition-all ${
+                          page === n ? 'bg-orange border-orange text-white' : 'bg-white border-line text-ink-light hover:border-orange hover:text-orange'
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    )
+                  )}
                 </div>
               )}
             </div>
