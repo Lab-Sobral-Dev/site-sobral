@@ -17,6 +17,7 @@ const loginLimiter = rateLimit({
 });
 
 const COOKIE_NAME = 'sobral_jwt';
+const DURACAO_HORAS = 8;
 const cookieOpts = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
@@ -24,6 +25,18 @@ const cookieOpts = {
   maxAge: 8 * 60 * 60 * 1000,
   path: '/',
 };
+
+// Emite (ou renova) a sessão e devolve o instante de vencimento em ms.
+// Centralizado para login e refresh não divergirem na duração do cookie.
+function emitirSessao(res, admin) {
+  const token = jwt.sign(
+    { sub: admin.id ?? undefined, email: admin.email, papel: admin.papel ?? 'admin' },
+    process.env.JWT_SECRET,
+    { expiresIn: `${DURACAO_HORAS}h` }
+  );
+  res.cookie(COOKIE_NAME, token, cookieOpts);
+  return Date.now() + DURACAO_HORAS * 60 * 60 * 1000;
+}
 
 router.post('/login', loginLimiter, validate(['email', 'password']), async (req, res) => {
   const { email, password } = req.body;
@@ -35,9 +48,8 @@ router.post('/login', loginLimiter, validate(['email', 'password']), async (req,
     return res.status(401).json({ error: 'Credenciais inválidas.' });
   }
 
-  const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '8h' });
-  res.cookie(COOKIE_NAME, token, cookieOpts);
-  res.json({ ok: true, email });
+  const expiresAt = emitirSessao(res, { id: null, email, papel: 'admin' });
+  res.json({ ok: true, email, expiresAt });
 });
 
 router.post('/logout', (req, res) => {
@@ -45,11 +57,17 @@ router.post('/logout', (req, res) => {
   res.json({ ok: true });
 });
 
+router.post('/refresh', requireAuth, (req, res) => {
+  const expiresAt = emitirSessao(res, req.admin);
+  res.json({ ok: true, expiresAt });
+});
+
 router.get('/me', requireAuth, (req, res) => {
   res.json({
-    email: req.admin.email,
-    nome:  req.admin.nome,
-    papel: req.admin.papel,
+    email:     req.admin.email,
+    nome:      req.admin.nome,
+    papel:     req.admin.papel,
+    expiresAt: req.tokenExp ? req.tokenExp * 1000 : null,
   });
 });
 
