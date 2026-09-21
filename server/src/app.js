@@ -21,6 +21,7 @@ const adminContentRouter    = require('./routes/admin-content');
 const adminHeroSlidesRouter = require('./routes/admin-hero-slides');
 const adminStatsRouter      = require('./routes/admin-stats');
 const adminAuditRouter      = require('./routes/admin-audit');
+const adminUsersRouter      = require('./routes/admin-users');
 const adminMisturinhasRouter = require('./routes/admin-misturinhas');
 const uploadRouter          = require('./routes/upload');
 const psdImportRouter       = require('./routes/psd-import');
@@ -77,6 +78,7 @@ app.use('/api/admin/hero-slides',   adminHeroSlidesRouter);
 app.use('/api/admin/stats',         adminStatsRouter);
 app.use('/api/admin/misturinhas',   adminMisturinhasRouter);
 app.use('/api/admin/audit',         adminAuditRouter);
+app.use('/api/admin/users',         adminUsersRouter);
 app.use('/api/upload',              uploadRouter);
 app.use('/api/admin/psd-import',    psdImportRouter);
 
