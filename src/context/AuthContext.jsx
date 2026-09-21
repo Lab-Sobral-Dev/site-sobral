@@ -52,7 +52,12 @@ export function AuthProvider({ children }) {
 
   const setUser = useCallback((userData) => {
     setUserState(prev => {
-      if (prev?.email === userData?.email) return prev;
+      // Devolver prev quando nada mudou evita loop de render. A comparação
+      // precisa cobrir papel e nome: comparando só o e-mail, o papel vindo do
+      // /api/auth/me nunca chegaria ao estado depois do login.
+      if (prev?.email === userData?.email
+          && prev?.papel === userData?.papel
+          && prev?.nome  === userData?.nome) return prev;
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
       return userData;
     });

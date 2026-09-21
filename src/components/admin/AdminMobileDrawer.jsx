@@ -43,6 +43,9 @@ const NAV_GROUPS = [
     label: 'Sistema',
     items: [
       { to: '/admin/historico', label: 'Histórico' },
+      // Esconder é conveniência, não segurança: o backend responde 403.
+      { to: '/admin/usuarios',  label: 'Usuários', apenasAdmin: true },
+      { to: '/admin/conta',     label: 'Minha conta' },
     ],
   },
 ];
@@ -104,11 +107,13 @@ export default function AdminMobileDrawer({ open, onClose, onLogout }) {
               <div className="px-3 pt-3 pb-1 text-[10px] font-[700] text-[#aaa] uppercase tracking-[.6px]">
                 {group.label}
               </div>
-              {group.items.map(item => (
-                <NavLink key={item.to} to={item.to} end={item.end} onClick={onClose} className={linkClass}>
-                  {item.label}
-                </NavLink>
-              ))}
+              {group.items
+                .filter(item => !item.apenasAdmin || user?.papel === 'admin')
+                .map(item => (
+                  <NavLink key={item.to} to={item.to} end={item.end} onClick={onClose} className={linkClass}>
+                    {item.label}
+                  </NavLink>
+                ))}
             </div>
           ))}
         </nav>

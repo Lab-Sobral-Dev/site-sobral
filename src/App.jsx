@@ -24,6 +24,8 @@ const AdminHeroSlidesPage   = lazy(() => import('./pages/admin/AdminHeroSlidesPa
 const AdminSlideBuilderPage = lazy(() => import('./pages/admin/AdminSlideBuilderPage'));
 const AdminMisturinhasPage  = lazy(() => import('./pages/admin/AdminMisturinhasPage'));
 const AdminHistoricoPage    = lazy(() => import('./pages/admin/AdminHistoricoPage'));
+const AdminUsuariosPage     = lazy(() => import('./pages/admin/AdminUsuariosPage'));
+const AdminContaPage        = lazy(() => import('./pages/admin/AdminContaPage'));
 
 function AdminFallback() {
   return (
@@ -167,6 +169,8 @@ const router = createBrowserRouter([
       { path: 'hero-slides',                element: admin(<AdminHeroSlidesPage />) },
       { path: 'hero-slides/:id/editar',    element: admin(<AdminSlideBuilderPage />) },
       { path: 'historico',                  element: admin(<AdminHistoricoPage />) },
+      { path: 'usuarios',                   element: admin(<AdminUsuariosPage />) },
+      { path: 'conta',                      element: admin(<AdminContaPage />) },
     ],
   },
 ]);

@@ -73,6 +73,11 @@ export default function AdminLayout() {
           <NavLink to="/admin/hero-slides"  className={navClass}>Hero Slides</NavLink>
           <div className="px-3 pt-3 pb-1 text-[10px] font-[700] text-[#aaa] uppercase tracking-[.6px]">Sistema</div>
           <NavLink to="/admin/historico" className={navClass}>Histórico</NavLink>
+          {/* Esconder é conveniência, não segurança: o backend responde 403. */}
+          {user?.papel === 'admin' && (
+            <NavLink to="/admin/usuarios" className={navClass}>Usuários</NavLink>
+          )}
+          <NavLink to="/admin/conta" className={navClass}>Minha conta</NavLink>
         </nav>
         <div className="p-3 border-t border-line">
           <button
