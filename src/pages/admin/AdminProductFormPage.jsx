@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
+import { useUnsavedChanges } from '../../hooks/useUnsavedChanges';
+import ConfirmModal from '../../components/admin/ConfirmModal';
 import RichTextEditor from '../../components/admin/RichTextEditor';
 
 const EMPTY_FORM = {
@@ -27,6 +29,7 @@ export default function AdminProductFormPage() {
   const { request } = useAdminFetch();
 
   const [form,             setForm]             = useState(EMPTY_FORM);
+  const [formInicial,      setFormInicial]      = useState(EMPTY_FORM);
   const [categories,       setCategories]       = useState([]);
   const [loading,          setLoading]          = useState(isEdit);
   const [saving,           setSaving]           = useState(false);
@@ -34,6 +37,11 @@ export default function AdminProductFormPage() {
   const [imageFile,        setImageFile]        = useState(null);
   const [uploading,        setUploading]        = useState(false);
   const [galleryUploading, setGalleryUploading] = useState(false);
+
+  // Só bloqueia a saída se algo mudou de fato desde a carga — e nunca durante
+  // o próprio salvamento, que navega de propósito.
+  const dirty = JSON.stringify(form) !== JSON.stringify(formInicial) || !!imageFile;
+  const { bloqueio } = useUnsavedChanges(dirty && !saving);
 
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(data => setCategories(Array.isArray(data) ? data : [])).catch(() => {});
@@ -44,7 +52,7 @@ export default function AdminProductFormPage() {
     request(`/api/admin/products/${id}`)
       .then(r => r ? r.json() : Promise.reject())
       .then(p => {
-        setForm({
+        const carregado = {
           id:              p.id,
           name:            p.name            ?? '',
           tag:             p.tag             ?? '',
@@ -66,7 +74,9 @@ export default function AdminProductFormPage() {
           ativo:           p.ativo,
           destaque:        p.destaque ?? false,
           video:           p.video           ?? '',
-        });
+        };
+        setForm(carregado);
+        setFormInicial(carregado);
       })
       .catch(() => setError('Erro ao carregar produto.'))
       .finally(() => setLoading(false));
@@ -154,6 +164,7 @@ export default function AdminProductFormPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erro ao salvar.');
       toast.success(isEdit ? 'Produto atualizado' : 'Produto criado');
+      setFormInicial(form);   // limpa o "sujo" para a saída não ser bloqueada
       navigate('/admin');
     } catch (err) {
       setError(err.message);
@@ -372,6 +383,16 @@ export default function AdminProductFormPage() {
           </button>
         </div>
       </form>
+
+      <ConfirmModal
+        open={!!bloqueio}
+        danger={false}
+        title="Sair sem salvar?"
+        message="Você tem alterações que ainda não foram salvas. Se sair agora, elas serão perdidas."
+        confirmLabel="Sair sem salvar"
+        onConfirm={() => bloqueio.confirmar()}
+        onCancel={() => bloqueio.cancelar()}
+      />
     </div>
   );
 }

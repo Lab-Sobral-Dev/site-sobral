@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
+import { useUnsavedChanges } from '../../hooks/useUnsavedChanges';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
 const EMPTY_FORM = { titulo: '', categoria: '', aplicacao: '', resultado: '', ingredientes: [], ordem: 0 };
@@ -17,6 +18,11 @@ export default function AdminMisturinhasPage() {
   const [saving,      setSaving]      = useState(false);
   const [error,       setError]       = useState('');
   const [confirm,     setConfirm]     = useState(null);
+  const [formInicial, setFormInicial] = useState(null);
+
+  // Formulário aberto com algo alterado bloqueia a saída da página.
+  const dirty = !!form && JSON.stringify(form) !== JSON.stringify(formInicial);
+  const { bloqueio } = useUnsavedChanges(dirty && !saving);
 
   const categories = [...new Set(misturinhas.map(m => m.categoria))].sort();
 
@@ -39,11 +45,16 @@ export default function AdminMisturinhasPage() {
       .catch(() => {});
   }, []);
 
-  const openCreate = () => { setEditId(null); setForm({ ...EMPTY_FORM }); setError(''); };
+  const openCreate = () => {
+    setEditId(null);
+    setForm({ ...EMPTY_FORM });
+    setFormInicial({ ...EMPTY_FORM });
+    setError('');
+  };
 
   const openEdit = (m) => {
     setEditId(m.id);
-    setForm({
+    const carregado = {
       titulo:      m.titulo,
       categoria:   m.categoria,
       aplicacao:   m.aplicacao  || '',
@@ -51,7 +62,9 @@ export default function AdminMisturinhasPage() {
       ingredientes: Array.isArray(m.ingredientes) ? m.ingredientes.map(i => ({ ...i })) : [],
       ordem:       m.ordem,
       ativo:       m.ativo,
-    });
+    };
+    setForm(carregado);
+    setFormInicial(carregado);
     setError('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -93,6 +106,7 @@ export default function AdminMisturinhasPage() {
       if (!res.ok) throw new Error(data.error || 'Erro ao salvar.');
       toast.success(editId ? 'Misturinha atualizada' : 'Misturinha criada');
       setForm(null);
+      setFormInicial(null);
       fetchAll();
     } catch (err) {
       setError(err.message);
@@ -262,6 +276,16 @@ export default function AdminMisturinhasPage() {
           </div>
         ))
       )}
+
+      <ConfirmModal
+        open={!!bloqueio}
+        danger={false}
+        title="Sair sem salvar?"
+        message="Você tem alterações que ainda não foram salvas. Se sair agora, elas serão perdidas."
+        confirmLabel="Sair sem salvar"
+        onConfirm={() => bloqueio.confirmar()}
+        onCancel={() => bloqueio.cancelar()}
+      />
 
       <ConfirmModal
         open={!!confirm}
