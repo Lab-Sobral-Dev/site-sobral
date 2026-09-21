@@ -35,4 +35,30 @@ async function deleteProduct(id = 'test-prod-001') {
   await pool.query('DELETE FROM products WHERE id = $1', [id]);
 }
 
-module.exports = { makeToken, createCategory, deleteCategory, createProduct, deleteProduct };
+const bcrypt = require('bcryptjs');
+
+async function criarUsuario({ email, papel = 'editor', ativo = true, senha = 'Test@123' }) {
+  const hash = bcrypt.hashSync(senha, 10);
+  const { rows } = await pool.query(
+    `INSERT INTO admin_users (email, nome, senha_hash, papel, ativo)
+     VALUES (lower($1), 'Usuário Teste', $2, $3, $4)
+     ON CONFLICT (email) DO UPDATE
+       SET papel = EXCLUDED.papel, ativo = EXCLUDED.ativo, senha_hash = EXCLUDED.senha_hash
+     RETURNING id, email`,
+    [email, hash, papel, ativo]
+  );
+  return rows[0];
+}
+
+async function removerUsuario(email) {
+  await pool.query('DELETE FROM admin_users WHERE lower(email) = lower($1)', [email]);
+}
+
+function makeTokenPara(email) {
+  return jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
+
+module.exports = {
+  makeToken, makeTokenPara, createCategory, deleteCategory,
+  createProduct, deleteProduct, criarUsuario, removerUsuario,
+};

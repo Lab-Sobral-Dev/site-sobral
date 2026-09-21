@@ -46,7 +46,11 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/me', requireAuth, (req, res) => {
-  res.json({ email: req.admin.email });
+  res.json({
+    email: req.admin.email,
+    nome:  req.admin.nome,
+    papel: req.admin.papel,
+  });
 });
 
 module.exports = router;
