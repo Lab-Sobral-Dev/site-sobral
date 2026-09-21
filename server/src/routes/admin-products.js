@@ -56,6 +56,55 @@ router.get('/', async (req, res) => {
   }
 });
 
+// POST /api/admin/products/:id/duplicate
+// A cópia referencia a MESMA imagem e galeria do original: nada é copiado em
+// disco. É por isso que a limpeza de imagens órfãs precisa varrer todas as
+// linhas antes de apagar um arquivo.
+router.post('/:id/duplicate', async (req, res) => {
+  try {
+    const { rows: orig } = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+    if (!orig.length) return res.status(404).json({ error: 'Produto não encontrado.' });
+    const p = orig[0];
+
+    // Procura o primeiro sufixo livre: -copia, -copia-2, -copia-3…
+    const base = `${p.id}-copia`;
+    const { rows: usados } = await pool.query(
+      'SELECT id FROM products WHERE id = $1 OR id LIKE $2',
+      [base, `${base}-%`]
+    );
+    const tomados = new Set(usados.map(r => r.id));
+    let novoId = base;
+    for (let n = 2; tomados.has(novoId); n++) novoId = `${base}-${n}`;
+
+    const { rows } = await pool.query(
+      `INSERT INTO products(id, name, tag, category_id, brand, image, gallery, description,
+                            caracteristicas, apresentacao, modo_uso, precaucoes,
+                            ingredientes, disclaimer, nutri_porcoes, nutri_rows,
+                            ativo, destaque, video)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,false,false,$17)
+       RETURNING *`,
+      [
+        novoId, `${p.name} (cópia)`, p.tag, p.category_id, p.brand, p.image,
+        JSON.stringify(p.gallery ?? []), p.description,
+        p.caracteristicas, p.apresentacao, p.modo_uso, p.precaucoes,
+        p.ingredientes, p.disclaimer, p.nutri_porcoes,
+        p.nutri_rows ? JSON.stringify(p.nutri_rows) : null,
+        p.video,
+      ]
+    );
+
+    await registrar(req, {
+      acao: 'create', entidade: 'product', entidade_id: novoId,
+      campo: 'duplicate', valor_anterior: { origem: p.id }, valor_novo: rows[0],
+    });
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'Já existe um produto com esse ID.' });
+    console.error('POST /api/admin/products/:id/duplicate:', err.message);
+    res.status(500).json({ error: 'Erro interno.' });
+  }
+});
+
 // GET /api/admin/products/:id
 router.get('/:id', async (req, res) => {
   try {
