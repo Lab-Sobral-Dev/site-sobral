@@ -1,7 +1,27 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
+import { useUnsavedChanges } from '../../hooks/useUnsavedChanges';
+import ConfirmModal from '../../components/admin/ConfirmModal';
 import RichTextEditor from '../../components/admin/RichTextEditor';
+
+// Indicador de estado de um campo. O estado 'erro' é PERSISTENTE de propósito:
+// antes, uma falha virava um toast de 3s e o campo continuava na tela
+// parecendo salvo.
+function StatusCampo({ estado, onTentarDeNovo }) {
+  if (estado === 'saving') return <span className="text-[12px] text-muted">Salvando...</span>;
+  if (estado === 'salvo')  return <span className="text-[12px] text-green-600">✓ Salvo</span>;
+  if (estado === 'dirty')  return <span className="text-[12px] text-muted">Não salvo</span>;
+  if (estado === 'erro')   return (
+    <span className="text-[12px] text-red-600 font-[600] flex items-center gap-2">
+      Não salvo
+      <button type="button" onClick={onTentarDeNovo} className="underline hover:no-underline">
+        Tentar de novo
+      </button>
+    </span>
+  );
+  return null;
+}
 
 const PAGE_URLS = { home: '/', sobre: '/quem-somos', contato: '/fale-conosco' };
 
@@ -108,12 +128,15 @@ const PAGE_CONFIG = {
 
 export default function AdminContentPage({ page }) {
   const { request } = useAdminFetch();
-  const [content,   setContent]   = useState({});
-  const [saving,    setSaving]    = useState({});
-  const [saved,     setSaved]     = useState({});
-  const [uploading, setUploading] = useState({});
+  const [content,    setContent]    = useState({});
+  const [status,     setStatus]     = useState({});   // key -> idle|dirty|saving|salvo|erro
+  const [valorSalvo, setValorSalvo] = useState({});   // key -> último valor confirmado pelo servidor
+  const [uploading,  setUploading]  = useState({});
 
   const config = PAGE_CONFIG[page];
+
+  const pendentes = Object.values(status).some(e => e === 'dirty' || e === 'erro');
+  const { bloqueio } = useUnsavedChanges(pendentes);
 
   useEffect(() => {
     request(`/api/admin/content/${page}`)
@@ -125,25 +148,33 @@ export default function AdminContentPage({ page }) {
         const map = {};
         rows.forEach(r => { map[r.key] = r.value || ''; });
         setContent(map);
+        setValorSalvo(map);
+        setStatus({});
       })
       .catch(() => {});
   }, [page]);
 
   const saveField = async (key, value) => {
-    setSaving(s => ({ ...s, [key]: true }));
+    setStatus(s => ({ ...s, [key]: 'saving' }));
     try {
       const res = await request(`/api/admin/content/${page}/${key}`, {
         method: 'PUT',
         body: JSON.stringify({ value }),
       });
       if (!res || !res.ok) throw new Error();
-      setSaved(s => ({ ...s, [key]: true }));
-      setTimeout(() => setSaved(s => ({ ...s, [key]: false })), 2000);
+      setValorSalvo(v => ({ ...v, [key]: value }));
+      setStatus(s => ({ ...s, [key]: 'salvo' }));
+      setTimeout(() => setStatus(s => (s[key] === 'salvo' ? { ...s, [key]: 'idle' } : s)), 2000);
     } catch {
-      toast.error('Erro ao salvar. Verifique a conexão.');
-    } finally {
-      setSaving(s => ({ ...s, [key]: false }));
+      setStatus(s => ({ ...s, [key]: 'erro' }));
+      toast.error('Erro ao salvar. O campo ficou marcado como não salvo.');
     }
+  };
+
+  // Marca o campo como sujo assim que diverge do que está no servidor.
+  const alterar = (key, valor) => {
+    setContent(c => ({ ...c, [key]: valor }));
+    setStatus(s => ({ ...s, [key]: valor === valorSalvo[key] ? 'idle' : 'dirty' }));
   };
 
   const handleImageUpload = async (key, file) => {
@@ -196,12 +227,16 @@ export default function AdminContentPage({ page }) {
                     <input
                       type="text"
                       value={content[field.key] || ''}
-                      onChange={e => setContent(c => ({ ...c, [field.key]: e.target.value }))}
+                      onChange={e => alterar(field.key, e.target.value)}
                       onBlur={e => saveField(field.key, e.target.value)}
-                      className="flex-1 border border-line rounded-[8px] px-4 py-2.5 text-[14px] outline-none focus:border-orange"
+                      className={`flex-1 border rounded-[8px] px-4 py-2.5 text-[14px] outline-none focus:border-orange ${
+                        status[field.key] === 'erro' ? 'border-red-400' : 'border-line'
+                      }`}
                     />
-                    {saving[field.key] && <span className="text-[12px] text-muted">Salvando...</span>}
-                    {saved[field.key]  && <span className="text-[12px] text-green-600">✓ Salvo</span>}
+                    <StatusCampo
+                      estado={status[field.key]}
+                      onTentarDeNovo={() => saveField(field.key, content[field.key] || '')}
+                    />
                   </div>
                 )}
 
@@ -209,15 +244,17 @@ export default function AdminContentPage({ page }) {
                   <div>
                     <RichTextEditor
                       value={content[field.key] || ''}
-                      onChange={val => setContent(c => ({ ...c, [field.key]: val }))}
+                      onChange={val => alterar(field.key, val)}
                     />
                     <div className="flex justify-end items-center gap-2 mt-2">
-                      {saving[field.key] && <span className="text-[12px] text-muted">Salvando...</span>}
-                      {saved[field.key]  && <span className="text-[12px] text-green-600">✓ Salvo</span>}
+                      <StatusCampo
+                        estado={status[field.key]}
+                        onTentarDeNovo={() => saveField(field.key, content[field.key] || '')}
+                      />
                       <button
                         type="button"
                         onClick={() => saveField(field.key, content[field.key] || '')}
-                        disabled={saving[field.key]}
+                        disabled={status[field.key] === 'saving'}
                         className="bg-orange hover:bg-[#E0580A] text-white font-[700] px-4 py-1.5 rounded-[6px] text-[12px] transition-colors disabled:opacity-60"
                       >
                         Salvar
@@ -232,10 +269,12 @@ export default function AdminContentPage({ page }) {
                       <input
                         type="text"
                         value={content[field.key] || ''}
-                        onChange={e => setContent(c => ({ ...c, [field.key]: e.target.value }))}
+                        onChange={e => alterar(field.key, e.target.value)}
                         onBlur={e => saveField(field.key, e.target.value)}
                         placeholder="/images/..."
-                        className="w-full border border-line rounded-[8px] px-4 py-2.5 text-[13px] outline-none focus:border-orange mb-2"
+                        className={`w-full border rounded-[8px] px-4 py-2.5 text-[13px] outline-none focus:border-orange mb-2 ${
+                          status[field.key] === 'erro' ? 'border-red-400' : 'border-line'
+                        }`}
                       />
                       <div className="flex gap-2 items-center flex-wrap">
                         <input
@@ -245,7 +284,10 @@ export default function AdminContentPage({ page }) {
                           className="text-[12px] text-ink-light"
                         />
                         {uploading[field.key] && <span className="text-[12px] text-muted">Enviando...</span>}
-                        {saved[field.key]     && <span className="text-[12px] text-green-600">✓ Salvo</span>}
+                        <StatusCampo
+                          estado={status[field.key]}
+                          onTentarDeNovo={() => saveField(field.key, content[field.key] || '')}
+                        />
                       </div>
                     </div>
                     {content[field.key] && (
@@ -258,6 +300,16 @@ export default function AdminContentPage({ page }) {
           </div>
         </div>
       ))}
+
+      <ConfirmModal
+        open={!!bloqueio}
+        danger={false}
+        title="Sair sem salvar?"
+        message="Há campos que não foram salvos. Se sair agora, as alterações serão perdidas."
+        confirmLabel="Sair sem salvar"
+        onConfirm={() => bloqueio.confirmar()}
+        onCancel={() => bloqueio.cancelar()}
+      />
     </div>
   );
 }
