@@ -3,6 +3,7 @@ const pool        = require('../db');
 const requireAuth = require('../middleware/requireAuth');
 const validate    = require('../middleware/validate');
 const { registrar } = require('../lib/audit');
+const { removerVarias } = require('../lib/imagens');
 
 const router = Router();
 router.use(requireAuth);
@@ -266,6 +267,16 @@ router.put('/:id', validate(['name']), async (req, res) => {
       acao: 'update', entidade: 'product', entidade_id: req.params.id,
       valor_anterior: anterior.rows[0] ?? null, valor_novo: rows[0],
     });
+
+    // Depois do UPDATE confirmado: consultar antes veria a própria linha
+    // antiga como referência e nunca apagaria nada.
+    const antes = anterior.rows[0];
+    if (antes) {
+      const antigas = [antes.image, ...(Array.isArray(antes.gallery) ? antes.gallery : [])];
+      const atuais  = new Set([rows[0].image, ...(Array.isArray(rows[0].gallery) ? rows[0].gallery : [])]);
+      await removerVarias(req, antigas.filter(u => u && !atuais.has(u)));
+    }
+
     res.json(rows[0]);
   } catch (err) {
     if (err.code === '23503') return res.status(400).json({ error: 'Categoria informada não existe.' });
@@ -305,6 +316,10 @@ router.delete('/:id', async (req, res) => {
       acao: 'delete', entidade: 'product', entidade_id: req.params.id,
       valor_anterior: rows[0],
     });
+    await removerVarias(req, [
+      rows[0].image,
+      ...(Array.isArray(rows[0].gallery) ? rows[0].gallery : []),
+    ]);
     res.json({ ok: true });
   } catch (err) {
     console.error('DELETE /api/admin/products/:id:', err.message);
