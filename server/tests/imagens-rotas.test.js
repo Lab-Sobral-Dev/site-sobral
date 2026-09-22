@@ -6,13 +6,14 @@ const pool = require('../src/db');
 const { makeToken, createCategory, deleteCategory } = require('./helpers');
 
 const DIR = path.join(__dirname, '..', '..', 'public', 'images', 'produtos');
+const DIR_HERO = path.join(__dirname, '..', '..', 'public', 'images', 'hero');
 const CAT  = 'test-cat-imgrota';
 const PROD = 'test-prod-imgrota';
 let token;
 
-function criarArquivo(nome) {
-  fs.mkdirSync(DIR, { recursive: true });
-  const p = path.join(DIR, nome);
+function criarArquivo(nome, dir = DIR) {
+  fs.mkdirSync(dir, { recursive: true });
+  const p = path.join(dir, nome);
   fs.writeFileSync(p, 'x');
   return p;
 }
@@ -24,6 +25,7 @@ beforeAll(async () => {
 
 afterEach(async () => {
   await pool.query("DELETE FROM products WHERE id LIKE $1", [`${PROD}%`]);
+  await pool.query("DELETE FROM hero_slides WHERE image_url LIKE '/images/hero/rota-%'");
   await pool.query("DELETE FROM audit_log WHERE entidade = 'image'");
 });
 
@@ -119,5 +121,97 @@ describe('limpeza ao trocar a imagem', () => {
       .send({ name: 'P', category_id: CAT, gallery: [] });
 
     expect(fs.existsSync(saiu)).toBe(false);
+  });
+});
+
+describe('limpeza ao excluir hero slide', () => {
+  it('apaga a imagem de fundo que ficou órfã', async () => {
+    const arquivo = criarArquivo('rota-hero-orfa.webp', DIR_HERO);
+    const url = '/images/hero/rota-hero-orfa.webp';
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, layers) VALUES($1, '[]'::jsonb) RETURNING id`,
+      [url]
+    );
+
+    const res = await request(app)
+      .delete(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(fs.existsSync(arquivo)).toBe(false);
+  });
+
+  it('apaga imagem de camada que ficou órfã', async () => {
+    const arquivo = criarArquivo('rota-hero-camada.webp', DIR_HERO);
+    const url = '/images/hero/rota-hero-camada.webp';
+    const layers = [{ id: 'l1', type: 'image', name: 'logo', url, x: 0, y: 0, width: 10, height: 10, visible: true }];
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, layers) VALUES('/images/hero/rota-hero-fundo.webp', $1::jsonb) RETURNING id`,
+      [JSON.stringify(layers)]
+    );
+
+    await request(app)
+      .delete(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(fs.existsSync(arquivo)).toBe(false);
+  });
+
+  it('preserva a imagem que outro slide ainda usa', async () => {
+    const arquivo = criarArquivo('rota-hero-compartilhada.webp', DIR_HERO);
+    const url = '/images/hero/rota-hero-compartilhada.webp';
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, layers) VALUES($1, '[]'::jsonb) RETURNING id`,
+      [url]
+    );
+    await pool.query(
+      `INSERT INTO hero_slides(image_url, layers) VALUES($1, '[]'::jsonb)`,
+      [url]
+    );
+
+    await request(app)
+      .delete(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(fs.existsSync(arquivo)).toBe(true);
+    fs.unlinkSync(arquivo);
+  });
+});
+
+describe('limpeza ao trocar camadas do hero slide', () => {
+  it('apaga a imagem de camada removida', async () => {
+    const saiu = criarArquivo('rota-hero-saiu.webp', DIR_HERO);
+    const url  = '/images/hero/rota-hero-saiu.webp';
+    const layers = [{ id: 'l1', type: 'image', name: 'logo', url, x: 0, y: 0, width: 10, height: 10, visible: true }];
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, layers) VALUES('/images/hero/rota-hero-fundo2.webp', $1::jsonb) RETURNING id`,
+      [JSON.stringify(layers)]
+    );
+
+    const res = await request(app)
+      .put(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ layers: [] });
+
+    expect(res.status).toBe(200);
+    expect(fs.existsSync(saiu)).toBe(false);
+  });
+
+  it('não apaga a imagem de camada que continua presente', async () => {
+    const mantida = criarArquivo('rota-hero-mantida.webp', DIR_HERO);
+    const url = '/images/hero/rota-hero-mantida.webp';
+    const layer = { id: 'l1', type: 'image', name: 'logo', url, x: 0, y: 0, width: 10, height: 10, visible: true };
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, layers) VALUES('/images/hero/rota-hero-fundo3.webp', $1::jsonb) RETURNING id`,
+      [JSON.stringify([layer])]
+    );
+
+    await request(app)
+      .put(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ layers: [{ ...layer, x: 5 }] });
+
+    expect(fs.existsSync(mantida)).toBe(true);
+    fs.unlinkSync(mantida);
   });
 });

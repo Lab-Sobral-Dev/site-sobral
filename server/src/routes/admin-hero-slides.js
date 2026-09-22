@@ -3,7 +3,14 @@ const pool = require('../db');
 const requireAuth = require('../middleware/requireAuth');
 const { normalizeLayers } = require('../utils/normalizeLayers');
 const { registrar } = require('../lib/audit');
+const { removerVarias } = require('../lib/imagens');
 const router = Router();
+
+// As camadas são objetos; só as de imagem têm url.
+function urlsDasCamadas(layers) {
+  if (!Array.isArray(layers)) return [];
+  return layers.filter(l => l && l.type === 'image' && l.url).map(l => l.url);
+}
 router.use(requireAuth);
 
 // hero_slides.id é SERIAL (inteiro). Rejeita id não-numérico com 404 em vez de
@@ -90,6 +97,16 @@ router.put('/:id', async (req, res) => {
       acao: 'update', entidade: 'hero_slide', entidade_id: String(req.slideId),
       valor_anterior: anterior.rows[0] ?? null, valor_novo: rows[0],
     });
+
+    // Depois do UPDATE confirmado: consultar antes veria a própria linha
+    // antiga como referência e nunca apagaria nada.
+    const antes = anterior.rows[0];
+    if (antes) {
+      const antigas = [antes.image_url, ...urlsDasCamadas(antes.layers)];
+      const atuais  = new Set([rows[0].image_url, ...urlsDasCamadas(rows[0].layers)]);
+      await removerVarias(req, antigas.filter(u => u && !atuais.has(u)));
+    }
+
     res.json(rows[0]);
   } catch (err) {
     console.error('PUT /api/admin/hero-slides/:id:', err.message);
@@ -125,6 +142,7 @@ router.delete('/:id', async (req, res) => {
       acao: 'delete', entidade: 'hero_slide', entidade_id: String(req.slideId),
       valor_anterior: rows[0],
     });
+    await removerVarias(req, [rows[0].image_url, ...urlsDasCamadas(rows[0].layers)]);
     res.json({ ok: true });
   } catch (err) {
     console.error('DELETE /api/admin/hero-slides/:id:', err.message);
