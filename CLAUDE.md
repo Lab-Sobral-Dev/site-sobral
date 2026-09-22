@@ -79,6 +79,7 @@ Arquitetura do projeto:
           validate.js                 ← validação de campos obrigatórios
         lib/
           audit.js                    ← registra alterações em audit_log (nunca lança)
+          imagens.js                  ← apaga imagem órfã com trava de referência (nunca lança)
         routes/
           auth.js                     ← POST /api/auth/login, /logout, /refresh; GET /api/auth/me
           products.js                 ← GET /api/products, GET /api/products/:id
@@ -124,6 +125,9 @@ Convenções do projeto:
                Usuários em admin_users; o .env só vale se não houver usuário ativo
   Auditoria:   Toda alteração administrativa grava em audit_log
                Restauração só vale para conteúdo de CMS (entidade 'content')
+  Imagens:     Arquivo é apagado ao sair do último uso (produto, galeria, hero
+               slide ou CMS); só dentro de public/images/{produtos,hero,cms}
+               e sempre auditado (entidade 'image')
   Papéis:      admin (tudo + usuários) e editor (tudo menos usuários)
   Backend:     Node.js 20 LTS + Express 4
   Banco:       PostgreSQL 16, driver `pg` (raw SQL, sem ORM)
