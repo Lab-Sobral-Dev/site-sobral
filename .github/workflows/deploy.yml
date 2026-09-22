@@ -30,8 +30,21 @@ jobs:
           script: |
             set -e
             cd /home/suporte/projetos/site-sobral
-            echo "[1/4] git pull..."
-            git pull origin main
+            echo "[1/4] sincronizando com origin/main..."
+            git fetch origin
+            # git pull aborta com "divergent branches" se a VPS tiver qualquer
+            # commit local ou se o historico do remoto for reescrito. O alvo de
+            # deploy deve ser um espelho de origin/main, entao sincronizamos por
+            # reset. Alteracoes locais nao commitadas vao para o stash antes,
+            # para nada ser descartado em silencio.
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "AVISO: alteracoes locais nao commitadas encontradas:"
+              git status --short
+              git stash push --include-untracked -m "deploy-$(date +%Y%m%d-%H%M%S)"
+              echo "AVISO: salvas em stash — recupere com 'git stash list'"
+            fi
+            git reset --hard origin/main
+            git log --oneline -1
             echo "[2/4] docker compose up --build..."
             docker compose up --build -d
             echo "[3/4] migrations..."
