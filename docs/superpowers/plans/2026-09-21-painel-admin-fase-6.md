@@ -62,7 +62,7 @@ Jest + supertest.
   - `removerVarias(req, caminhos) → Promise<void>` — laço sobre `removerSeOrfa`,
     ignorando valores falsos e duplicados.
 
-- [ ] **Step 1: Escrever o teste (vai falhar)**
+- [x] **Step 1: Escrever o teste (vai falhar)**
 
 Criar `server/tests/imagens.test.js`:
 
@@ -182,7 +182,7 @@ describe('removerSeOrfa', () => {
 });
 ```
 
-- [ ] **Step 2: Rodar e confirmar que falha**
+- [x] **Step 2: Rodar e confirmar que falha**
 
 ```bash
 cd server && npx jest tests/imagens.test.js
@@ -190,7 +190,7 @@ cd server && npx jest tests/imagens.test.js
 
 Esperado: FAIL — `Cannot find module '../src/lib/imagens'`.
 
-- [ ] **Step 3: Implementar o módulo**
+- [x] **Step 3: Implementar o módulo**
 
 Criar `server/src/lib/imagens.js`:
 
@@ -283,7 +283,7 @@ async function removerVarias(req, urls) {
 module.exports = { estaEmUso, removerSeOrfa, removerVarias };
 ```
 
-- [ ] **Step 4: Rodar o teste e a suíte**
+- [x] **Step 4: Rodar o teste e a suíte**
 
 ```bash
 cd server && npx jest tests/imagens.test.js && npm test
@@ -291,7 +291,7 @@ cd server && npx jest tests/imagens.test.js && npm test
 
 Esperado: 10 novos passando; suíte com 98 passando.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add server/src/lib/imagens.js server/tests/imagens.test.js
@@ -313,7 +313,7 @@ git push origin main
 - Produces: nenhuma mudança de contrato de API. A limpeza é efeito colateral,
   sempre **após** a resposta ao banco estar confirmada.
 
-- [ ] **Step 1: Escrever o teste (vai falhar)**
+- [x] **Step 1: Escrever o teste (vai falhar)**
 
 Criar `server/tests/imagens-rotas.test.js`:
 
@@ -443,7 +443,7 @@ describe('limpeza ao trocar a imagem', () => {
 });
 ```
 
-- [ ] **Step 2: Rodar e confirmar que falha**
+- [x] **Step 2: Rodar e confirmar que falha**
 
 ```bash
 cd server && npx jest tests/imagens-rotas.test.js
@@ -451,7 +451,7 @@ cd server && npx jest tests/imagens-rotas.test.js
 
 Esperado: FAIL — os arquivos continuam existindo depois das operações.
 
-- [ ] **Step 3: Ligar em `admin-products.js`**
+- [x] **Step 3: Ligar em `admin-products.js`**
 
 Importar no topo:
 
@@ -482,7 +482,7 @@ No `DELETE /:id`, depois do `await registrar(...)`:
     ]);
 ```
 
-- [ ] **Step 4: Ligar em `admin-hero-slides.js`**
+- [x] **Step 4: Ligar em `admin-hero-slides.js`**
 
 Importar `removerVarias` e uma função local para extrair urls das camadas:
 
@@ -513,7 +513,7 @@ No `DELETE /:id`, depois do registro:
     await removerVarias(req, [rows[0].image_url, ...urlsDasCamadas(rows[0].layers)]);
 ```
 
-- [ ] **Step 5: Rodar o teste e a suíte**
+- [x] **Step 5: Rodar o teste e a suíte**
 
 ```bash
 cd server && npx jest tests/imagens-rotas.test.js && npm test
@@ -521,7 +521,7 @@ cd server && npx jest tests/imagens-rotas.test.js && npm test
 
 Esperado: 5 novos passando; suíte com 103 passando.
 
-- [ ] **Step 6: Conferir que nenhum arquivo de teste ficou para trás**
+- [x] **Step 6: Conferir que nenhum arquivo de teste ficou para trás**
 
 ```bash
 ls public/images/produtos/ | grep -E "^rota-|^orfa-|^ainda-" || echo "limpo"
@@ -530,7 +530,7 @@ ls public/images/produtos/ | grep -E "^rota-|^orfa-|^ainda-" || echo "limpo"
 Esperado: `limpo`. Se sobrar algo, apagar à mão — são arquivos criados pelos
 testes, não do projeto.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add server/src/routes/admin-products.js server/src/routes/admin-hero-slides.js server/tests/imagens-rotas.test.js
@@ -545,13 +545,13 @@ git push origin main
 **Files:**
 - Modify: `CLAUDE.md`
 
-- [ ] **Step 1: Registrar o módulo e a regra**
+- [x] **Step 1: Registrar o módulo e a regra**
 
 - Acrescentar `lib/imagens.js` na árvore do backend.
 - Na seção de convenções: "Imagens: arquivo é apagado ao sair do último uso;
   só dentro de public/images/{produtos,hero,cms} e sempre auditado".
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add CLAUDE.md
