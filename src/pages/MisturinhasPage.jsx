@@ -122,7 +122,6 @@ export default function MisturinhasPage() {
         <div className="absolute -bottom-[100px] -left-[60px] w-[280px] h-[280px] rounded-full border-[14px] border-orange/10 pointer-events-none" />
 
         <div className="relative flex flex-col items-center max-w-[700px]">
-          <div className="text-[12px] tracking-[3px] font-[900] text-orange mb-[18px]">FOLDER · ÓLEOS SOBRAL</div>
           <h1 className="font-display text-[48px] lg:text-[72px] font-[900] leading-[.95] mb-6 text-ink tracking-[-2px]">
             Misturinhas<br/>
             <em className="text-orange not-italic-only italic font-[700]">que mudam tudo.</em>
@@ -131,14 +130,6 @@ export default function MisturinhasPage() {
             Combinações dos <strong className="text-ink font-[800]">Óleos Sobral</strong> para turbinar sua rotina de pele e cabelo.
             Use sozinhos ou misturados — sua beleza agradece.
           </p>
-        </div>
-
-        <div className="rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(232,90,12,.22)] w-full max-w-[700px] aspect-[16/9]">
-          <img
-            src="/images/misturinhas-hero-panel.png"
-            alt="Dicas de Misturinhas Óleos Sobral"
-            className="w-full h-full object-cover block"
-          />
         </div>
       </section>
 
