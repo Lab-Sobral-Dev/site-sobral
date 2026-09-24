@@ -141,45 +141,68 @@ export default function MisturinhasPage() {
           <div className="py-16 text-center text-muted text-[15px]">Nenhuma misturinha cadastrada.</div>
         ) : (
           <>
-            {/* Tabs dinâmicas */}
-            <div className="flex gap-3 justify-center mb-9 flex-wrap">
+            {/* Abas de categoria — divisórias de pasta */}
+            <div className="flex gap-1 justify-center">
               {categories.map(cat => {
                 const count = misturinhas.filter(m => m.categoria === cat).length;
+                const active = tab === cat;
                 return (
                   <button
                     key={cat}
                     onClick={() => setTab(cat)}
-                    className={`border-2 rounded-full px-6 py-3 flex items-center gap-2 transition-all font-sans text-left
-                      ${tab === cat ? 'border-orange !text-white shadow-[0_4px_14px_rgba(232,90,12,.3)]' : 'border-line text-ink hover:border-orange hover:text-orange'}`}
-                    style={tab === cat ? { background: 'var(--orange)', color: 'white' } : {}}
+                    className={`font-display font-[800] text-[14px] px-6 sm:px-8 pt-3.5 pb-4 rounded-t-[10px] transition-colors relative z-10
+                      ${active ? 'bg-[#FFFDF9] text-ink shadow-[0_-2px_10px_rgba(0,0,0,.05)]' : 'bg-[#EAEAEA] text-muted hover:text-ink'}`}
                   >
-                    <div>
-                      <div className="font-[900] text-[16px] leading-none mb-0.5 capitalize">{cat}</div>
-                      <div className="text-[11px] opacity-80 font-semibold">{count} misturinha{count !== 1 ? 's' : ''}</div>
-                    </div>
+                    <span className="capitalize">{cat}</span>
+                    <span className="block text-[10px] font-semibold opacity-60 mt-0.5">{count} ficha{count !== 1 ? 's' : ''}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Recipe stage */}
+            {/* Ficha da receita */}
             {current && (
               <div className="relative">
-                <div className="bg-gradient-to-br from-[#FAF5EC] to-orange-50 rounded-[28px] p-8 lg:px-20 lg:py-14 relative overflow-hidden min-h-[460px]">
-                  <div className="absolute -top-[120px] -right-[120px] w-[320px] h-[320px] rounded-full bg-orange opacity-[.07] pointer-events-none" />
-                  <div className="absolute -bottom-[80px] -left-[80px] w-[220px] h-[220px] rounded-full border-[10px] border-orange/10 pointer-events-none" />
+                <button onClick={prev} aria-label="Anterior"
+                  className="absolute top-1/2 -translate-y-1/2 -left-[19px] w-[42px] h-[42px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.14)] text-orange z-20 transition-all grid place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="left" /></button>
+                <button onClick={next} aria-label="Próxima"
+                  className="absolute top-1/2 -translate-y-1/2 -right-[19px] w-[42px] h-[42px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.14)] text-orange z-20 transition-all grid place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="right" /></button>
 
-                  <button onClick={prev} aria-label="Anterior"
-                    className="absolute top-1/2 -translate-y-1/2 left-2 lg:left-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange z-10 transition-all grid place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="left" /></button>
-                  <button onClick={next} aria-label="Próxima"
-                    className="absolute top-1/2 -translate-y-1/2 right-2 lg:right-6 w-[52px] h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange z-10 transition-all grid place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="right" /></button>
+                <div className="bg-[#FFFDF9] rounded-tr-[18px] rounded-b-[18px] shadow-[0_10px_36px_rgba(61,61,61,.1)] pl-8 pr-7 py-8 sm:pl-10 sm:pr-9 lg:pl-14 lg:pr-14 lg:py-12 relative overflow-hidden min-h-[440px]">
+                <div className="absolute left-0 top-0 bottom-0 w-[6px] bg-orange" />
 
-                  <div
-                    key={`${tab}-${idx}`}
-                    className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-[60px] items-center relative z-[1] animate-[m2FadeIn_.45s_ease]"
-                  >
-                    {/* Bottles */}
-                    <div className="flex justify-center items-start gap-3.5 flex-wrap">
+                <div className="flex items-baseline justify-between gap-4 border-b border-line pb-3.5 mb-7">
+                  <div className="font-display text-[11px] sm:text-[12px] font-[800] text-orange tracking-[.4px] whitespace-nowrap overflow-hidden text-ellipsis">
+                    FICHA <span className="text-[16px]">{String(idx + 1).padStart(2, '0')}</span>
+                    <span className="opacity-50 mx-1">/</span>
+                    {String(list.length).padStart(2, '0')}
+                    <span className="mx-2 opacity-30">·</span>
+                    <span className="capitalize">{tab}</span>
+                  </div>
+                  <div className="flex gap-1 flex-shrink-0">
+                    {list.map((_, i) => (
+                      <button
+                        key={i}
+                        aria-label={`Ir para ${i + 1}`}
+                        onClick={() => setIdx(i)}
+                        className={`h-[5px] rounded-full border-none transition-all p-0 cursor-pointer
+                          ${i === idx ? 'bg-orange w-4' : 'bg-line w-[5px] hover:bg-orange/40'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  key={`${tab}-${idx}`}
+                  className="grid grid-cols-1 lg:grid-cols-[1.05fr_1.4fr] gap-9 lg:gap-12 items-start relative z-[1] animate-[m2FadeIn_.45s_ease]"
+                >
+                  {/* Frascos sobre a régua de medidas */}
+                  <div className="relative pt-2">
+                    <div
+                      className="absolute left-4 right-4 top-[74px] h-px pointer-events-none"
+                      style={{ backgroundImage: 'repeating-linear-gradient(90deg,#D8D8D8 0 4px,transparent 4px 8px)' }}
+                    />
+                    <div className="flex justify-around items-start flex-wrap gap-x-2 gap-y-6 relative">
                       {(Array.isArray(current.ingredientes) ? current.ingredientes : []).map((ing, i) => {
                         const p = findP(ing.product_id);
                         return (
@@ -187,52 +210,35 @@ export default function MisturinhasPage() {
                             key={i}
                             onClick={() => p && navigate(`/produtos/${p.id}`)}
                             style={{ animationDelay: `${i * 80}ms` }}
-                            className="flex flex-col items-center cursor-pointer transition-transform w-[110px] animate-[m2BottleIn_.5s_ease_both] hover:-translate-y-1.5"
+                            className="flex flex-col items-center cursor-pointer transition-transform w-[84px] animate-[m2BottleIn_.5s_ease_both] hover:-translate-y-1.5"
                           >
-                            <div className="w-[110px] h-[150px] bg-white rounded-[14px] grid place-items-center shadow-[0_6px_18px_rgba(232,90,12,.12)] p-3 mb-2.5">
+                            <div className="w-[72px] h-[96px] bg-white rounded-[10px] grid place-items-center shadow-[0_4px_14px_rgba(0,0,0,.08)] p-2.5 mb-2">
                               {p?.image && <img src={p.image} alt={ing.nome} className="max-w-full max-h-full object-contain" />}
                             </div>
-                            <div className="bg-orange text-white text-[11px] font-[900] px-2.5 py-1 rounded-full mb-1.5 tracking-[.3px]">{ing.qty}</div>
-                            <div className="text-[12px] font-bold text-ink text-center leading-tight text-balance">{ing.nome}</div>
+                            <div className="text-[11px] font-[800] text-orange mb-1 tracking-[.2px]">{ing.qty}</div>
+                            <div className="text-[11.5px] font-bold text-ink text-center leading-tight text-balance">{ing.nome}</div>
                           </div>
                         );
                       })}
                     </div>
+                  </div>
 
-                    {/* Text */}
-                    <div>
-                      <div className="font-display text-[14px] font-bold text-orange mb-2.5 tracking-[1px]">
-                        <span>{String(idx + 1).padStart(2, '0')}</span>
-                        <span className="mx-1 opacity-50">/</span>
-                        <span>{String(list.length).padStart(2, '0')}</span>
-                      </div>
-                      <h2 className="font-display text-[30px] lg:text-[42px] font-[900] leading-[1.05] mb-7 text-ink tracking-[-.5px] text-balance">
-                        {current.titulo}
-                      </h2>
+                  {/* Texto */}
+                  <div>
+                    <h2 className="font-display text-[28px] lg:text-[38px] font-[900] leading-[1.05] mb-6 text-ink tracking-[-.5px] text-balance">
+                      {current.titulo}
+                    </h2>
 
-                      <div className="mb-6 pl-[18px] border-l-[3px] border-orange-light">
-                        <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-1.5">COMO APLICAR</div>
-                        <p className="text-[15px] leading-[1.6] text-ink-light m-0">{current.aplicacao}</p>
-                      </div>
+                    <div className="mb-5">
+                      <div className="text-[10.5px] tracking-[1.5px] font-[800] text-[#B45A18] mb-1.5">MODO DE PREPARO</div>
+                      <p className="text-[15px] leading-[1.6] text-ink-light m-0">{current.aplicacao}</p>
+                    </div>
 
-                      <div className="bg-white p-4 rounded-[14px] shadow-[0_4px_14px_rgba(232,90,12,.08)]">
-                        <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-1.5">O RESULTADO</div>
-                        <p className="text-[14.5px] leading-[1.5] text-ink m-0 font-semibold">{current.resultado}</p>
-                      </div>
+                    <div className="bg-orange-50 rounded-[10px] px-4 py-3.5">
+                      <p className="text-[14px] leading-[1.5] text-ink m-0 font-[800]">{current.resultado}</p>
                     </div>
                   </div>
                 </div>
-
-                <div className="flex justify-center gap-2 mt-6">
-                  {list.map((_, i) => (
-                    <button
-                      key={i}
-                      aria-label={`Ir para ${i + 1}`}
-                      onClick={() => setIdx(i)}
-                      className={`h-2.5 rounded-full border-none transition-all p-0 cursor-pointer
-                        ${i === idx ? 'bg-orange w-8 rounded-[6px]' : 'bg-orange/25 w-2.5 hover:bg-orange/50'}`}
-                    />
-                  ))}
                 </div>
               </div>
             )}
@@ -246,22 +252,25 @@ export default function MisturinhasPage() {
           <h2 className="font-display text-[38px] font-[900] tracking-[-.5px] m-0 mb-2">12 óleos. Uma rotina.</h2>
           <p className="text-[15px] text-ink-light m-0">Conheça rapidamente para que serve cada óleo da linha Sobral.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {GUIA_OLEOS.map(o => {
+        <div className="bg-[#FFFDF9] rounded-[14px] overflow-hidden shadow-[0_4px_20px_rgba(61,61,61,.06)]">
+          {GUIA_OLEOS.map((o, i) => {
             const p = findP(o.id);
             return (
               <div
                 key={o.id}
                 onClick={() => p && navigate(`/produtos/${p.id}`)}
-                className="bg-white rounded-[12px] p-3.5 flex items-center gap-3 border border-line cursor-pointer transition-all hover:border-orange hover:translate-x-0.5 hover:shadow-[0_4px_12px_rgba(243,112,33,.1)]"
+                className={`grid grid-cols-[28px_48px_1fr] sm:grid-cols-[36px_56px_1fr_auto] items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 cursor-pointer transition-colors border-b border-[#EFEFEF] last:border-b-0 hover:bg-orange-50
+                  ${i % 2 === 1 ? 'bg-[#FCFAF6]' : ''}`}
               >
-                <div className="w-[52px] h-[68px] bg-orange-50 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center p-1.5">
+                <div className="font-display text-[11px] font-[800] text-[#D8A876]">{String(i + 1).padStart(2, '0')}</div>
+                <div className="w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] bg-orange-50 rounded-lg overflow-hidden flex items-center justify-center p-1.5 flex-shrink-0">
                   {p?.image && <img src={p.image} alt={o.nome} className="w-full h-full object-contain" />}
                 </div>
-                <div>
-                  <div className="font-[800] text-[14px] text-ink mb-0.5">{o.nome}</div>
-                  <div className="text-[11.5px] text-ink-light leading-tight">{o.tag}</div>
+                <div className="min-w-0">
+                  <div className="font-[800] text-[13.5px] text-ink truncate">{o.nome}</div>
+                  <div className="text-[11.5px] text-ink-light leading-tight truncate sm:hidden">{o.tag}</div>
                 </div>
+                <div className="hidden sm:block text-[12.5px] text-ink-light text-right whitespace-nowrap">{o.tag}</div>
               </div>
             );
           })}
