@@ -179,7 +179,7 @@ export default function MisturinhasPage() {
                     className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-[60px] items-center relative z-[1] animate-[m2FadeIn_.45s_ease]"
                   >
                     {/* Bottles */}
-                    <div className="flex justify-center items-end gap-3.5 flex-wrap">
+                    <div className="flex justify-center items-start gap-3.5 flex-wrap">
                       {(Array.isArray(current.ingredientes) ? current.ingredientes : []).map((ing, i) => {
                         const p = findP(ing.product_id);
                         return (
