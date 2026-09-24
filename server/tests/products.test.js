@@ -47,6 +47,13 @@ describe('GET /api/products', () => {
     expect(res.body.data.every(p => p.category_id === CAT_ID)).toBe(true);
   });
 
+  it('aceita random=true sem quebrar a paginação', async () => {
+    const res = await request(app).get('/api/products?random=true&per_page=5');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBeLessThanOrEqual(5);
+  });
+
   it('não retorna produtos inativos', async () => {
     await pool.query('UPDATE products SET ativo = false WHERE id = $1', [PROD_ID]);
     try {

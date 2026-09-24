@@ -5,7 +5,7 @@ export default function ProductCarousel() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch('/api/products?destaque=true&per_page=50')
+    fetch('/api/products?random=true&per_page=8')
       .then(r => r.json())
       .then(json => setProducts(json.data || []))
       .catch(() => {});

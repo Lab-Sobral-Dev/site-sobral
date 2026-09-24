@@ -32,6 +32,7 @@ router.get('/', async (req, res) => {
     if (req.query.destaque === 'true') {
       where.push('destaque = TRUE');
     }
+    const random = req.query.random === 'true';
 
     const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
 
@@ -47,7 +48,7 @@ router.get('/', async (req, res) => {
               caracteristicas, apresentacao, modo_uso, precaucoes,
               ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video
        FROM products ${whereClause}
-       ORDER BY name ASC
+       ORDER BY ${random ? 'RANDOM()' : 'name ASC'}
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params
     );
