@@ -174,8 +174,7 @@ export default function Header() {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="h-[6px] bg-gradient-to-r from-[#FFB46B] via-orange to-[#FFB46B]" />
 
-        <div className="max-w-content mx-auto px-4 md:px-10 py-[14px]">
-        <div className="flex items-center gap-4 lg:gap-6">
+        <div className="flex items-center gap-4 lg:gap-6 max-w-content mx-auto px-4 md:px-10 py-[14px]">
           {/* Logo */}
           <div
             className="w-16 h-16 lg:w-[92px] lg:h-[92px] rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
@@ -188,6 +187,19 @@ export default function Header() {
           >
             <img src="/images/logo.png" alt="Laboratório Sobral" width={92} height={92} className="w-full h-full object-cover rounded-full" />
           </div>
+
+          {/* Busca — mobile, ao lado da logo */}
+          <SearchBar
+            className="lg:hidden flex-1 min-w-0"
+            query={query}
+            setQuery={setQuery}
+            suggestions={suggestions}
+            showSuggestions={showSuggestions}
+            setShowSuggestions={setShowSuggestions}
+            onKeyDown={handleSearch}
+            onPick={pickSuggestion}
+            onViewAll={viewAllResults}
+          />
 
           {/* Nav — desktop */}
           <nav className="hidden lg:flex items-center gap-10 xl:gap-14 flex-1 justify-center">
@@ -259,20 +271,6 @@ export default function Header() {
           >
             <HamburgerIcon />
           </button>
-        </div>
-
-        {/* Busca — mobile, fora do menu escondido */}
-        <SearchBar
-          className="lg:hidden mt-3"
-          query={query}
-          setQuery={setQuery}
-          suggestions={suggestions}
-          showSuggestions={showSuggestions}
-          setShowSuggestions={setShowSuggestions}
-          onKeyDown={handleSearch}
-          onPick={pickSuggestion}
-          onViewAll={viewAllResults}
-        />
         </div>
       </header>
 
