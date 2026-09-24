@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import Breadcrumb from '../components/Breadcrumb';
-import ProductCard from '../components/ProductCard';
+import ProductCardCarousel from '../components/ProductCardCarousel';
 
 const safe = (html) => html ? parse(DOMPurify.sanitize(html)) : '—';
 const stripTags = (html) => (html || '').replace(/<[^>]*>/g, '');
@@ -231,15 +231,7 @@ export default function ProdutoPage() {
           <h2 className="font-display text-[24px] md:text-[30px] font-[900] tracking-[-.3px] mb-7">
             Outros Produtos
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-[18px]">
-            {related.map(prod => (
-              <ProductCard
-                key={prod.id}
-                product={prod}
-                onClick={() => navigate(`/produtos/${prod.id}`)}
-              />
-            ))}
-          </div>
+          <ProductCardCarousel products={related} />
         </section>
       )}
     </>
