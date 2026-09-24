@@ -2,7 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 
-const CARDS_PER_PAGE = 4;
+// Mesmo corte do grid (grid-cols-2 md:grid-cols-4): sem isto, com poucos
+// produtos em destaque a página cabe inteira numa linha em telas maiores e
+// o carrossel "some" (sem setas/pontos) só no mobile, onde o grid-cols-2
+// ainda empacota tudo num bloco 2×2 estático.
+const MOBILE_QUERY = '(max-width: 767px)';
 
 function ChevronIcon({ dir = 'left' }) {
   return (
@@ -18,6 +22,7 @@ export default function ProductCarousel() {
   const [products, setProducts] = useState([]);
   const [pageIdx, setPageIdx] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia(MOBILE_QUERY).matches);
 
   useEffect(() => {
     fetch('/api/products?destaque=true&per_page=50')
@@ -26,7 +31,21 @@ export default function ProductCarousel() {
       .catch(() => {});
   }, []);
 
-  const totalPages = Math.ceil(products.length / CARDS_PER_PAGE);
+  useEffect(() => {
+    const mql = window.matchMedia(MOBILE_QUERY);
+    const onChange = () => setIsMobile(mql.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+
+  const cardsPerPage = isMobile ? 2 : 4;
+  const totalPages = Math.ceil(products.length / cardsPerPage);
+
+  // Muda o corte (resize entre mobile/desktop): garante que a página atual
+  // continue existindo no novo total.
+  useEffect(() => {
+    setPageIdx(i => Math.min(i, Math.max(0, totalPages - 1)));
+  }, [totalPages]);
 
   const next = useCallback(() => setPageIdx(i => (i + 1) % totalPages), [totalPages]);
   const prev = useCallback(() => setPageIdx(i => (i - 1 + totalPages) % totalPages), [totalPages]);
@@ -40,7 +59,7 @@ export default function ProductCarousel() {
 
   if (!products.length) return null;
 
-  const visible = products.slice(pageIdx * CARDS_PER_PAGE, (pageIdx + 1) * CARDS_PER_PAGE);
+  const visible = products.slice(pageIdx * cardsPerPage, (pageIdx + 1) * cardsPerPage);
   const showControls = totalPages > 1;
 
   return (
