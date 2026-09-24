@@ -29,38 +29,25 @@ function SearchIcon() {
   );
 }
 
-const NAV_SECTIONS = [
-  {
-    id: 'sobral',
-    label: 'O Sobral',
-    items: [
-      { label: 'Quem Somos',                        to: '/quem-somos' },
-      { label: 'Privacidade e Proteção de Dados',   to: '/privacidade' },
-      { label: 'Medicamentos Sobral',               to: '/medicamentos' },
-      { label: 'Trabalhe Conosco',                  to: '/fale-conosco' },
-    ],
-  },
-  {
-    id: 'produtos',
-    label: 'Produtos',
-    items: [
-      { label: 'Todos os produtos',         to: '/produtos' },
-      { label: 'Tradicionais',              to: '/produtos?cat=tradicionais' },
-      { label: 'Calciolax',                 to: '/produtos?cat=calciolax' },
-      { label: 'Movimex',                   to: '/produtos?cat=movimex' },
-      { label: 'Óleos',                     to: '/produtos?cat=oleos' },
-      { label: 'Dicas de Misturinhas',      to: '/misturinhas' },
-    ],
-  },
-  {
-    id: 'contato',
-    label: 'Fale Conosco',
-    items: [
-      { label: 'Fale Conosco', to: '/fale-conosco' },
-      { label: 'Relatório de Transparência Salarial', to: 'https://drive.google.com/file/d/1JWe_OkLG8Ro6jCGAaRdOBIsynoj3Rped/view', external: true },
-    ],
-  },
-];
+const SOBRAL_SECTION = {
+  id: 'sobral',
+  label: 'O Sobral',
+  items: [
+    { label: 'Quem Somos',                        to: '/quem-somos' },
+    { label: 'Privacidade e Proteção de Dados',   to: '/privacidade' },
+    { label: 'Medicamentos Sobral',               to: '/medicamentos' },
+    { label: 'Trabalhe Conosco',                  to: '/fale-conosco' },
+  ],
+};
+
+const CONTATO_SECTION = {
+  id: 'contato',
+  label: 'Fale Conosco',
+  items: [
+    { label: 'Fale Conosco', to: '/fale-conosco' },
+    { label: 'Relatório de Transparência Salarial', to: 'https://drive.google.com/file/d/1JWe_OkLG8Ro6jCGAaRdOBIsynoj3Rped/view', external: true },
+  ],
+};
 
 export default function MobileDrawer({ open, onClose }) {
   const navigate = useNavigate();
@@ -68,6 +55,28 @@ export default function MobileDrawer({ open, onClose }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(data => setCategories(Array.isArray(data) ? data.filter(c => c.id !== 'all') : []))
+      .catch(() => {});
+  }, []);
+
+  const navSections = [
+    SOBRAL_SECTION,
+    {
+      id: 'produtos',
+      label: 'Produtos',
+      items: [
+        { label: 'Todos os produtos', to: '/produtos' },
+        ...categories.map(c => ({ label: c.label, to: `/produtos?cat=${c.id}` })),
+        { label: 'Dicas de Misturinhas', to: '/misturinhas' },
+      ],
+    },
+    CONTATO_SECTION,
+  ];
 
   useEffect(() => {
     if (open) {
@@ -194,7 +203,7 @@ export default function MobileDrawer({ open, onClose }) {
             </button>
           </div>
 
-          {NAV_SECTIONS.map((section) => {
+          {navSections.map((section) => {
             const isOpen = expanded === section.id;
             return (
               <div key={section.id} className="border-b border-line">

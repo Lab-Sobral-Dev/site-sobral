@@ -60,8 +60,16 @@ export default function Header() {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [categories, setCategories] = useState([]);
   const searchRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(data => setCategories(Array.isArray(data) ? data.filter(c => c.id !== 'all') : []))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const onClick = (e) => {
@@ -144,11 +152,8 @@ export default function Header() {
               id="produtos" label="Produtos" open={openDropdown === 'produtos'}
               onToggle={setOpenDropdown} onNavigate={navigate}
               items={[
-                { label: 'Todos os produtos',    to: '/produtos' },
-                { label: 'Tradicionais',         to: '/produtos?cat=tradicionais' },
-                { label: 'Calciolax',            to: '/produtos?cat=calciolax' },
-                { label: 'Movimex',              to: '/produtos?cat=movimex' },
-                { label: 'Óleos',                to: '/produtos?cat=oleos' },
+                { label: 'Todos os produtos', to: '/produtos' },
+                ...categories.map(c => ({ label: c.label, to: `/produtos?cat=${c.id}` })),
                 { label: 'Dicas de Misturinhas', to: '/misturinhas' },
               ]}
             />
