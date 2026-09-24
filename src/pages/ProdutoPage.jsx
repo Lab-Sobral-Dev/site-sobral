@@ -48,11 +48,11 @@ export default function ProdutoPage() {
   }, [id]);
 
   useEffect(() => {
-    fetch('/api/products?per_page=5')
+    fetch('/api/products?random=true&per_page=9')
       .then(r => r.json())
       .then(json => {
         if (Array.isArray(json.data)) {
-          setRelated(json.data.filter(p => p.id !== id).slice(0, 4));
+          setRelated(json.data.filter(p => p.id !== id).slice(0, 8));
         }
       })
       .catch(() => {});
