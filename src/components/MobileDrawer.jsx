@@ -20,15 +20,6 @@ function CloseIcon() {
   );
 }
 
-function SearchIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-      <circle cx="11" cy="11" r="7"/>
-      <line x1="21" y1="21" x2="16.5" y2="16.5"/>
-    </svg>
-  );
-}
-
 const SOBRAL_SECTION = {
   id: 'sobral',
   label: 'O Sobral',
@@ -52,9 +43,6 @@ const CONTATO_SECTION = {
 export default function MobileDrawer({ open, onClose }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(null);
-  const [query, setQuery] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -84,24 +72,9 @@ export default function MobileDrawer({ open, onClose }) {
     } else {
       document.body.style.overflow = '';
       setExpanded(null);
-      setSuggestions([]);
-      setShowSuggestions(false);
     }
     return () => { document.body.style.overflow = ''; };
   }, [open]);
-
-  useEffect(() => {
-    if (query.length < 2) { setSuggestions([]); return; }
-    const t = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/products?q=${encodeURIComponent(query)}&per_page=5`);
-        const json = await res.json();
-        setSuggestions(Array.isArray(json.data) ? json.data : []);
-        setShowSuggestions(true);
-      } catch { setSuggestions([]); }
-    }, 250);
-    return () => clearTimeout(t);
-  }, [query]);
 
   useEffect(() => {
     if (!open) return;
@@ -113,19 +86,6 @@ export default function MobileDrawer({ open, onClose }) {
   const go = (to) => {
     navigate(to);
     onClose();
-    setQuery('');
-    setSuggestions([]);
-    setShowSuggestions(false);
-  };
-
-  const onSearchKey = (e) => {
-    if (e.key === 'Enter' && query.trim()) {
-      navigate(`/produtos?q=${encodeURIComponent(query.trim())}`);
-      onClose();
-      setQuery('');
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
   };
 
   return (
@@ -150,47 +110,6 @@ export default function MobileDrawer({ open, onClose }) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
-          <div className="relative mb-4">
-            <span className="absolute left-[14px] top-[13px] text-muted pointer-events-none">
-              <SearchIcon />
-            </span>
-            <input
-              type="text"
-              aria-label="Pesquisar produto"
-              placeholder="Pesquisar produto"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={onSearchKey}
-              className="w-full py-2.5 pl-[38px] pr-4 rounded-full border border-line bg-white text-[14px] text-ink outline-none focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)] placeholder:text-muted"
-            />
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-line rounded-[14px] shadow-[0_8px_24px_rgba(0,0,0,.12)] z-10 overflow-hidden">
-                {suggestions.map(prod => (
-                  <div
-                    key={prod.id}
-                    className="flex items-center gap-3 px-3 py-2.5 hover:bg-orange-50 active:bg-orange-100 cursor-pointer transition-colors"
-                    onClick={() => go(`/produtos/${prod.id}`)}
-                  >
-                    {prod.image
-                      ? <img src={prod.image} alt="" className="w-8 h-8 object-contain flex-shrink-0 rounded" />
-                      : <div className="w-8 h-8 bg-[#f5f5f5] rounded flex-shrink-0" />
-                    }
-                    <div className="min-w-0">
-                      <div className="text-[13px] font-semibold text-ink truncate">{prod.name}</div>
-                      {prod.brand && <div className="text-[11px] text-muted">{prod.brand}</div>}
-                    </div>
-                  </div>
-                ))}
-                <div
-                  className="px-3 py-2 text-[12px] text-orange font-[700] hover:bg-orange-50 cursor-pointer border-t border-line"
-                  onClick={() => go(`/produtos?q=${encodeURIComponent(query.trim())}`)}
-                >
-                  Ver todos os resultados
-                </div>
-              </div>
-            )}
-          </div>
-
           <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-2">MENU</div>
 
           <div className="border-b border-line">

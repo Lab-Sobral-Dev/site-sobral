@@ -11,6 +11,60 @@ function SearchIcon() {
   );
 }
 
+function SearchBar({ query, setQuery, suggestions, showSuggestions, setShowSuggestions, onKeyDown, onPick, onViewAll, className = '' }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setShowSuggestions(false); };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [setShowSuggestions]);
+
+  return (
+    <div ref={ref} className={`relative ${className}`}>
+      <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none">
+        <SearchIcon />
+      </span>
+      <input
+        type="text"
+        aria-label="Pesquisar produto"
+        placeholder="Pesquisar produto"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={onKeyDown}
+        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+        className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] text-ink outline-none transition-[border-color,box-shadow] focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)] placeholder:text-muted"
+      />
+      {showSuggestions && suggestions.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-line rounded-[14px] shadow-[0_8px_24px_rgba(0,0,0,.12)] z-50 overflow-hidden">
+          {suggestions.map(prod => (
+            <div
+              key={prod.id}
+              className="flex items-center gap-3 px-3 py-2 hover:bg-orange-50 cursor-pointer transition-colors"
+              onMouseDown={(e) => { e.preventDefault(); onPick(prod.id); }}
+            >
+              {prod.image
+                ? <img src={prod.image} alt="" className="w-8 h-8 object-contain flex-shrink-0 rounded" />
+                : <div className="w-8 h-8 bg-[#f5f5f5] rounded flex-shrink-0" />
+              }
+              <div className="min-w-0">
+                <div className="text-[13px] font-semibold text-ink truncate">{prod.name}</div>
+                {prod.brand && <div className="text-[11px] text-muted">{prod.brand}</div>}
+              </div>
+            </div>
+          ))}
+          <div
+            className="px-3 py-2 text-[12px] text-orange font-[700] hover:bg-orange-50 cursor-pointer border-t border-line"
+            onMouseDown={(e) => { e.preventDefault(); onViewAll(); }}
+          >
+            Ver todos os resultados para "{query}"
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function NavDropdown({ id, label, items, open, onToggle, onNavigate }) {
   return (
     <div className={`nav-item relative ${open ? 'open' : ''}`}>
@@ -61,7 +115,6 @@ export default function Header() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [categories, setCategories] = useState([]);
-  const searchRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,7 +127,6 @@ export default function Header() {
   useEffect(() => {
     const onClick = (e) => {
       if (!e.target.closest('.nav-item')) setOpenDropdown(null);
-      if (searchRef.current && !searchRef.current.contains(e.target)) setShowSuggestions(false);
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
@@ -110,12 +162,20 @@ export default function Header() {
     setShowSuggestions(false);
   };
 
+  const viewAllResults = () => {
+    navigate(`/produtos?q=${encodeURIComponent(query.trim())}`);
+    setQuery('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
   return (
     <>
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="h-[6px] bg-gradient-to-r from-[#FFB46B] via-orange to-[#FFB46B]" />
 
-        <div className="flex items-center gap-4 lg:gap-6 max-w-content mx-auto px-4 md:px-10 py-[14px]">
+        <div className="max-w-content mx-auto px-4 md:px-10 py-[14px]">
+        <div className="flex items-center gap-4 lg:gap-6">
           {/* Logo */}
           <div
             className="w-16 h-16 lg:w-[92px] lg:h-[92px] rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
@@ -179,47 +239,17 @@ export default function Header() {
           </nav>
 
           {/* Busca — desktop */}
-          <div ref={searchRef} className="hidden lg:block relative w-[240px] flex-shrink-0">
-            <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none">
-              <SearchIcon />
-            </span>
-            <input
-              type="text"
-              aria-label="Pesquisar produto"
-              placeholder="Pesquisar produto"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleSearch}
-              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-              className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] text-ink outline-none transition-[border-color,box-shadow] focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)] placeholder:text-muted"
-            />
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-line rounded-[14px] shadow-[0_8px_24px_rgba(0,0,0,.12)] z-50 overflow-hidden">
-                {suggestions.map(prod => (
-                  <div
-                    key={prod.id}
-                    className="flex items-center gap-3 px-3 py-2 hover:bg-orange-50 cursor-pointer transition-colors"
-                    onMouseDown={(e) => { e.preventDefault(); pickSuggestion(prod.id); }}
-                  >
-                    {prod.image
-                      ? <img src={prod.image} alt="" className="w-8 h-8 object-contain flex-shrink-0 rounded" />
-                      : <div className="w-8 h-8 bg-[#f5f5f5] rounded flex-shrink-0" />
-                    }
-                    <div className="min-w-0">
-                      <div className="text-[13px] font-semibold text-ink truncate">{prod.name}</div>
-                      {prod.brand && <div className="text-[11px] text-muted">{prod.brand}</div>}
-                    </div>
-                  </div>
-                ))}
-                <div
-                  className="px-3 py-2 text-[12px] text-orange font-[700] hover:bg-orange-50 cursor-pointer border-t border-line"
-                  onMouseDown={(e) => { e.preventDefault(); navigate(`/produtos?q=${encodeURIComponent(query.trim())}`); setQuery(''); setSuggestions([]); setShowSuggestions(false); }}
-                >
-                  Ver todos os resultados para "{query}"
-                </div>
-              </div>
-            )}
-          </div>
+          <SearchBar
+            className="hidden lg:block w-[240px] flex-shrink-0"
+            query={query}
+            setQuery={setQuery}
+            suggestions={suggestions}
+            showSuggestions={showSuggestions}
+            setShowSuggestions={setShowSuggestions}
+            onKeyDown={handleSearch}
+            onPick={pickSuggestion}
+            onViewAll={viewAllResults}
+          />
 
           {/* Hambúrguer — mobile */}
           <button
@@ -229,6 +259,20 @@ export default function Header() {
           >
             <HamburgerIcon />
           </button>
+        </div>
+
+        {/* Busca — mobile, fora do menu escondido */}
+        <SearchBar
+          className="lg:hidden mt-3"
+          query={query}
+          setQuery={setQuery}
+          suggestions={suggestions}
+          showSuggestions={showSuggestions}
+          setShowSuggestions={setShowSuggestions}
+          onKeyDown={handleSearch}
+          onPick={pickSuggestion}
+          onViewAll={viewAllResults}
+        />
         </div>
       </header>
 
