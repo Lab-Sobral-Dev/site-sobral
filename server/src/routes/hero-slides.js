@@ -6,7 +6,7 @@ const router = Router();
 router.get('/', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      'SELECT id, image_url, ordem, layers FROM hero_slides WHERE ativo = true ORDER BY ordem ASC, id ASC'
+      'SELECT id, image_url, image_mobile_url, ordem, layers FROM hero_slides WHERE ativo = true ORDER BY ordem ASC, id ASC'
     );
     const out = rows.map(r => ({ ...r, layers: normalizeLayers(r.layers, r.image_url) }));
     res.json(out);

@@ -35,15 +35,16 @@ function resolverCaminho(url) {
 async function estaEmUso(url) {
   const { rows } = await pool.query(
     `SELECT
-       EXISTS(SELECT 1 FROM products     WHERE image = $1)           AS p_img,
-       EXISTS(SELECT 1 FROM products     WHERE gallery @> $2::jsonb) AS p_gal,
-       EXISTS(SELECT 1 FROM hero_slides  WHERE image_url = $1)       AS h_img,
-       EXISTS(SELECT 1 FROM hero_slides  WHERE layers::text LIKE $3) AS h_lay,
-       EXISTS(SELECT 1 FROM page_content WHERE value LIKE $3)        AS c_val`,
+       EXISTS(SELECT 1 FROM products     WHERE image = $1)             AS p_img,
+       EXISTS(SELECT 1 FROM products     WHERE gallery @> $2::jsonb)   AS p_gal,
+       EXISTS(SELECT 1 FROM hero_slides  WHERE image_url = $1)         AS h_img,
+       EXISTS(SELECT 1 FROM hero_slides  WHERE image_mobile_url = $1)  AS h_mob,
+       EXISTS(SELECT 1 FROM hero_slides  WHERE layers::text LIKE $3)   AS h_lay,
+       EXISTS(SELECT 1 FROM page_content WHERE value LIKE $3)          AS c_val`,
     [url, JSON.stringify([url]), `%${url}%`]
   );
   const r = rows[0];
-  return r.p_img || r.p_gal || r.h_img || r.h_lay || r.c_val;
+  return r.p_img || r.p_gal || r.h_img || r.h_mob || r.h_lay || r.c_val;
 }
 
 // Apaga o arquivo SÓ se nada mais o referenciar. Nunca lança: perder a

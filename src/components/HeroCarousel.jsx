@@ -54,16 +54,29 @@ function Layer({ layer }) {
   return null;
 }
 
+// Mesmo corte usado pelo editor de camadas (AdminSlideBuilderPage): abaixo
+// disso o editor pixel-perfect não funciona, então é aqui que a imagem
+// mobile (quando cadastrada) substitui a composição de camadas.
+const MOBILE_QUERY = '(max-width: 1023px)';
+
 export default function HeroCarousel() {
   const [slides,     setSlides]     = useState([]);
   const [idx,        setIdx]        = useState(0);
   const [animKey,    setAnimKey]    = useState(0);
   const [paused,     setPaused]     = useState(false);
   const [transition, setTransition] = useState('fade');
+  const [isMobile,   setIsMobile]   = useState(() => window.matchMedia(MOBILE_QUERY).matches);
 
   useEffect(() => {
     fetch('/api/hero-slides').then(r => r.json()).then(setSlides).catch(() => {});
     fetch('/api/content/carousel').then(r => r.json()).then(d => setTransition(d.transition ?? 'fade')).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const mql = window.matchMedia(MOBILE_QUERY);
+    const onChange = () => setIsMobile(mql.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
   }, []);
 
   const goTo = useCallback((i) => {
@@ -82,21 +95,29 @@ export default function HeroCarousel() {
 
   const slide = slides[idx] ?? null;
   const layers = slide && Array.isArray(slide.layers) ? slide.layers : [];
+  const showMobileImage = isMobile && !!slide?.image_mobile_url;
 
   return (
     <section
-      className="w-full bg-bg relative overflow-hidden aspect-[1920/600]"
+      className={`w-full bg-bg relative overflow-hidden ${showMobileImage ? '' : 'aspect-[1920/600]'}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {slide && (
+      {slide && (showMobileImage ? (
+        <img
+          key={`m-${idx}`}
+          src={slide.image_mobile_url}
+          alt=""
+          className="w-full h-auto block"
+        />
+      ) : (
         <div
           key={`${idx}-${animKey}`}
           className={`absolute inset-0 slide-enter-${transition}`}
         >
           {layers.map(layer => <Layer key={layer.id} layer={layer} />)}
         </div>
-      )}
+      ))}
 
       {slides.length > 1 && (
         <>

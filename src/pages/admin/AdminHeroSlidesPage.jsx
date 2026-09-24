@@ -7,7 +7,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
-function SortableSlide({ slide, onToggle, onDelete, onEdit }) {
+function SortableSlide({ slide, onToggle, onDelete, onEdit, onMobileUpload, onMobileRemove, mobileUploading }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: slide.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -27,6 +27,33 @@ function SortableSlide({ slide, onToggle, onDelete, onEdit }) {
       ) : (
         <div className="w-14 h-10 rounded border border-line flex-shrink-0 bg-gray-100" />
       )}
+
+      <div className="flex flex-col items-center gap-1 flex-shrink-0">
+        <label className={`relative cursor-pointer group ${mobileUploading ? 'opacity-60 pointer-events-none' : ''}`} title="Imagem mobile">
+          {slide.image_mobile_url ? (
+            <img src={slide.image_mobile_url} alt="" className="w-7 h-10 object-cover rounded border border-line" />
+          ) : (
+            <div className="w-7 h-10 rounded border border-dashed border-line flex items-center justify-center text-[13px] text-muted group-hover:border-orange group-hover:text-orange">+</div>
+          )}
+          <input
+            type="file"
+            accept=".jpg,.jpeg,.png,.webp,.svg"
+            className="hidden"
+            onChange={e => { if (e.target.files[0]) { onMobileUpload(slide.id, e.target.files[0]); e.target.value = ''; } }}
+          />
+        </label>
+        <div className="flex items-center gap-1">
+          <span className="text-[9px] text-muted font-[600] leading-none">
+            {mobileUploading ? 'enviando' : 'mobile'}
+          </span>
+          {slide.image_mobile_url && !mobileUploading && (
+            <button type="button" onClick={() => onMobileRemove(slide.id)} className="text-[9px] text-red-400 hover:underline leading-none">
+              remover
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="flex-1 min-w-0 text-[13px] text-ink font-[600] truncate basis-full md:basis-auto order-1 md:order-none">
         Slide #{slide.id} · {layerCount} {layerCount === 1 ? 'camada' : 'camadas'}
       </div>
@@ -61,6 +88,7 @@ export default function AdminHeroSlidesPage() {
   const [uploading,    setUploading]    = useState(false);
   const [psdUploading, setPsdUploading] = useState(false);
   const [confirm,      setConfirm]      = useState(null);
+  const [mobileUploadingId, setMobileUploadingId] = useState(null);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -156,6 +184,43 @@ export default function AdminHeroSlidesPage() {
     }
   };
 
+  const handleMobileUpload = async (id, file) => {
+    setMobileUploadingId(id);
+    const fd = new FormData();
+    fd.append('image', file);
+    try {
+      const res = await request('/api/upload?type=hero', { method: 'POST', body: fd });
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      const upd = await request(`/api/admin/hero-slides/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ image_mobile_url: data.url }),
+      });
+      if (!upd || !upd.ok) throw new Error('Falha ao salvar imagem mobile.');
+      toast.success('Imagem mobile atualizada');
+      fetchSlides();
+    } catch (err) {
+      toast.error(`Erro ao enviar imagem mobile: ${err.message}`);
+    } finally {
+      setMobileUploadingId(null);
+    }
+  };
+
+  const handleMobileRemove = async (id) => {
+    const res = await request(`/api/admin/hero-slides/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ image_mobile_url: null }),
+    });
+    if (!res) return;
+    if (res.ok) {
+      toast.success('Imagem mobile removida');
+      fetchSlides();
+    } else {
+      toast.error('Erro ao remover imagem mobile.');
+    }
+  };
+
   const handlePsdUpload = async (file) => {
     setPsdUploading(true);
     const fd = new FormData();
@@ -196,7 +261,7 @@ export default function AdminHeroSlidesPage() {
           </label>
         </div>
       </div>
-      <p className="text-[13px] text-muted mb-6">Arraste para reordenar. Clique em "Editar" para abrir o builder.</p>
+      <p className="text-[13px] text-muted mb-6">Arraste para reordenar. Clique em "Editar" para abrir o builder. A miniatura "mobile" define a imagem exibida em telas pequenas — se vazia, o site encolhe a versão desktop.</p>
 
       {loading ? (
         <div className="py-10 text-center text-muted text-[14px]">Carregando...</div>
@@ -213,6 +278,9 @@ export default function AdminHeroSlidesPage() {
                   onToggle={handleToggle}
                   onDelete={id => setConfirm({ id })}
                   onEdit={id => navigate(`/admin/hero-slides/${id}/editar`)}
+                  onMobileUpload={handleMobileUpload}
+                  onMobileRemove={handleMobileRemove}
+                  mobileUploading={mobileUploadingId === slide.id}
                 />
               ))}
             </div>

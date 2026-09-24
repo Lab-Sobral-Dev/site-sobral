@@ -24,7 +24,7 @@ router.param('id', (req, res, next, val) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT id, image_url, ordem, ativo, created_at, layers FROM hero_slides ORDER BY ordem ASC, id ASC');
+    const { rows } = await pool.query('SELECT id, image_url, image_mobile_url, ordem, ativo, created_at, layers FROM hero_slides ORDER BY ordem ASC, id ASC');
     const out = rows.map(r => ({ ...r, layers: normalizeLayers(r.layers, r.image_url) }));
     res.json(out);
   } catch (err) {
@@ -84,28 +84,40 @@ router.put('/reorder', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  const { layers } = req.body;
-  if (!Array.isArray(layers)) return res.status(400).json({ error: 'layers deve ser array.' });
+  const { layers, image_mobile_url } = req.body;
+  const hasLayers = layers !== undefined;
+  const hasMobile = image_mobile_url !== undefined;
+  if (!hasLayers && !hasMobile) return res.status(400).json({ error: 'Nada para atualizar.' });
+  if (hasLayers && !Array.isArray(layers)) return res.status(400).json({ error: 'layers deve ser array.' });
+  if (hasMobile && image_mobile_url !== null && typeof image_mobile_url !== 'string') {
+    return res.status(400).json({ error: 'image_mobile_url deve ser texto ou null.' });
+  }
   try {
     const anterior = await pool.query('SELECT * FROM hero_slides WHERE id = $1', [req.slideId]);
+    if (!anterior.rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
+
+    const sets = [];
+    const vals = [];
+    let i = 1;
+    if (hasLayers) { sets.push(`layers = $${i++}`); vals.push(JSON.stringify(layers)); }
+    if (hasMobile) { sets.push(`image_mobile_url = $${i++}`); vals.push(image_mobile_url || null); }
+    vals.push(req.slideId);
+
     const { rows } = await pool.query(
-      'UPDATE hero_slides SET layers = $1 WHERE id = $2 RETURNING *',
-      [JSON.stringify(layers), req.slideId]
+      `UPDATE hero_slides SET ${sets.join(', ')} WHERE id = $${i} RETURNING *`,
+      vals
     );
-    if (!rows.length) return res.status(404).json({ error: 'Slide não encontrado.' });
     await registrar(req, {
       acao: 'update', entidade: 'hero_slide', entidade_id: String(req.slideId),
-      valor_anterior: anterior.rows[0] ?? null, valor_novo: rows[0],
+      valor_anterior: anterior.rows[0], valor_novo: rows[0],
     });
 
     // Depois do UPDATE confirmado: consultar antes veria a própria linha
     // antiga como referência e nunca apagaria nada.
     const antes = anterior.rows[0];
-    if (antes) {
-      const antigas = [antes.image_url, ...urlsDasCamadas(antes.layers)];
-      const atuais  = new Set([rows[0].image_url, ...urlsDasCamadas(rows[0].layers)]);
-      await removerVarias(req, antigas.filter(u => u && !atuais.has(u)));
-    }
+    const antigas = [antes.image_url, antes.image_mobile_url, ...urlsDasCamadas(antes.layers)];
+    const atuais  = new Set([rows[0].image_url, rows[0].image_mobile_url, ...urlsDasCamadas(rows[0].layers)]);
+    await removerVarias(req, antigas.filter(u => u && !atuais.has(u)));
 
     res.json(rows[0]);
   } catch (err) {
@@ -142,7 +154,7 @@ router.delete('/:id', async (req, res) => {
       acao: 'delete', entidade: 'hero_slide', entidade_id: String(req.slideId),
       valor_anterior: rows[0],
     });
-    await removerVarias(req, [rows[0].image_url, ...urlsDasCamadas(rows[0].layers)]);
+    await removerVarias(req, [rows[0].image_url, rows[0].image_mobile_url, ...urlsDasCamadas(rows[0].layers)]);
     res.json({ ok: true });
   } catch (err) {
     console.error('DELETE /api/admin/hero-slides/:id:', err.message);

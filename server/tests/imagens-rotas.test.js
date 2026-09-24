@@ -178,6 +178,77 @@ describe('limpeza ao excluir hero slide', () => {
   });
 });
 
+describe('imagem mobile do hero slide', () => {
+  it('atualiza só a imagem mobile sem apagar as camadas existentes', async () => {
+    const layer = { id: 'l1', type: 'image', name: 'logo', url: '/images/hero/rota-hero-fundo4.webp', x: 0, y: 0, width: 10, height: 10, visible: true };
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, layers) VALUES('/images/hero/rota-hero-fundo4.webp', $1::jsonb) RETURNING id`,
+      [JSON.stringify([layer])]
+    );
+    criarArquivo('rota-hero-mobile.webp', DIR_HERO);
+
+    const res = await request(app)
+      .put(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ image_mobile_url: '/images/hero/rota-hero-mobile.webp' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.image_mobile_url).toBe('/images/hero/rota-hero-mobile.webp');
+    expect(res.body.layers).toEqual([layer]);
+    fs.unlinkSync(path.join(DIR_HERO, 'rota-hero-mobile.webp'));
+  });
+
+  it('apaga a imagem mobile antiga ao trocar por outra', async () => {
+    const antiga = criarArquivo('rota-hero-mobile-antiga.webp', DIR_HERO);
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, image_mobile_url, layers) VALUES('/images/hero/rota-hero-fundo5.webp', '/images/hero/rota-hero-mobile-antiga.webp', '[]'::jsonb) RETURNING id`
+    );
+    criarArquivo('rota-hero-mobile-nova.webp', DIR_HERO);
+
+    await request(app)
+      .put(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ image_mobile_url: '/images/hero/rota-hero-mobile-nova.webp' });
+
+    expect(fs.existsSync(antiga)).toBe(false);
+    fs.unlinkSync(path.join(DIR_HERO, 'rota-hero-mobile-nova.webp'));
+  });
+
+  it('apaga a imagem mobile órfã ao excluir o slide', async () => {
+    const arquivo = criarArquivo('rota-hero-mobile-orfa.webp', DIR_HERO);
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, image_mobile_url, layers) VALUES('/images/hero/rota-hero-fundo6.webp', '/images/hero/rota-hero-mobile-orfa.webp', '[]'::jsonb) RETURNING id`
+    );
+
+    const res = await request(app)
+      .delete(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(fs.existsSync(arquivo)).toBe(false);
+  });
+
+  it('preserva a imagem mobile que outro slide ainda usa', async () => {
+    const arquivo = criarArquivo('rota-hero-mobile-compartilhada.webp', DIR_HERO);
+    const url = '/images/hero/rota-hero-mobile-compartilhada.webp';
+    const { rows } = await pool.query(
+      `INSERT INTO hero_slides(image_url, image_mobile_url, layers) VALUES('/images/hero/rota-hero-fundo7.webp', $1, '[]'::jsonb) RETURNING id`,
+      [url]
+    );
+    await pool.query(
+      `INSERT INTO hero_slides(image_url, image_mobile_url, layers) VALUES('/images/hero/rota-hero-fundo8.webp', $1, '[]'::jsonb)`,
+      [url]
+    );
+
+    await request(app)
+      .delete(`/api/admin/hero-slides/${rows[0].id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(fs.existsSync(arquivo)).toBe(true);
+    fs.unlinkSync(arquivo);
+  });
+});
+
 describe('limpeza ao trocar camadas do hero slide', () => {
   it('apaga a imagem de camada removida', async () => {
     const saiu = criarArquivo('rota-hero-saiu.webp', DIR_HERO);
