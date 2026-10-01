@@ -1,3 +1,5 @@
+import LancamentoBadge from './LancamentoBadge';
+
 export default function ProductCard({ product, onClick }) {
   return (
     <div
@@ -5,11 +7,7 @@ export default function ProductCard({ product, onClick }) {
       onClick={onClick}
     >
       <div className="relative w-full aspect-square bg-[#EAEAEA] rounded-sm flex items-center justify-center mb-4 overflow-hidden">
-        {product.lancamento && (
-          <span className="absolute top-2 left-2 z-10 bg-orange text-white text-[11px] font-[800] uppercase tracking-wide px-2.5 py-1 rounded-full">
-            Lançamento
-          </span>
-        )}
+        {product.lancamento && <LancamentoBadge className="absolute top-3 left-3 z-10" />}
         {product.image
           ? <img
               src={product.image}
