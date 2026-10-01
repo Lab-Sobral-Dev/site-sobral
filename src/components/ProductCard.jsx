@@ -7,7 +7,7 @@ export default function ProductCard({ product, onClick }) {
       onClick={onClick}
     >
       <div className="relative w-full aspect-square bg-[#EAEAEA] rounded-sm flex items-center justify-center mb-4 overflow-hidden">
-        {product.lancamento && <LancamentoBadge className="absolute top-3 left-3 z-10" />}
+        {product.lancamento && <LancamentoBadge className="absolute top-2 left-2 z-10" />}
         {product.image
           ? <img
               src={product.image}
