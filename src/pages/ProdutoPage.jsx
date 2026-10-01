@@ -186,6 +186,11 @@ export default function ProdutoPage() {
 
           {/* Info */}
           <div>
+            {p.lancamento && (
+              <span className="inline-block bg-orange text-white text-[11px] font-[800] uppercase tracking-wide px-2.5 py-1 rounded-full mb-2">
+                Lançamento
+              </span>
+            )}
             <h1 className="text-[28px] md:text-[36px] font-sans font-[800] mb-[14px] text-orange">{p.name}</h1>
             <div className="text-[15px] leading-[1.6] text-ink-light mb-7 whitespace-pre-wrap [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.description)}</div>
 

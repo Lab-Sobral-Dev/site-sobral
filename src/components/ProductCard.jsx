@@ -4,7 +4,12 @@ export default function ProductCard({ product, onClick }) {
       className="bg-white rounded p-[18px_18px_22px] flex flex-col items-center cursor-pointer group transition-[transform,box-shadow] duration-[220ms] ease-out hover:-translate-y-[5px] hover:shadow-[0_10px_28px_rgba(243,112,33,.14)]"
       onClick={onClick}
     >
-      <div className="w-full aspect-square bg-[#EAEAEA] rounded-sm flex items-center justify-center mb-4 overflow-hidden">
+      <div className="relative w-full aspect-square bg-[#EAEAEA] rounded-sm flex items-center justify-center mb-4 overflow-hidden">
+        {product.lancamento && (
+          <span className="absolute top-2 left-2 z-10 bg-orange text-white text-[11px] font-[800] uppercase tracking-wide px-2.5 py-1 rounded-full">
+            Lançamento
+          </span>
+        )}
         {product.image
           ? <img
               src={product.image}

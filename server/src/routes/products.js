@@ -46,7 +46,8 @@ router.get('/', async (req, res) => {
     const dataRes = await pool.query(
       `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
-              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video
+              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video,
+              (created_at > NOW() - INTERVAL '30 days') AS lancamento
        FROM products ${whereClause}
        ORDER BY ${random ? 'RANDOM()' : 'name ASC'}
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -71,7 +72,8 @@ router.get('/:id', async (req, res) => {
     const { rows } = await pool.query(
       `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
-              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video
+              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video,
+              (created_at > NOW() - INTERVAL '30 days') AS lancamento
        FROM products WHERE id = $1`,
       [req.params.id]
     );
