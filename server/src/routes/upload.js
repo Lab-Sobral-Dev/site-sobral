@@ -106,6 +106,14 @@ router.post('/', requireAuth, (req, res) => {
     const maxWidth  = MAX_WIDTH[type]  || 900;
     const quality   = QUALITY[type]    || 85;
 
+    // Hero: a maioria dos uploads vem com a largura do canvas (1920px), menor
+    // que maxWidth — deixar o navegador esticar isso na exibição full-bleed
+    // sempre borra. Melhor ampliar aqui 1x, com reamostragem de qualidade
+    // (lanczos3, padrão do sharp), do que deixar cada navegador escalar do
+    // jeito dele em tempo de render. Produtos/CMS mantêm o comportamento
+    // antigo: nunca ampliar uma imagem pequena.
+    const enlarge = type === 'hero';
+
     const dir = path.dirname(filePath);
     const baseName = path.basename(filePath, path.extname(filePath));
     const webpPath = path.join(dir, `${baseName}.webp`);
@@ -125,7 +133,7 @@ router.post('/', requireAuth, (req, res) => {
       }
 
       await input
-        .resize({ width: maxWidth, withoutEnlargement: !isSvg })
+        .resize({ width: maxWidth, withoutEnlargement: !isSvg && !enlarge })
         // effort:6 = melhor compressão; smartSubsample evita borrar bordas de
         // texto/cores chapadas (4:4:4) — preserva nitidez em banners
         .webp({ quality, effort: 6, smartSubsample: true })
