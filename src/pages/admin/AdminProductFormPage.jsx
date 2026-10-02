@@ -7,6 +7,7 @@ import { useRascunho } from '../../hooks/useRascunho';
 import { useAtalhoSalvar } from '../../hooks/useAtalhoSalvar';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import RichTextEditor from '../../components/admin/RichTextEditor';
+import LancamentoBadge from '../../components/LancamentoBadge';
 
 const EMPTY_FORM = {
   id: '', name: '', tag: '', category_id: '', brand: '', image: '',
@@ -14,6 +15,7 @@ const EMPTY_FORM = {
   description: '', caracteristicas: '', apresentacao: '', modo_uso: '',
   precaucoes: '', ingredientes: '', disclaimer: '', nutri_porcoes: '',
   nutri_rows: '', ativo: true, destaque: false, video: '',
+  lancamento: false, lancamento_cor: '#F37021',
 };
 
 // Aceita link normal, curto ou de embed do YouTube e devolve sempre a URL de embed.
@@ -88,6 +90,8 @@ export default function AdminProductFormPage() {
           ativo:           p.ativo,
           destaque:        p.destaque ?? false,
           video:           p.video           ?? '',
+          lancamento:      p.lancamento      ?? false,
+          lancamento_cor:  p.lancamento_cor  || '#F37021',
         };
         setForm(carregado);
         setFormInicial(carregado);
@@ -411,6 +415,34 @@ export default function AdminProductFormPage() {
             className="w-4 h-4 accent-orange"
           />
           <label htmlFor="destaque" className="text-[14px] font-[600] text-ink">Produto em destaque (aparece no carrossel da home)</label>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="lancamento"
+              checked={form.lancamento}
+              onChange={e => set('lancamento', e.target.checked)}
+              className="w-4 h-4 accent-orange"
+            />
+            <label htmlFor="lancamento" className="text-[14px] font-[600] text-ink">
+              Produto lançamento (tag no site por 30 dias ou até desmarcar)
+            </label>
+          </div>
+          {form.lancamento && (
+            <div className="flex items-center gap-3 pl-7">
+              <label htmlFor="lancamento_cor" className="text-[13px] font-[600] text-ink-light">Cor da tag</label>
+              <input
+                type="color"
+                id="lancamento_cor"
+                value={form.lancamento_cor}
+                onChange={e => set('lancamento_cor', e.target.value.toUpperCase())}
+                className="w-10 h-8 p-0 border border-line rounded cursor-pointer bg-transparent"
+              />
+              <LancamentoBadge cor={form.lancamento_cor} />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col md:flex-row gap-3 pt-2">

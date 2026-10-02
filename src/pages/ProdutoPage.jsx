@@ -187,7 +187,7 @@ export default function ProdutoPage() {
 
           {/* Info */}
           <div>
-            {p.lancamento && <LancamentoBadge className="mb-3" />}
+            {p.lancamento && <LancamentoBadge cor={p.lancamento_cor} className="mb-3" />}
             <h1 className="text-[28px] md:text-[36px] font-sans font-[800] mb-[14px] text-orange">{p.name}</h1>
             <div className="text-[15px] leading-[1.6] text-ink-light mb-7 whitespace-pre-wrap [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.description)}</div>
 

@@ -5,6 +5,10 @@ const validate    = require('../middleware/validate');
 const { registrar } = require('../lib/audit');
 const { removerVarias } = require('../lib/imagens');
 
+const COR_PADRAO = '#F37021';
+const corValida = c => typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c);
+const corLancamento = c => (corValida(c) ? c.toUpperCase() : COR_PADRAO);
+
 const router = Router();
 router.use(requireAuth);
 
@@ -42,7 +46,8 @@ router.get('/', async (req, res) => {
     const dataRes = await pool.query(
       `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
-              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video
+              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video,
+              (lancamento_ate > NOW()) AS lancamento, lancamento_cor, lancamento_ate
        FROM products ${whereClause}
        ORDER BY ${sortField} ${sortDir}
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -187,7 +192,8 @@ router.get('/:id', async (req, res) => {
     const { rows } = await pool.query(
       `SELECT id, name, tag, category_id, brand, image, gallery, description,
               caracteristicas, apresentacao, modo_uso, precaucoes,
-              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video
+              ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video,
+              (lancamento_ate > NOW()) AS lancamento, lancamento_cor, lancamento_ate
        FROM products WHERE id = $1`,
       [req.params.id]
     );
@@ -203,13 +209,16 @@ router.get('/:id', async (req, res) => {
 router.post('/', validate(['id', 'name']), async (req, res) => {
   const { id, name, tag, category_id, brand, image, gallery, description,
           caracteristicas, apresentacao, modo_uso, precaucoes,
-          ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque, video } = req.body;
+          ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque, video,
+          lancamento, lancamento_cor } = req.body;
   try {
     const { rows } = await pool.query(
       `INSERT INTO products(id, name, tag, category_id, brand, image, gallery, description,
                             caracteristicas, apresentacao, modo_uso, precaucoes,
-                            ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque, video)
-       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+                            ingredientes, disclaimer, nutri_porcoes, nutri_rows, destaque, video,
+                            lancamento_ate, lancamento_cor)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,
+              CASE WHEN $19::boolean THEN NOW() + INTERVAL '30 days' END, $20)
        RETURNING *`,
       [
         id, name, tag || null, category_id || null, brand || null, image || null,
@@ -220,6 +229,8 @@ router.post('/', validate(['id', 'name']), async (req, res) => {
         nutri_rows ? JSON.stringify(nutri_rows) : null,
         destaque === true,
         video || null,
+        lancamento === true,
+        corLancamento(lancamento_cor),
       ]
     );
     await registrar(req, {
@@ -239,7 +250,8 @@ router.post('/', validate(['id', 'name']), async (req, res) => {
 router.put('/:id', validate(['name']), async (req, res) => {
   const { name, tag, category_id, brand, image, gallery, description,
           caracteristicas, apresentacao, modo_uso, precaucoes,
-          ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video } = req.body;
+          ingredientes, disclaimer, nutri_porcoes, nutri_rows, ativo, destaque, video,
+          lancamento, lancamento_cor } = req.body;
   try {
     const anterior = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
     const { rows } = await pool.query(
@@ -247,8 +259,14 @@ router.put('/:id', validate(['name']), async (req, res) => {
          name=$1, tag=$2, category_id=$3, brand=$4, image=$5, gallery=$6, description=$7,
          caracteristicas=$8, apresentacao=$9, modo_uso=$10, precaucoes=$11,
          ingredientes=$12, disclaimer=$13, nutri_porcoes=$14, nutri_rows=$15,
-         ativo=$16, destaque=$17, video=$18, updated_at=NOW()
-       WHERE id=$19 RETURNING *`,
+         ativo=$16, destaque=$17, video=$18, lancamento_cor=$19,
+         lancamento_ate = CASE
+           WHEN $20::boolean THEN
+             CASE WHEN lancamento_ate > NOW() THEN lancamento_ate
+                  ELSE NOW() + INTERVAL '30 days' END
+         END,
+         updated_at=NOW()
+       WHERE id=$21 RETURNING *`,
       [
         name, tag || null, category_id || null, brand || null, image || null,
         Array.isArray(gallery) ? JSON.stringify(gallery) : '[]',
@@ -259,6 +277,8 @@ router.put('/:id', validate(['name']), async (req, res) => {
         ativo !== undefined ? ativo : true,
         destaque === true,
         video || null,
+        corLancamento(lancamento_cor),
+        lancamento === true,
         req.params.id,
       ]
     );
