@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const requireAuth = require('../middleware/requireAuth');
+const { HERO_SRCSET_WIDTHS, heroVariantFilename } = require('../utils/heroVariants');
 
 const router = Router();
 
@@ -114,6 +115,17 @@ router.post('/', requireAuth, (req, res) => {
     // antigo: nunca ampliar uma imagem pequena.
     const enlarge = type === 'hero';
 
+    // PERF-05: o hero é full-bleed, então a largura exibida varia MUITO de
+    // visitante pra visitante (celular, notebook, monitor grande). Servir
+    // sempre o arquivo de 3840px também borra: o navegador tem que encolher
+    // bastante, e esse downscale "na unha" via CSS não fica tão nítido
+    // quanto uma imagem já gerada perto do tamanho real de exibição. Por
+    // isso o hero sai com um srcset (vários tamanhos) em vez de um arquivo
+    // único — o navegador escolhe o mais próximo da largura real da tela.
+    // maxWidth (3840) já é a maior variante: entra no srcset reaproveitando
+    // o arquivo principal, sem gerar duplicata. Larguras em utils/heroVariants
+    // (lib/imagens.js usa a mesma lista pra apagar as variantes ao limpar).
+
     const dir = path.dirname(filePath);
     const baseName = path.basename(filePath, path.extname(filePath));
     const webpPath = path.join(dir, `${baseName}.webp`);
@@ -140,11 +152,39 @@ router.post('/', requireAuth, (req, res) => {
         .toFile(tmpPath);
 
       fs.renameSync(tmpPath, webpPath);
+
+      const url = `/images/${type}/${baseName}.webp`;
+
+      // Hero raster: gera as variantes menores do srcset a partir do
+      // ARQUIVO ORIGINAL (ainda não apagado) — nunca do .webp já comprimido,
+      // pra não encadear uma segunda perda. Sempre amplia quando preciso,
+      // igual ao arquivo principal.
+      let srcset = null;
+      if (type === 'hero' && !isSvg) {
+        // Não crítico: se uma variante falhar, a imagem principal já está
+        // salva e válida — melhor devolver sem srcset do que falhar o upload.
+        try {
+          const variantes = await Promise.all(
+            HERO_SRCSET_WIDTHS.map(async w => {
+              const nome = heroVariantFilename(`${baseName}.webp`, w);
+              await sharp(filePath)
+                .resize({ width: w, withoutEnlargement: false })
+                .webp({ quality, effort: 6, smartSubsample: true })
+                .toFile(path.join(dir, nome));
+              return `/images/${type}/${nome} ${w}w`;
+            })
+          );
+          srcset = [...variantes, `${url} ${maxWidth}w`].join(', ');
+        } catch (srcsetErr) {
+          console.error('hero srcset generation failed:', srcsetErr.message);
+        }
+      }
+
       if (filePath !== webpPath) {
         try { fs.unlinkSync(filePath); } catch {}
       }
 
-      return res.json({ url: `/images/${type}/${baseName}.webp` });
+      return res.json(srcset ? { url, srcset } : { url });
     } catch (sharpErr) {
       console.error('sharp conversion failed:', sharpErr.message);
       try { fs.unlinkSync(tmpPath); } catch {}

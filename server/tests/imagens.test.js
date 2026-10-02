@@ -2,13 +2,15 @@ const fs   = require('fs');
 const path = require('path');
 const pool = require('../src/db');
 const { estaEmUso, removerSeOrfa } = require('../src/lib/imagens');
+const { HERO_SRCSET_WIDTHS, heroVariantFilename } = require('../src/utils/heroVariants');
 
 const DIR_PRODUTOS = path.join(__dirname, '..', '..', 'public', 'images', 'produtos');
+const DIR_HERO      = path.join(__dirname, '..', '..', 'public', 'images', 'hero');
 const req = { admin: { id: null, email: 'teste@test.com' }, ip: '127.0.0.1' };
 
-function criarArquivo(nome) {
-  fs.mkdirSync(DIR_PRODUTOS, { recursive: true });
-  const p = path.join(DIR_PRODUTOS, nome);
+function criarArquivo(nome, dir = DIR_PRODUTOS) {
+  fs.mkdirSync(dir, { recursive: true });
+  const p = path.join(dir, nome);
   fs.writeFileSync(p, 'conteudo de teste');
   return p;
 }
@@ -109,5 +111,44 @@ describe('removerSeOrfa', () => {
   it('ignora valores vazios sem lançar', async () => {
     expect(await removerSeOrfa(req, '')).toBe('fora-do-escopo');
     expect(await removerSeOrfa(req, null)).toBe('fora-do-escopo');
+  });
+
+  it('apaga junto as variantes de srcset do hero (upload.js)', async () => {
+    const principal = criarArquivo('hero-com-srcset.webp', DIR_HERO);
+    const variantes = HERO_SRCSET_WIDTHS.map(w => {
+      const nome = heroVariantFilename('hero-com-srcset.webp', w);
+      return criarArquivo(nome, DIR_HERO);
+    });
+
+    const r = await removerSeOrfa(req, '/images/hero/hero-com-srcset.webp');
+    expect(r).toBe('removida');
+    expect(fs.existsSync(principal)).toBe(false);
+    for (const v of variantes) expect(fs.existsSync(v)).toBe(false);
+  });
+
+  it('não falha quando a imagem de hero não tem variantes (upload antigo)', async () => {
+    const p = criarArquivo('hero-sem-srcset.webp', DIR_HERO);
+    const r = await removerSeOrfa(req, '/images/hero/hero-sem-srcset.webp');
+    expect(r).toBe('removida');
+    expect(fs.existsSync(p)).toBe(false);
+  });
+
+  it('NÃO apaga as variantes de um hero ainda em uso', async () => {
+    const principal = criarArquivo('hero-em-uso.webp', DIR_HERO);
+    const variante   = criarArquivo(heroVariantFilename('hero-em-uso.webp', HERO_SRCSET_WIDTHS[0]), DIR_HERO);
+    await pool.query(
+      `INSERT INTO hero_slides(image_url, ordem) VALUES($1, 999)`,
+      ['/images/hero/hero-em-uso.webp']
+    );
+    try {
+      const r = await removerSeOrfa(req, '/images/hero/hero-em-uso.webp');
+      expect(r).toBe('em-uso');
+      expect(fs.existsSync(principal)).toBe(true);
+      expect(fs.existsSync(variante)).toBe(true);
+    } finally {
+      await pool.query(`DELETE FROM hero_slides WHERE image_url = $1`, ['/images/hero/hero-em-uso.webp']);
+      fs.unlinkSync(principal);
+      fs.unlinkSync(variante);
+    }
   });
 });

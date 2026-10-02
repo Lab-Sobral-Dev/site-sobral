@@ -29,6 +29,13 @@ function Layer({ layer }) {
     return (
       <img
         src={layer.url}
+        // srcset (quando existe): a largura real exibida varia de tela pra
+        // tela porque o hero é full-bleed — sizes 100vw diz ao navegador
+        // que a imagem cobre a viewport inteira, pra ele escolher a
+        // variante mais perto disso em vez de sempre baixar a maior e
+        // encolher (ou a menor e esticar) via CSS.
+        srcSet={layer.srcset || undefined}
+        sizes={layer.srcset ? '100vw' : undefined}
         alt={layer.name || ''}
         // objectFit cover: sem isto o padrão do <img> é "fill" e estica a
         // imagem para a caixa 1920×700, distorcendo o que não for 48:35

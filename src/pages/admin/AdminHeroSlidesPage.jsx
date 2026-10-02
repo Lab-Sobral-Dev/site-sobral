@@ -166,6 +166,10 @@ export default function AdminHeroSlidesPage() {
         type: 'image',
         name: 'fundo',
         url: data.url,
+        // srcset: o hero é full-bleed, então a largura real na tela do
+        // visitante varia muito — isto deixa o navegador escolher o tamanho
+        // mais perto do exibido em vez de sempre baixar/escalar o maior.
+        srcset: data.srcset || null,
         x: 0, y: 0, width: 1920, height: 700,
         visible: true,
         animation: null,

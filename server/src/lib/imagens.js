@@ -2,13 +2,15 @@ const fs   = require('fs');
 const path = require('path');
 const pool = require('../db');
 const { registrar } = require('./audit');
+const { HERO_SRCSET_WIDTHS, heroVariantFilename } = require('../utils/heroVariants');
 
 const TIPOS_PERMITIDOS = ['produtos', 'hero', 'cms'];
 // server/src/lib → raiz do repositório
 const RAIZ_IMAGENS = path.resolve(__dirname, '..', '..', '..', 'public', 'images');
 
-// Converte a URL pública em caminho absoluto, recusando tudo que escape dos
-// diretórios permitidos. Devolve null quando o caminho não é aceitável.
+// Converte a URL pública em caminho absoluto + tipo, recusando tudo que
+// escape dos diretórios permitidos. Devolve null quando o caminho não é
+// aceitável.
 function resolverCaminho(url) {
   if (!url || typeof url !== 'string') return null;
 
@@ -26,7 +28,7 @@ function resolverCaminho(url) {
   // do diretório do tipo.
   if (absoluto !== base && !absoluto.startsWith(base + path.sep)) return null;
 
-  return absoluto;
+  return { absoluto, tipo };
 }
 
 // Varre TODAS as linhas que podem apontar para uma imagem. A duplicação de
@@ -51,8 +53,9 @@ async function estaEmUso(url) {
 // limpeza não pode derrubar a operação que a originou.
 async function removerSeOrfa(req, url) {
   try {
-    const absoluto = resolverCaminho(url);
-    if (!absoluto) return 'fora-do-escopo';
+    const resolvido = resolverCaminho(url);
+    if (!resolvido) return 'fora-do-escopo';
+    const { absoluto, tipo } = resolvido;
 
     // lstat (não stat): um link simbólico nunca é seguido.
     let st;
@@ -66,6 +69,19 @@ async function removerSeOrfa(req, url) {
     if (await estaEmUso(url)) return 'em-uso';
 
     fs.unlinkSync(absoluto);
+
+    // Hero: o upload gera variantes de largura pro srcset (routes/upload.js)
+    // que nenhuma linha do banco referencia diretamente — sem isto elas
+    // nunca seriam apagadas. Mesma convenção de nome dos dois lados
+    // (utils/heroVariants); arquivo ausente é esperado pra imagens de
+    // antes dessa funcionalidade, por isso ignora ENOENT em silêncio.
+    if (tipo === 'hero') {
+      for (const w of HERO_SRCSET_WIDTHS) {
+        const variante = path.join(path.dirname(absoluto), heroVariantFilename(path.basename(absoluto), w));
+        try { fs.unlinkSync(variante); } catch {}
+      }
+    }
+
     await registrar(req, {
       acao: 'delete', entidade: 'image', entidade_id: url,
       valor_anterior: { bytes: st.size },
