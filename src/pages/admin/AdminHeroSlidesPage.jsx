@@ -166,7 +166,7 @@ export default function AdminHeroSlidesPage() {
         type: 'image',
         name: 'fundo',
         url: data.url,
-        x: 0, y: 0, width: 1920, height: 600,
+        x: 0, y: 0, width: 1920, height: 700,
         visible: true,
         animation: null,
       }];

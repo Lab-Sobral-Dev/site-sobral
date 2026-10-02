@@ -2,7 +2,7 @@
 module.exports = {
   fromFile: () => ({
     parse: async () => {},
-    header: { width: 1600, height: 500 },
+    header: { width: 1920, height: 700 },
     layers: [],
     tree: () => ({ toPng: () => null }),
   }),

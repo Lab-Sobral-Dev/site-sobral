@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { useAdminFetch } from '../../hooks/useAdminFetch';
 
 const CANVAS_W = 1920;
-const CANVAS_H = 600;
+const CANVAS_H = 700;
 
 const ANIMATION_OPTS = [
   { value: '',            label: 'Nenhuma'     },

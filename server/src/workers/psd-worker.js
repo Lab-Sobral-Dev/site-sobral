@@ -43,7 +43,7 @@ async function run() {
     parentPort.postMessage({
       error:
         `Proporção incompatível: o PSD tem ${psdW} × ${psdH} px ` +
-        `(${actualRatio.toFixed(2)}:1), mas o hero usa proporção 16:5 ` +
+        `(${actualRatio.toFixed(2)}:1), mas o hero usa proporção ${CANVAS_W}:${CANVAS_H} ` +
         `(${CANVAS_W} × ${CANVAS_H} px). ` +
         `Redimensione o PSD para ${CANVAS_W} × ${CANVAS_H} px antes de importar.`,
       psdWidth:      psdW,
@@ -94,7 +94,7 @@ async function run() {
     const h = typeof layer.height === 'function' ? layer.height() : layer.height;
     if (!w || !h) continue;
 
-    // Dimensões de exibição no canvas 1920×600
+    // Dimensões de exibição no canvas 1920×700
     const displayW = Math.round(w * scaleX);
     const displayH = Math.round(h * scaleY);
     if (displayW < 1 || displayH < 1) continue;

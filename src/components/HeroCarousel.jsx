@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const CANVAS_W = 1920;
-const CANVAS_H = 600;
+const CANVAS_H = 700;
 
 function ChevronIcon({ dir = 'left' }) {
   return (
@@ -31,7 +31,7 @@ function Layer({ layer }) {
         src={layer.url}
         alt={layer.name || ''}
         // objectFit cover: sem isto o padrão do <img> é "fill" e estica a
-        // imagem para a caixa 1920×600, distorcendo o que não for 16:5
+        // imagem para a caixa 1920×700, distorcendo o que não for 48:35
         style={{ ...style, objectFit: 'cover' }}
         className={animClass}
         draggable={false}
@@ -99,7 +99,7 @@ export default function HeroCarousel() {
 
   return (
     <section
-      className={`w-full bg-bg relative overflow-hidden ${showMobileImage ? '' : 'aspect-[1920/600]'}`}
+      className={`w-full bg-bg relative overflow-hidden ${showMobileImage ? '' : 'aspect-[1920/700]'}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

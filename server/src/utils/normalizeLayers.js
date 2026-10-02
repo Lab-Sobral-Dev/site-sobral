@@ -2,7 +2,7 @@ const crypto = require('crypto');
 
 // Canvas de referência usado por todo o sistema.
 const CANVAS_W = 1920;
-const CANVAS_H = 600;
+const CANVAS_H = 700;
 
 function newId() {
   return crypto.randomUUID();
