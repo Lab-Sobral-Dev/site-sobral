@@ -216,7 +216,6 @@ export default function Header() {
               items={[
                 { label: 'Quem Somos', to: '/quem-somos' },
                 { label: 'Privacidade e Proteção de Dados', to: '/privacidade' },
-                { label: 'Medicamentos Sobral', to: '/medicamentos' },
                 { label: 'Trabalhe Conosco', to: '/fale-conosco' },
               ]}
             />

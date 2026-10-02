@@ -141,7 +141,7 @@ Convenções do projeto:
 
 Páginas removidas / fora do escopo:
 
-  medicamentos  ← removida do site; arquivo MedicamentosPage.jsx pode ser deletado
+  medicamentos  ← removida do site; arquivo MedicamentosPage.jsx já deletado
 
 ---
 
