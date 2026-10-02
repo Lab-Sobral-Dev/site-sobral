@@ -11,11 +11,18 @@ function slugify(str) {
   return (str || 'layer').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'layer';
 }
 
+// RENDER_SCALE: o hero é exibido full-bleed (largura real da tela, não do
+// canvas de design), então salvar no tamanho exato do canvas 1920×700 borra
+// em qualquer monitor largo ou tela retina/2x. Rasteriza em 2x o tamanho de
+// exibição e deixa x/y/width/height (percentuais) como estão — só a
+// resolução do arquivo muda, não o posicionamento.
+const RENDER_SCALE = 2;
+
 // Salva um buffer de imagem usando sharp, redimensionado para (targetW × targetH).
 // Retorna o caminho final salvo.
 async function saveResized(srcBuffer, outPath, targetW, targetH) {
   await sharp(srcBuffer)
-    .resize(Math.round(targetW), Math.round(targetH), { fit: 'cover', withoutEnlargement: false })
+    .resize(Math.round(targetW * RENDER_SCALE), Math.round(targetH * RENDER_SCALE), { fit: 'cover', withoutEnlargement: false })
     .webp({ quality: 92 })
     .toFile(outPath);
 }

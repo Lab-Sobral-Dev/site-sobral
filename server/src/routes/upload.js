@@ -98,8 +98,10 @@ router.post('/', requireAuth, (req, res) => {
     const isSvg = realMime === 'image/svg+xml';
 
     // PERF-03: converter para WebP com sharp (largura e qualidade por tipo)
-    // hero: 2560px cobre telas retina/2x (o hero é full-bleed); demais mantêm 1x
-    const MAX_WIDTH = { hero: 2560, cms: 1400, produtos: 900 };
+    // hero: 3840px (~2x o canvas de 1920) cobre monitores largos e telas
+    // retina/2x — o hero é full-bleed, então a imagem exibida pode passar
+    // bem de 1920px físicos; demais tipos mantêm 1x
+    const MAX_WIDTH = { hero: 3840, cms: 1400, produtos: 900 };
     const QUALITY   = { hero: 92,   cms: 88,   produtos: 85  };
     const maxWidth  = MAX_WIDTH[type]  || 900;
     const quality   = QUALITY[type]    || 85;
