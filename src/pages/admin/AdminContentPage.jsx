@@ -24,7 +24,7 @@ function StatusCampo({ estado, onTentarDeNovo }) {
   return null;
 }
 
-const PAGE_URLS = { home: '/', sobre: '/quem-somos', contato: '/fale-conosco' };
+const PAGE_URLS = { home: '/', sobre: '/quem-somos', contato: '/fale-conosco', privacidade: '/privacidade' };
 
 const PAGE_CONFIG = {
   home: {
@@ -174,6 +174,130 @@ const PAGE_CONFIG = {
             { key: `faq_${n}_p`, label: `Pergunta ${n}`, type: 'text' },
             { key: `faq_${n}_r`, label: `Resposta ${n}`, type: 'richtext' },
           ]),
+        ],
+      },
+    ],
+  },
+  privacidade: {
+    title: 'Privacidade',
+    sections: [
+      {
+        label: 'Cabeçalho da página',
+        fields: [
+          { key: 'titulo_pagina', label: 'Título (H1)', type: 'text' },
+        ],
+      },
+      {
+        label: 'Política de Privacidade — abertura',
+        fields: [
+          { key: 'privacidade_titulo', label: 'Título da seção (H2)', type: 'text' },
+          { key: 'privacidade_intro',  label: 'Parágrafos de abertura', type: 'richtext' },
+        ],
+      },
+      { label: '1. Quais dados são coletados', fields: [
+        { key: 'sec1_titulo', label: 'Título', type: 'text' },
+        { key: 'sec1_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '2. Consentimento', fields: [
+        { key: 'sec2_titulo', label: 'Título', type: 'text' },
+        { key: 'sec2_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '3. Quais são os seus direitos', fields: [
+        { key: 'sec3_titulo', label: 'Título', type: 'text' },
+        { key: 'sec3_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '4. Como exercer seus direitos', fields: [
+        { key: 'sec4_titulo',             label: 'Título',                      type: 'text' },
+        { key: 'sec4_texto_intro',        label: 'Texto (antes do contato)',    type: 'richtext' },
+        { key: 'direitos_email',          label: 'E-mail de contato',           type: 'text' },
+        { key: 'direitos_telefone',       label: 'Telefone de contato',         type: 'text' },
+        { key: 'sec4_texto_fechamento',   label: 'Texto (depois do contato)',   type: 'richtext' },
+      ]},
+      { label: '5. Armazenamento dos dados', fields: [
+        { key: 'sec5_titulo', label: 'Título', type: 'text' },
+        { key: 'sec5_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '6. Segurança dos dados', fields: [
+        { key: 'sec6_titulo', label: 'Título', type: 'text' },
+        { key: 'sec6_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '7. Compartilhamento de dados', fields: [
+        { key: 'sec7_titulo', label: 'Título', type: 'text' },
+        { key: 'sec7_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '8. Transferência internacional', fields: [
+        { key: 'sec8_titulo', label: 'Título', type: 'text' },
+        { key: 'sec8_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '9. Cookies ou dados de navegação', fields: [
+        { key: 'sec9_titulo', label: 'Título', type: 'text' },
+        { key: 'sec9_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      {
+        label: 'Links de ajuda por navegador (reaparecem 2x na página)',
+        fields: [1, 2, 3, 4, 5, 6].flatMap(n => [
+          { key: `browserlink_${n}_label`, label: `Link ${n} — rótulo`, type: 'text' },
+          { key: `browserlink_${n}_url`,   label: `Link ${n} — URL`,    type: 'text' },
+        ]),
+      },
+      { label: '10. Alteração desta política', fields: [
+        { key: 'sec10_titulo', label: 'Título', type: 'text' },
+        { key: 'sec10_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '11. Responsabilidade', fields: [
+        { key: 'sec11_titulo', label: 'Título', type: 'text' },
+        { key: 'sec11_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '12. Isenção de responsabilidade', fields: [
+        { key: 'sec12_titulo', label: 'Título', type: 'text' },
+        { key: 'sec12_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      { label: '13. Encarregado de proteção de dados', fields: [
+        { key: 'sec13_titulo', label: 'Título', type: 'text' },
+        { key: 'sec13_texto',  label: 'Texto',  type: 'richtext' },
+      ]},
+      {
+        label: 'Política de Cookies — abertura',
+        fields: [
+          { key: 'cookies_titulo', label: 'Título da seção (H2)', type: 'text' },
+          { key: 'cookies_intro',  label: 'Parágrafos de abertura', type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Tabela — Tecnologias usadas',
+        fields: [
+          { key: 'cookies_tec_titulo', label: 'Título da tabela', type: 'text' },
+          ...[1, 2, 3, 4].flatMap(n => [
+            { key: `tec_${n}_titulo`, label: `Linha ${n} — nome`,       type: 'text' },
+            { key: `tec_${n}_texto`,  label: `Linha ${n} — descrição`,  type: 'richtext' },
+          ]),
+          { key: 'cookies_tec_nota', label: 'Observação após a tabela', type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Tabela — Como essas tecnologias são utilizadas',
+        fields: [
+          { key: 'cookies_fin_titulo', label: 'Título da tabela',       type: 'text' },
+          { key: 'cookies_fin_intro',  label: 'Texto de introdução',    type: 'text' },
+          ...[1, 2, 3, 4, 5, 6, 7].flatMap(n => [
+            { key: `fin_${n}_titulo`, label: `Linha ${n} — nome`,       type: 'text' },
+            { key: `fin_${n}_texto`,  label: `Linha ${n} — descrição`,  type: 'richtext' },
+          ]),
+        ],
+      },
+      {
+        label: 'Encerramento da Política de Cookies',
+        fields: [
+          { key: 'cookies_fechamento', label: 'Texto de encerramento', type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Contato (rodapé)',
+        fields: [
+          { key: 'contato_nome',        label: 'Nome',          type: 'text' },
+          { key: 'contato_endereco',    label: 'Endereço',      type: 'richtext' },
+          { key: 'contato_sac_numero',  label: 'SAC — número',  type: 'text' },
+          { key: 'contato_telefone',    label: 'Telefone',      type: 'text' },
         ],
       },
     ],

@@ -163,6 +163,7 @@ const router = createBrowserRouter([
       { path: 'conteudo/home',    element: admin(<AdminContentPage page="home" />) },
       { path: 'conteudo/sobre',   element: admin(<AdminContentPage page="sobre" />) },
       { path: 'conteudo/contato', element: admin(<AdminContentPage page="contato" />) },
+      { path: 'conteudo/privacidade', element: admin(<AdminContentPage page="privacidade" />) },
       { path: 'misturinhas',                element: admin(<AdminMisturinhasPage />) },
       { path: 'hero-slides',                element: admin(<AdminHeroSlidesPage />) },
       { path: 'hero-slides/:id/editar',    element: admin(<AdminSlideBuilderPage />) },
