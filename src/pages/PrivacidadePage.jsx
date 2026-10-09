@@ -12,6 +12,17 @@ const telHref = (phone) => {
   return digits.startsWith('0800') ? `tel:${digits}` : `tel:+55${digits}`;
 };
 
+// Os links de navegador vêm de um campo de texto livre editável no admin;
+// restringe a http(s) para não abrir brecha de XSS via esquema javascript:.
+const safeUrl = (url) => {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '#';
+  } catch {
+    return '#';
+  }
+};
+
 const PRIVACIDADE_DEFAULTS = {
   titulo_pagina: 'Privacidade e Proteção de Dados',
 
@@ -134,7 +145,7 @@ function linhasTabela(content, prefixo, total) {
 function linksNavegadores(content, total) {
   return Array.from({ length: total }, (_, i) => {
     const idx = i + 1;
-    return { label: content[`browserlink_${idx}_label`], href: content[`browserlink_${idx}_url`] };
+    return { label: content[`browserlink_${idx}_label`], href: safeUrl(content[`browserlink_${idx}_url`]) };
   });
 }
 
