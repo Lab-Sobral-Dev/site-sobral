@@ -7,9 +7,36 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 const safe = (html) => parse(DOMPurify.sanitize(html));
 
 const SOBRE_DEFAULTS = {
+  titulo_pagina: 'Quem Somos',
+
+  mvv_missao_tag:     'O QUE FAZEMOS',
+  mvv_missao_titulo:  'Missão',
   missao:  '<p>Contribuir com a saúde e a qualidade de vida das famílias brasileiras.</p>',
+  mvv_visao_tag:      'PARA ONDE VAMOS',
+  mvv_visao_titulo:   'Visão',
   visao:   '<p>Continuar a expansão do negócio, tornando-se referência nos segmentos de suplementos alimentares e cosméticos.</p>',
+  mvv_valores_tag:    'COMO SOMOS',
+  mvv_valores_titulo: 'Valores',
   valores: '<p>Compromisso, qualidade, respeito, entusiasmo, credibilidade, perseverança e orgulho nordestino.</p>',
+
+  galeria1_foto1_imagem: '/images/historia/img-lab-sobral-nossa-historia-00.jpeg',
+  galeria1_foto1_alt:    'Fachada histórica da Pharmacia Sobral',
+  galeria1_foto2_imagem: '/images/historia/img-lab-sobral-nossa-historia-1.jpg',
+  galeria1_foto2_alt:    'Registro histórico do Laboratório Sobral',
+
+  galeria2_foto1_imagem: '/images/historia/img-lab-sobral-nossa-historia-0-3.jpg',
+  galeria2_foto1_alt:    'Equipe do Laboratório Sobral ao longo dos anos',
+  galeria2_foto2_imagem: '/images/historia/img-lab-sobral-nossa-historia-0-4.jpg',
+  galeria2_foto2_alt:    'Produção do Laboratório Sobral',
+  galeria2_foto3_imagem: '/images/historia/img-lab-sobral-nossa-historia-3.jpg',
+  galeria2_foto3_alt:    'Colaboradores do Laboratório Sobral',
+  galeria2_foto4_imagem: '/images/historia/img-nossa-historia.jpg',
+  galeria2_foto4_alt:    'Laboratório Sobral hoje',
+
+  galeria3_foto1_imagem: '/images/historia/img-lab-sobral-nossa-historia-4-3.jpg',
+  galeria3_foto1_alt:    'Linha de produção do Laboratório Sobral',
+  galeria3_foto2_imagem: '/images/historia/FIGURA01.jpeg',
+  galeria3_foto2_alt:    'Produtos do Laboratório Sobral',
 
   historia_eyebrow:      'UMA HISTÓRIA BRASILEIRA',
   historia_intro_titulo: 'Da cura à prevenção: uma tradição centenária que sempre se renova',
@@ -39,28 +66,22 @@ const SOBRE_DEFAULTS = {
 };
 
 const MVV_ITEMS = [
-  { key: 'missao',  tag: 'O QUE FAZEMOS',   title: 'Missão',  accent: 'border-orange-light',  text: 'text-orange-light' },
-  { key: 'visao',   tag: 'PARA ONDE VAMOS', title: 'Visão',   accent: 'border-orange',        text: 'text-orange'       },
-  { key: 'valores', tag: 'COMO SOMOS',      title: 'Valores', accent: 'border-orange-dark',   text: 'text-orange-dark'  },
+  { key: 'missao',  accent: 'border-orange-light',  text: 'text-orange-light' },
+  { key: 'visao',   accent: 'border-orange',        text: 'text-orange'       },
+  { key: 'valores', accent: 'border-orange-dark',   text: 'text-orange-dark'  },
 ];
 
-// Galerias na mesma ordem e posição do site antigo (fotos baixadas de lá).
-const GALERIA_1 = [
-  { src: '/images/historia/img-lab-sobral-nossa-historia-00.jpeg', alt: 'Fachada histórica da Pharmacia Sobral' },
-  { src: '/images/historia/img-lab-sobral-nossa-historia-1.jpg',   alt: 'Registro histórico do Laboratório Sobral' },
-];
-
-const GALERIA_2 = [
-  { src: '/images/historia/img-lab-sobral-nossa-historia-0-3.jpg', alt: 'Equipe do Laboratório Sobral ao longo dos anos' },
-  { src: '/images/historia/img-lab-sobral-nossa-historia-0-4.jpg', alt: 'Produção do Laboratório Sobral' },
-  { src: '/images/historia/img-lab-sobral-nossa-historia-3.jpg',   alt: 'Colaboradores do Laboratório Sobral' },
-  { src: '/images/historia/img-nossa-historia.jpg',                alt: 'Laboratório Sobral hoje' },
-];
-
-const GALERIA_3 = [
-  { src: '/images/historia/img-lab-sobral-nossa-historia-4-3.jpg', alt: 'Linha de produção do Laboratório Sobral' },
-  { src: '/images/historia/FIGURA01.jpeg',                         alt: 'Produtos do Laboratório Sobral' },
-];
+// Monta o array de fotos de uma galeria a partir das chaves do CMS
+// (galeria{n}_foto{i}_imagem / _alt), na mesma ordem e posição do site antigo.
+function fotosGaleria(content, n, total) {
+  return Array.from({ length: total }, (_, i) => {
+    const idx = i + 1;
+    return {
+      src: content[`galeria${n}_foto${idx}_imagem`],
+      alt: content[`galeria${n}_foto${idx}_alt`],
+    };
+  });
+}
 
 function Galeria({ fotos, colunas }) {
   return (
@@ -104,7 +125,7 @@ export default function QuemSomosPage() {
         <meta property="og:type" content="website" />
       </Helmet>
       <h1 className="bg-gradient-to-b from-orange to-[#E85A0C] text-white text-center py-7 px-5 font-display text-[32px] font-[900] tracking-[-.3px]">
-        Quem Somos
+        {content.titulo_pagina}
       </h1>
 
       {/* MVV — Stack horizontal editorial */}
@@ -116,8 +137,8 @@ export default function QuemSomosPage() {
               className={`grid grid-cols-1 md:grid-cols-[220px_1fr] gap-3 md:gap-8 items-start py-[22px] ${i < MVV_ITEMS.length - 1 ? 'border-b border-line' : ''}`}
             >
               <div>
-                <div className={`text-[11px] tracking-[2px] font-[900] mb-1.5 ${item.text}`}>{item.tag}</div>
-                <div className="font-display text-[28px] md:text-[32px] font-[900] text-ink leading-none">{item.title}</div>
+                <div className={`text-[11px] tracking-[2px] font-[900] mb-1.5 ${item.text}`}>{content[`mvv_${item.key}_tag`]}</div>
+                <div className="font-display text-[28px] md:text-[32px] font-[900] text-ink leading-none">{content[`mvv_${item.key}_titulo`]}</div>
               </div>
               <div className={`text-[15.5px] text-ink-light leading-[1.65] py-1.5 pl-4 md:pl-6 border-l-[3px] ${item.accent}`}>
                 {safe(content[item.key])}
@@ -141,7 +162,7 @@ export default function QuemSomosPage() {
         </p>
         <div className={PROSE}>{safe(content.historia_intro_texto)}</div>
 
-        <Galeria fotos={GALERIA_1} colunas="lg:grid-cols-2" />
+        <Galeria fotos={fotosGaleria(content, 1, 2)} colunas="lg:grid-cols-2" />
 
         <Bloco titulo={content.historia_b1_titulo} texto={content.historia_b1_texto} />
 
@@ -153,12 +174,12 @@ export default function QuemSomosPage() {
 
         <div className={`${PROSE} mb-10`}>{safe(content.historia_b2_texto)}</div>
 
-        <Galeria fotos={GALERIA_2} colunas="lg:grid-cols-4" />
+        <Galeria fotos={fotosGaleria(content, 2, 4)} colunas="lg:grid-cols-4" />
 
         <Bloco titulo={content.historia_b3_titulo} texto={content.historia_b3_texto} />
         <Bloco titulo={content.historia_b4_titulo} texto={content.historia_b4_texto} />
 
-        <Galeria fotos={GALERIA_3} colunas="lg:grid-cols-2" />
+        <Galeria fotos={fotosGaleria(content, 3, 2)} colunas="lg:grid-cols-2" />
 
         <figure className="my-10">
           <div className="aspect-[16/9] rounded-[20px] overflow-hidden bg-[#EAEAEA] shadow-[0_12px_32px_rgba(0,0,0,.12)]">

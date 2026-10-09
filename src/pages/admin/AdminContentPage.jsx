@@ -64,11 +64,32 @@ const PAGE_CONFIG = {
     title: 'Quem Somos',
     sections: [
       {
+        label: 'Cabeçalho da página',
+        fields: [
+          { key: 'titulo_pagina', label: 'Título (H1)', type: 'text' },
+        ],
+      },
+      {
         label: 'Missão, Visão e Valores',
         fields: [
-          { key: 'missao',  label: 'Missão',  type: 'richtext' },
-          { key: 'visao',   label: 'Visão',   type: 'richtext' },
-          { key: 'valores', label: 'Valores', type: 'richtext' },
+          { key: 'mvv_missao_tag',     label: 'Missão — eyebrow (ex: O QUE FAZEMOS)', type: 'text' },
+          { key: 'mvv_missao_titulo',  label: 'Missão — título',                       type: 'text' },
+          { key: 'missao',             label: 'Missão — texto',                        type: 'richtext' },
+          { key: 'mvv_visao_tag',      label: 'Visão — eyebrow (ex: PARA ONDE VAMOS)', type: 'text' },
+          { key: 'mvv_visao_titulo',   label: 'Visão — título',                        type: 'text' },
+          { key: 'visao',              label: 'Visão — texto',                         type: 'richtext' },
+          { key: 'mvv_valores_tag',    label: 'Valores — eyebrow (ex: COMO SOMOS)',    type: 'text' },
+          { key: 'mvv_valores_titulo', label: 'Valores — título',                      type: 'text' },
+          { key: 'valores',            label: 'Valores — texto',                       type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Galeria 1 (abertura da história)',
+        fields: [
+          { key: 'galeria1_foto1_imagem', label: 'Foto 1',          type: 'image' },
+          { key: 'galeria1_foto1_alt',    label: 'Foto 1 — texto alternativo', type: 'text' },
+          { key: 'galeria1_foto2_imagem', label: 'Foto 2',          type: 'image' },
+          { key: 'galeria1_foto2_alt',    label: 'Foto 2 — texto alternativo', type: 'text' },
         ],
       },
       {
@@ -87,10 +108,42 @@ const PAGE_CONFIG = {
           { key: 'historia_b1_texto',  label: 'Texto 1',                                   type: 'richtext' },
           { key: 'historia_destaque',  label: 'Frase de destaque (citação laranja)',       type: 'text' },
           { key: 'historia_b2_texto',  label: 'Texto 2 (a gente cuida de gente…)',         type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Galeria 2 (após o texto 2)',
+        fields: [
+          { key: 'galeria2_foto1_imagem', label: 'Foto 1',          type: 'image' },
+          { key: 'galeria2_foto1_alt',    label: 'Foto 1 — texto alternativo', type: 'text' },
+          { key: 'galeria2_foto2_imagem', label: 'Foto 2',          type: 'image' },
+          { key: 'galeria2_foto2_alt',    label: 'Foto 2 — texto alternativo', type: 'text' },
+          { key: 'galeria2_foto3_imagem', label: 'Foto 3',          type: 'image' },
+          { key: 'galeria2_foto3_alt',    label: 'Foto 3 — texto alternativo', type: 'text' },
+          { key: 'galeria2_foto4_imagem', label: 'Foto 4',          type: 'image' },
+          { key: 'galeria2_foto4_alt',    label: 'Foto 4 — texto alternativo', type: 'text' },
+        ],
+      },
+      {
+        label: 'Nossa História — corpo do texto (continuação)',
+        fields: [
           { key: 'historia_b3_titulo', label: 'Título 2 (ex: O novo capítulo…)',           type: 'text' },
           { key: 'historia_b3_texto',  label: 'Texto 3',                                   type: 'richtext' },
           { key: 'historia_b4_titulo', label: 'Título 3 (ex: Mas, na prática…)',           type: 'text' },
           { key: 'historia_b4_texto',  label: 'Texto 4',                                   type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Galeria 3 (após o texto 4)',
+        fields: [
+          { key: 'galeria3_foto1_imagem', label: 'Foto 1',          type: 'image' },
+          { key: 'galeria3_foto1_alt',    label: 'Foto 1 — texto alternativo', type: 'text' },
+          { key: 'galeria3_foto2_imagem', label: 'Foto 2',          type: 'image' },
+          { key: 'galeria3_foto2_alt',    label: 'Foto 2 — texto alternativo', type: 'text' },
+        ],
+      },
+      {
+        label: 'Nossa História — corpo do texto (encerramento)',
+        fields: [
           { key: 'historia_imagem',    label: 'Foto da fachada',                           type: 'image' },
           { key: 'historia_b5_titulo', label: 'Título 4 (ex: Os novos produtos…)',         type: 'text' },
           { key: 'historia_b5_texto',  label: 'Texto 5 (com a lista de linhas)',           type: 'richtext' },
