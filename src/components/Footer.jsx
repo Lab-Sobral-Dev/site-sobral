@@ -30,19 +30,19 @@ function MapPinIcon() {
 
 export default function Footer() {
   return (
-    <footer className="mt-[60px] bg-gradient-to-br from-[#F89B4D] via-[#E85A0C] to-[#F89B4D] text-white pt-12 px-4 md:px-10 pb-0">
-      <div className="max-w-content mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.2fr_1fr_1.2fr_1fr] gap-8 md:gap-10">
+    <footer className="mt-[60px] bg-gradient-to-br from-[#F89B4D] via-[#E85A0C] to-[#F89B4D] text-white pt-8 px-4 md:px-10 pb-0">
+      <div className="max-w-content mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.2fr_1fr_1.2fr_1fr] gap-6 md:gap-8">
 
         {/* Logo ocupa a linha inteira: as quatro colunas abaixo comecam no
             mesmo topo, na linha dos enderecos */}
-        <div className="sm:col-span-2 md:col-span-4 w-[72px] h-[72px] rounded-full border-2 border-white overflow-hidden">
+        <div className="sm:col-span-2 md:col-span-4 w-14 h-14 rounded-full border-2 border-white overflow-hidden">
           <img src="/images/logo.png" alt="Laboratório Sobral" className="w-full h-full object-cover" />
         </div>
 
         {/* Col 1 — Endereços */}
         <div>
           {UNIDADES.map(({ rotulo, linhas, endereco }, i) => (
-            <div key={rotulo} className={`text-[13.5px] leading-relaxed font-semibold ${i > 0 ? 'mt-3' : ''}`}>
+            <div key={rotulo} className={`text-[13.5px] leading-relaxed font-semibold ${i > 0 ? 'mt-2' : ''}`}>
               <div className="text-[10px] uppercase tracking-[1.5px] opacity-70 mb-0.5">{rotulo}</div>
               {linhas.map(linha => <div key={linha}>{linha}</div>)}
               <a
@@ -61,8 +61,8 @@ export default function Footer() {
 
         {/* Col 2 — Fale Conosco */}
         <div>
-          <h4 className="text-[16px] font-[800] mb-[14px] tracking-[.3px]">Fale Conosco</h4>
-          <ul className="list-none p-0 m-0 space-y-2">
+          <h4 className="text-[16px] font-[800] mb-2.5 tracking-[.3px]">Fale Conosco</h4>
+          <ul className="list-none p-0 m-0 space-y-1.5">
             <li className="text-[13.5px] font-semibold opacity-95">
               <a href="tel:+558921012202" className="hover:underline">(89) 2101-2202</a>
             </li>
@@ -89,8 +89,8 @@ export default function Footer() {
 
         {/* Col 3 — Institucional */}
         <div>
-          <h4 className="text-[16px] font-[800] mb-[14px] tracking-[.3px]">Institucional</h4>
-          <ul className="list-none p-0 m-0 space-y-1.5">
+          <h4 className="text-[16px] font-[800] mb-2.5 tracking-[.3px]">Institucional</h4>
+          <ul className="list-none p-0 m-0 space-y-1">
             {[
               ['/', 'Home'],
               ['/quem-somos', 'Quem Somos'],
@@ -108,8 +108,8 @@ export default function Footer() {
 
         {/* Col 4 — Redes Sociais */}
         <div>
-          <h4 className="text-[16px] font-[800] mb-[14px] tracking-[.3px]">Redes Sociais</h4>
-          <ul className="list-none p-0 m-0 space-y-1.5">
+          <h4 className="text-[16px] font-[800] mb-2.5 tracking-[.3px]">Redes Sociais</h4>
+          <ul className="list-none p-0 m-0 space-y-1">
             {[
               { name: 'Instagram', href: 'https://instagram.com/labsobral' },
               { name: 'Facebook',  href: 'https://facebook.com/labsobral' },
@@ -125,7 +125,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mt-10 border-t border-white/20 py-4 flex flex-wrap justify-between items-center gap-2 text-[13px] font-semibold max-w-content mx-auto">
+      <div className="mt-6 border-t border-white/20 py-3 flex flex-wrap justify-between items-center gap-2 text-[13px] font-semibold max-w-content mx-auto">
         <span>© {new Date().getFullYear()} Laboratório Sobral. Todos os direitos reservados.</span>
         <Link to="/privacidade" className="underline">Política de Privacidade e Cookies</Link>
       </div>
