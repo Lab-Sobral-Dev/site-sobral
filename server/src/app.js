@@ -13,6 +13,7 @@ const contactRouter         = require('./routes/contact');
 const authRouter            = require('./routes/auth');
 const contentRouter         = require('./routes/content');
 const heroSlidesRouter      = require('./routes/hero-slides');
+const faqRouter              = require('./routes/faq');
 const sitemapRouter         = require('./routes/sitemap');
 
 const adminProductsRouter   = require('./routes/admin-products');
@@ -23,6 +24,7 @@ const adminStatsRouter      = require('./routes/admin-stats');
 const adminAuditRouter      = require('./routes/admin-audit');
 const adminUsersRouter      = require('./routes/admin-users');
 const adminMisturinhasRouter = require('./routes/admin-misturinhas');
+const adminFaqRouter         = require('./routes/admin-faq');
 const uploadRouter          = require('./routes/upload');
 const psdImportRouter       = require('./routes/psd-import');
 
@@ -69,6 +71,7 @@ app.use('/api/contact',             contactRouter);
 app.use('/api/auth',                authRouter);
 app.use('/api/content',             contentRouter);
 app.use('/api/hero-slides',         heroSlidesRouter);
+app.use('/api/faq',                 faqRouter);
 app.use('/sitemap.xml',             sitemapRouter);
 
 app.use('/api/admin/products',      adminProductsRouter);
@@ -77,6 +80,7 @@ app.use('/api/admin/content',       adminContentRouter);
 app.use('/api/admin/hero-slides',   adminHeroSlidesRouter);
 app.use('/api/admin/stats',         adminStatsRouter);
 app.use('/api/admin/misturinhas',   adminMisturinhasRouter);
+app.use('/api/admin/faq',           adminFaqRouter);
 app.use('/api/admin/audit',         adminAuditRouter);
 app.use('/api/admin/users',         adminUsersRouter);
 app.use('/api/upload',              uploadRouter);

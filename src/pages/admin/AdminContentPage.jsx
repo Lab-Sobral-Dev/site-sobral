@@ -24,7 +24,7 @@ function StatusCampo({ estado, onTentarDeNovo }) {
   return null;
 }
 
-const PAGE_URLS = { home: '/', sobre: '/quem-somos', contato: '/fale-conosco', privacidade: '/privacidade' };
+const PAGE_URLS = { home: '/', sobre: '/quem-somos', contato: '/fale-conosco', privacidade: '/privacidade', misturinhas: '/misturinhas' };
 
 const PAGE_CONFIG = {
   home: {
@@ -166,14 +166,42 @@ const PAGE_CONFIG = {
         ],
       },
       {
-        // Apagar a pergunta OU a resposta remove o item do acordeão no site.
+        // As perguntas em si (adicionar, remover, reordenar) ficam em /admin/faq.
         label: 'Perguntas Frequentes',
         fields: [
           { key: 'faq_titulo', label: 'Título da seção', type: 'text' },
-          ...[1, 2, 3, 4, 5, 6].flatMap(n => [
-            { key: `faq_${n}_p`, label: `Pergunta ${n}`, type: 'text' },
-            { key: `faq_${n}_r`, label: `Resposta ${n}`, type: 'richtext' },
-          ]),
+        ],
+      },
+    ],
+  },
+  misturinhas: {
+    title: 'Misturinhas',
+    sections: [
+      {
+        label: 'Hero',
+        fields: [
+          { key: 'hero_titulo',          label: 'Título (linha 1)',             type: 'text' },
+          { key: 'hero_titulo_destaque', label: 'Título (linha 2, em destaque)', type: 'text' },
+          { key: 'hero_subtitulo',       label: 'Texto de apoio',               type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Guia de óleos',
+        fields: [
+          { key: 'guia_titulo',    label: 'Título da seção', type: 'text' },
+          { key: 'guia_subtitulo', label: 'Subtítulo',       type: 'text' },
+        ],
+      },
+      {
+        label: 'Chamada para o Instagram',
+        fields: [
+          { key: 'cta_eyebrow',        label: 'Eyebrow (ex: SUA RECEITA · NOSSO INSTAGRAM)', type: 'text' },
+          { key: 'cta_titulo',         label: 'Título (linha 1)',                             type: 'text' },
+          { key: 'cta_titulo_destaque', label: 'Título (linha 2, em destaque)',                type: 'text' },
+          { key: 'cta_texto',          label: 'Texto de apoio',                               type: 'richtext' },
+          { key: 'cta_botao_label',    label: 'Rótulo do botão',                              type: 'text' },
+          { key: 'cta_botao_url',      label: 'Link do botão (Instagram)',                    type: 'text' },
+          { key: 'cta_imagem',         label: 'Imagem',                                       type: 'image' },
         ],
       },
     ],

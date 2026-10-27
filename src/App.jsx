@@ -22,6 +22,7 @@ const AdminContentPage      = lazy(() => import('./pages/admin/AdminContentPage'
 const AdminHeroSlidesPage   = lazy(() => import('./pages/admin/AdminHeroSlidesPage'));
 const AdminSlideBuilderPage = lazy(() => import('./pages/admin/AdminSlideBuilderPage'));
 const AdminMisturinhasPage  = lazy(() => import('./pages/admin/AdminMisturinhasPage'));
+const AdminFaqPage          = lazy(() => import('./pages/admin/AdminFaqPage'));
 const AdminHistoricoPage    = lazy(() => import('./pages/admin/AdminHistoricoPage'));
 const AdminUsuariosPage     = lazy(() => import('./pages/admin/AdminUsuariosPage'));
 const AdminContaPage        = lazy(() => import('./pages/admin/AdminContaPage'));
@@ -164,6 +165,8 @@ const router = createBrowserRouter([
       { path: 'conteudo/sobre',   element: admin(<AdminContentPage page="sobre" />) },
       { path: 'conteudo/contato', element: admin(<AdminContentPage page="contato" />) },
       { path: 'conteudo/privacidade', element: admin(<AdminContentPage page="privacidade" />) },
+      { path: 'conteudo/misturinhas', element: admin(<AdminContentPage page="misturinhas" />) },
+      { path: 'faq',                         element: admin(<AdminFaqPage />) },
       { path: 'misturinhas',                element: admin(<AdminMisturinhasPage />) },
       { path: 'hero-slides',                element: admin(<AdminHeroSlidesPage />) },
       { path: 'hero-slides/:id/editar',    element: admin(<AdminSlideBuilderPage />) },

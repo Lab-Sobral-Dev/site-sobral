@@ -69,8 +69,10 @@ export default function AdminLayout() {
           <NavLink to="/admin/conteudo/home" className={navClass}>Home</NavLink>
           <NavLink to="/admin/conteudo/sobre" className={navClass}>Quem Somos</NavLink>
           <NavLink to="/admin/conteudo/contato" className={navClass}>Fale Conosco</NavLink>
+          <NavLink to="/admin/faq" className={navClass}>Perguntas Frequentes</NavLink>
           <NavLink to="/admin/conteudo/privacidade" className={navClass}>Privacidade</NavLink>
-          <NavLink to="/admin/misturinhas"  className={navClass}>Misturinhas</NavLink>
+          <NavLink to="/admin/conteudo/misturinhas" className={navClass}>Misturinhas (textos)</NavLink>
+          <NavLink to="/admin/misturinhas"  className={navClass}>Misturinhas (receitas)</NavLink>
           <NavLink to="/admin/hero-slides"  className={navClass}>Hero Slides</NavLink>
           <div className="px-3 pt-3 pb-1 text-[10px] font-[700] text-[#aaa] uppercase tracking-[.6px]">Sistema</div>
           <NavLink to="/admin/historico" className={navClass}>Histórico</NavLink>

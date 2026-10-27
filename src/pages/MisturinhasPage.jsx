@@ -1,6 +1,37 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { usePageContent } from '../hooks/usePageContent';
+
+const safe = (html) => parse(DOMPurify.sanitize(html));
+
+// O link do Instagram vem de um campo de texto livre editável no admin;
+// restringe a http(s) para não abrir brecha de XSS via esquema javascript:.
+const safeUrl = (url) => {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '#';
+  } catch {
+    return '#';
+  }
+};
+
+const MISTURINHAS_DEFAULTS = {
+  hero_titulo:          'Misturinhas',
+  hero_titulo_destaque: 'que mudam tudo.',
+  hero_subtitulo:       '<p>Combinações dos <strong>Óleos Sobral</strong> para turbinar sua rotina de pele e cabelo. Use sozinhos ou misturados — sua beleza agradece.</p>',
+  guia_titulo:          '12 óleos. Uma rotina.',
+  guia_subtitulo:       'Conheça rapidamente para que serve cada óleo da linha Sobral.',
+  cta_eyebrow:          'SUA RECEITA · NOSSO INSTAGRAM',
+  cta_titulo:           'Faça a sua e marque',
+  cta_titulo_destaque:  '@labsobral',
+  cta_texto:            'Mostre suas combinações no Instagram — quem sabe sua receita não vira a próxima dica oficial.',
+  cta_botao_label:      '@labsobral no Instagram',
+  cta_botao_url:        'https://instagram.com/labsobral',
+  cta_imagem:           '/images/misturinhas-hero-panel.png',
+};
 
 function ChevronIcon({ dir = 'left' }) {
   return (
@@ -35,6 +66,8 @@ export default function MisturinhasPage() {
   const [tab,          setTab]          = useState('');
   const [idx,          setIdx]          = useState(0);
   const [productMap,   setProductMap]   = useState({});
+
+  const content = usePageContent('misturinhas', MISTURINHAS_DEFAULTS);
 
   // Busca misturinhas da API
   useEffect(() => {
@@ -123,13 +156,12 @@ export default function MisturinhasPage() {
 
         <div className="relative flex flex-col items-center max-w-[700px]">
           <h1 className="font-display text-[48px] lg:text-[72px] font-[900] leading-[.95] mb-6 text-ink tracking-[-2px]">
-            Misturinhas<br/>
-            <em className="text-orange not-italic-only italic font-[700]">que mudam tudo.</em>
+            {content.hero_titulo}<br/>
+            <em className="text-orange not-italic-only italic font-[700]">{content.hero_titulo_destaque}</em>
           </h1>
-          <p className="text-[18px] leading-[1.55] text-ink-light max-w-[480px]">
-            Combinações dos <strong className="text-ink font-[800]">Óleos Sobral</strong> para turbinar sua rotina de pele e cabelo.
-            Use sozinhos ou misturados — sua beleza agradece.
-          </p>
+          <div className="text-[18px] leading-[1.55] text-ink-light max-w-[480px] [&_strong]:text-ink [&_strong]:font-[800] [&_p]:m-0">
+            {safe(content.hero_subtitulo)}
+          </div>
         </div>
       </section>
 
@@ -243,8 +275,8 @@ export default function MisturinhasPage() {
       {/* GUIA */}
       <section ref={refGuia} className="reveal max-w-content mx-auto px-4 md:px-10 mt-10">
         <div className="text-center mb-8">
-          <h2 className="font-display text-[38px] font-[900] tracking-[-.5px] m-0 mb-2">12 óleos. Uma rotina.</h2>
-          <p className="text-[15px] text-ink-light m-0">Conheça rapidamente para que serve cada óleo da linha Sobral.</p>
+          <h2 className="font-display text-[38px] font-[900] tracking-[-.5px] m-0 mb-2">{content.guia_titulo}</h2>
+          <p className="text-[15px] text-ink-light m-0">{content.guia_subtitulo}</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {GUIA_OLEOS.map(o => {
@@ -273,22 +305,22 @@ export default function MisturinhasPage() {
         <div className="bg-gradient-to-r from-[#F89B4D] via-orange to-[#E0580A] rounded-[28px] p-10 lg:px-16 lg:py-14 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-10 items-center text-white shadow-[0_12px_32px_rgba(232,90,12,.28)] relative overflow-hidden">
           <div className="absolute -top-[80px] right-[40%] w-[280px] h-[280px] rounded-full bg-white/10 pointer-events-none" />
           <div className="relative z-[1]">
-            <div className="text-[12px] tracking-[3px] font-[900] opacity-90 mb-3.5">SUA RECEITA · NOSSO INSTAGRAM</div>
+            <div className="text-[12px] tracking-[3px] font-[900] opacity-90 mb-3.5">{content.cta_eyebrow}</div>
             <h2 className="font-display text-[36px] lg:text-[46px] font-[900] leading-[1.05] m-0 mb-4 tracking-[-1px]">
-              Faça a sua e marque<br/><em className="italic">@labsobral</em>
+              {content.cta_titulo}<br/><em className="italic">{content.cta_titulo_destaque}</em>
             </h2>
-            <p className="text-[16px] leading-[1.55] opacity-95 max-w-[460px] m-0">
-              Mostre suas combinações no Instagram — quem sabe sua receita não vira a próxima dica oficial.
-            </p>
+            <div className="text-[16px] leading-[1.55] opacity-95 max-w-[460px] [&_p]:m-0">
+              {safe(content.cta_texto)}
+            </div>
             <div className="flex gap-3 flex-wrap mt-6">
-              <a href="https://instagram.com/labsobral" target="_blank" rel="noreferrer"
+              <a href={safeUrl(content.cta_botao_url)} target="_blank" rel="noreferrer"
                  className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-white text-orange font-[900] text-[14px] tracking-[.3px] transition-all hover:-translate-y-px hover:shadow-lg">
-                @labsobral no Instagram
+                {content.cta_botao_label}
               </a>
             </div>
           </div>
           <div className="relative z-[1] rounded-[20px] overflow-hidden aspect-[3/4] shadow-[0_12px_32px_rgba(0,0,0,.18)] max-h-[320px] lg:max-h-none bg-[#F37021]">
-            <img src="/images/misturinhas-hero-panel.png" alt="" className="w-full h-full object-contain block" />
+            <img src={content.cta_imagem} alt="" className="w-full h-full object-contain block" />
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
@@ -18,21 +18,7 @@ const CONTATO_DEFAULTS = {
   marketing_email:      'marketing@laboratoriosobral.com.br',
 
   faq_titulo: 'Perguntas Frequentes',
-  faq_1_p: 'Como falo com o SAC do Laboratório Sobral?',
-  faq_1_r: '<p>Pelo telefone gratuito <strong>0800 979 5040</strong>, pelo WhatsApp <strong>(89) 99460-6485</strong> ou pelo e-mail <strong>sac@laboratoriosobral.com.br</strong>. Você também pode usar o formulário no fim desta página.</p>',
-  faq_2_p: 'Onde encontro os produtos Sobral?',
-  faq_2_r: '<p>Nossos produtos são distribuídos em farmácias e drogarias de todo o Brasil. Se não encontrar um item na sua região, fale com o SAC que indicamos o ponto de venda mais próximo.</p>',
-  faq_3_p: 'O Laboratório Sobral ainda fabrica medicamentos?',
-  faq_3_r: '<p>Hoje o Sobral está focado em <strong>suplementos alimentares</strong> — em especial vitaminas e minerais — e em <strong>cosméticos</strong>, com a mesma tradição e qualidade de sempre, agora com foco na prevenção e no bem-estar.</p>',
-  faq_4_p: 'Como agendo uma visita à indústria?',
-  faq_4_r: '<p>Fale com a gente pelo WhatsApp <strong>(89) 99927-0207</strong> e combinamos a melhor data para receber você ou seu grupo.</p>',
-  faq_5_p: 'Como envio meu currículo para trabalhar no Sobral?',
-  faq_5_r: '<p>Envie seu currículo para <strong>rh@laboratoriosobral.com.br</strong>. As vagas abertas também são divulgadas nas nossas redes sociais.</p>',
-  faq_6_p: 'Onde consulto o Relatório de Transparência Salarial?',
-  faq_6_r: '<p>O relatório fica disponível publicamente. Acesse pelo menu <strong>Fale Conosco → Relatório de Transparência Salarial</strong>, no topo do site.</p>',
 };
-
-const FAQ_KEYS = [1, 2, 3, 4, 5, 6];
 
 const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 const EMPTY_FORM = { nome: '', sobrenome: '', email: '', celular: '', endereco: '', estado: '', assunto: '', mensagem: '' };
@@ -61,14 +47,16 @@ export default function FaleConoscoPage() {
   const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState({});
   const [openFaq, setOpenFaq] = useState(null);
+  const [faqItems, setFaqItems] = useState([]);
 
   const content = usePageContent('contato', CONTATO_DEFAULTS);
 
-  // Só entram no acordeão as perguntas que têm pergunta E resposta preenchidas,
-  // para que apagar um par no CMS remova o item em vez de deixar linha vazia.
-  const faqItems = FAQ_KEYS
-    .map(n => ({ n, pergunta: (content[`faq_${n}_p`] || '').trim(), resposta: content[`faq_${n}_r`] || '' }))
-    .filter(item => item.pergunta && stripTags(item.resposta));
+  useEffect(() => {
+    fetch('/api/faq')
+      .then(r => r.json())
+      .then(data => setFaqItems(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
 
   const handleChange = (field) => (e) => {
     setForm(f => ({ ...f, [field]: e.target.value }));
@@ -207,19 +195,19 @@ export default function FaleConoscoPage() {
           <div className="mb-12">
             <h2 className="text-[22px] font-[800] text-orange mb-[18px]">{content.faq_titulo}</h2>
             <div className="bg-white rounded-[14px] border border-line shadow-sm px-5 md:px-7">
-              {faqItems.map(({ n, pergunta, resposta }) => (
-                <div key={n} className={`accordion-item border-b border-line last:border-0 ${openFaq === n ? 'open' : ''}`}>
+              {faqItems.map(({ id, pergunta, resposta }) => (
+                <div key={id} className={`accordion-item border-b border-line last:border-0 ${openFaq === id ? 'open' : ''}`}>
                   <button
                     type="button"
-                    aria-expanded={openFaq === n}
-                    aria-controls={`faq-resposta-${n}`}
+                    aria-expanded={openFaq === id}
+                    aria-controls={`faq-resposta-${id}`}
                     className="flex justify-between items-center gap-4 w-full py-[16px] bg-transparent border-none text-left font-bold text-[15px] text-ink cursor-pointer"
-                    onClick={() => setOpenFaq(openFaq === n ? null : n)}
+                    onClick={() => setOpenFaq(openFaq === id ? null : id)}
                   >
                     {pergunta}
                     <span className="arrow text-orange text-[18px] flex-shrink-0">▾</span>
                   </button>
-                  <div className="accordion-content" id={`faq-resposta-${n}`} role="region">
+                  <div className="accordion-content" id={`faq-resposta-${id}`} role="region">
                     <div className="pb-4 text-[14.5px] text-ink-light leading-[1.65] [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_a]:text-orange [&_a]:underline">
                       {safe(resposta)}
                     </div>
