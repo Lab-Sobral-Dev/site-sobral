@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ProductCard from './ProductCard';
+import ProductCard, { ProductCardSkeleton } from './ProductCard';
 
 // Mesmo corte do grid (grid-cols-2 md:grid-cols-4): sem isto, com poucos
 // produtos a página cabe inteira numa linha em telas maiores e o carrossel
@@ -19,9 +18,7 @@ function ChevronIcon({ dir = 'left' }) {
 // Grade de produtos paginada, com setas/pontos quando não cabem numa linha
 // do breakpoint atual. Usada tanto na home (destaques) quanto na página de
 // produto (relacionados) — a lista já vem pronta via props.
-export default function ProductCardCarousel({ products }) {
-  const navigate = useNavigate();
-
+export default function ProductCardCarousel({ products, loading = false }) {
   const [pageIdx, setPageIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.matchMedia(MOBILE_QUERY).matches);
@@ -52,6 +49,15 @@ export default function ProductCardCarousel({ products }) {
     return () => clearInterval(t);
   }, [totalPages, paused, next]);
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className={i > 1 ? 'hidden md:block' : ''}><ProductCardSkeleton /></div>
+        ))}
+      </div>
+    );
+  }
   if (!products.length) return null;
 
   const visible = products.slice(pageIdx * cardsPerPage, (pageIdx + 1) * cardsPerPage);
@@ -62,7 +68,7 @@ export default function ProductCardCarousel({ products }) {
       <div className="relative">
         <div key={pageIdx} className="grid grid-cols-2 md:grid-cols-4 gap-5 slide-enter-fade">
           {visible.map(p => (
-            <ProductCard key={p.id} product={p} onClick={() => navigate(`/produtos/${p.id}`)} />
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
 

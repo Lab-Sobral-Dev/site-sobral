@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useCategories } from '../hooks/useCategories';
 
 function HamburgerIcon() {
   return (
@@ -40,16 +41,8 @@ const CONTATO_SECTION = {
 };
 
 export default function MobileDrawer({ open, onClose }) {
-  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(null);
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    fetch('/api/categories')
-      .then(r => r.json())
-      .then(data => setCategories(Array.isArray(data) ? data.filter(c => c.id !== 'all') : []))
-      .catch(() => {});
-  }, []);
+  const categories = useCategories().filter(c => c.id !== 'all');
 
   const navSections = [
     SOBRAL_SECTION,
@@ -82,11 +75,6 @@ export default function MobileDrawer({ open, onClose }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  const go = (to) => {
-    navigate(to);
-    onClose();
-  };
-
   return (
     <>
       <div
@@ -95,7 +83,7 @@ export default function MobileDrawer({ open, onClose }) {
         aria-hidden="true"
       />
       <aside
-        className={`fixed top-0 right-0 bottom-0 w-[82%] max-w-[340px] bg-white z-[70] shadow-[-4px_0_24px_rgba(0,0,0,.18)] transform transition-transform duration-300 lg:hidden flex flex-col ${open ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 bottom-0 w-[82%] max-w-[340px] bg-white z-[70] shadow-[-4px_0_24px_rgba(0,0,0,.18)] transform transition-[transform,visibility] duration-300 lg:hidden flex flex-col ${open ? 'translate-x-0 visible' : 'translate-x-full invisible'}`}
         role="dialog"
         aria-label="Menu principal"
       >
@@ -112,13 +100,14 @@ export default function MobileDrawer({ open, onClose }) {
           <div className="text-[11px] tracking-[2px] font-[900] text-orange mb-2">MENU</div>
 
           <div className="border-b border-line">
-            <button
-              onClick={() => go('/')}
+            <Link
+              to="/"
+              onClick={onClose}
               className="w-full flex justify-between items-center py-3.5 text-left font-bold text-[15px] text-ink"
             >
               Início
               <span className="text-orange text-[13px]">›</span>
-            </button>
+            </Link>
           </div>
 
           {navSections.map((section) => {
@@ -147,13 +136,14 @@ export default function MobileDrawer({ open, onClose }) {
                         {it.label}
                       </a>
                     ) : (
-                      <button
+                      <Link
                         key={it.label}
-                        onClick={() => go(it.to)}
+                        to={it.to}
+                        onClick={onClose}
                         className="text-left text-[14px] font-semibold text-ink-light py-1.5 hover:text-orange"
                       >
                         {it.label}
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 )}

@@ -40,6 +40,7 @@ Arquitetura do projeto:
         useRascunho.js                ← rascunho local do formulário em localStorage
         useAtalhoSalvar.js            ← Ctrl+S / Cmd+S nos formulários
         useDebounce.js                ← debounce de busca
+        useCategories.js              ← categorias com cache compartilhado (1 requisição)
       data/
         catalog.js                    ← array estático de produtos (legado/seed local)
       pages/
@@ -49,6 +50,7 @@ Arquitetura do projeto:
         ProdutoPage.jsx               ← detalhe de produto
         FaleConoscoPage.jsx           ← formulário de contato + informações
         PrivacidadePage.jsx           ← política de privacidade
+        NotFoundPage.jsx              ← 404 (rota * dentro do Layout)
         admin/
           AdminLoginPage.jsx          ← login JWT (rota pública)
           AdminLayout.jsx             ← sidebar + guard de rota

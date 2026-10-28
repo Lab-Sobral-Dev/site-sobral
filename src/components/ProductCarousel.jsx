@@ -3,15 +3,17 @@ import ProductCardCarousel from './ProductCardCarousel';
 
 export default function ProductCarousel() {
   const [products, setProducts] = useState([]);
+  const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
     fetch('/api/products?destaque=true&per_page=50')
       .then(r => r.json())
       .then(json => setProducts(json.data || []))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  if (!products.length) return null;
+  if (!loading && !products.length) return null;
 
   return (
     <section className="max-w-content mx-auto px-4 md:px-10 mt-[60px]">
@@ -20,7 +22,7 @@ export default function ProductCarousel() {
         <h2 className="font-display text-[28px] md:text-[36px] font-[900] tracking-[-.5px] leading-none">Conheça nossos produtos</h2>
       </div>
 
-      <ProductCardCarousel products={products} />
+      <ProductCardCarousel products={products} loading={loading} />
     </section>
   );
 }

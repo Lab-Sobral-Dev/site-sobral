@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 
 const CANVAS_W = 1920;
 const CANVAS_H = 700;
@@ -47,15 +48,14 @@ function Layer({ layer }) {
   }
 
   if (layer.type === 'button') {
-    return (
-      <a
-        href={layer.href || '/produtos'}
-        style={{ ...style, backgroundColor: layer.bgColor, color: layer.textColor }}
-        className={`flex items-center justify-center rounded-lg font-bold text-sm px-4 whitespace-nowrap shadow-lg ${animClass}`}
-      >
-        {layer.text}
-      </a>
-    );
+    const href = layer.href || '/produtos';
+    const props = {
+      style: { ...style, backgroundColor: layer.bgColor, color: layer.textColor },
+      className: `flex items-center justify-center rounded-lg font-bold text-sm px-4 whitespace-nowrap shadow-lg ${animClass}`,
+    };
+    return href.startsWith('/') && !href.startsWith('//')
+      ? <Link to={href} {...props}>{layer.text}</Link>
+      : <a href={href} {...props}>{layer.text}</a>;
   }
 
   return null;
@@ -68,6 +68,7 @@ const MOBILE_QUERY = '(max-width: 1023px)';
 
 export default function HeroCarousel() {
   const [slides,     setSlides]     = useState([]);
+  const [loaded,     setLoaded]     = useState(false);
   const [idx,        setIdx]        = useState(0);
   const [animKey,    setAnimKey]    = useState(0);
   const [paused,     setPaused]     = useState(false);
@@ -75,7 +76,7 @@ export default function HeroCarousel() {
   const [isMobile,   setIsMobile]   = useState(() => window.matchMedia(MOBILE_QUERY).matches);
 
   useEffect(() => {
-    fetch('/api/hero-slides').then(r => r.json()).then(setSlides).catch(() => {});
+    fetch('/api/hero-slides').then(r => r.json()).then(setSlides).catch(() => {}).finally(() => setLoaded(true));
     fetch('/api/content/carousel').then(r => r.json()).then(d => setTransition(d.transition ?? 'fade')).catch(() => {});
   }, []);
 
@@ -103,10 +104,13 @@ export default function HeroCarousel() {
   const slide = slides[idx] ?? null;
   const layers = slide && Array.isArray(slide.layers) ? slide.layers : [];
   const showMobileImage = isMobile && !!slide?.image_mobile_url;
+  // Reserva a altura do banner mobile antes dos slides chegarem: sem isso a
+  // seção nasce na proporção desktop e cresce quando a imagem carrega.
+  const mobileBox = isMobile && (!loaded || showMobileImage);
 
   return (
     <section
-      className={`w-full bg-bg relative overflow-hidden ${showMobileImage ? '' : 'aspect-[1920/700]'}`}
+      className={`w-full bg-bg relative overflow-hidden ${mobileBox ? 'aspect-[3840/4557]' : 'aspect-[1920/700]'}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -114,7 +118,7 @@ export default function HeroCarousel() {
         <img
           src={slide.image_mobile_url}
           alt=""
-          className="w-full h-auto block"
+          className="absolute inset-0 w-full h-full object-cover"
         />
       ) : (
         <div

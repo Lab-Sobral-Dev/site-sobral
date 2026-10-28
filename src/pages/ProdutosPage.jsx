@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import ProductCard from '../components/ProductCard';
+import ProductCard, { ProductCardSkeleton } from '../components/ProductCard';
 import { useDebounce } from '../hooks/useDebounce';
+import { useCategories } from '../hooks/useCategories';
 
 function SearchIcon() {
   return (
@@ -15,7 +16,6 @@ function SearchIcon() {
 const PER_PAGE = 12;
 
 export default function ProdutosPage() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const cat   = searchParams.get('cat') || 'all';
@@ -26,19 +26,12 @@ export default function ProdutosPage() {
   const debouncedQuery = useDebounce(inputValue, 300);
   const isFirstRender  = useRef(true);
 
-  const [categories, setCategories] = useState([]);
+  const categories = useCategories();
   const [products,   setProducts]   = useState([]);
   const [total,      setTotal]      = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading,    setLoading]    = useState(true);
   const [fetchError, setFetchError] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/categories')
-      .then(r => r.json())
-      .then(data => setCategories(Array.isArray(data) ? data : []))
-      .catch(() => {});
-  }, []);
 
   const fetchProducts = useCallback(() => {
     setLoading(true);
@@ -109,6 +102,10 @@ export default function ProdutosPage() {
         {/* Toolbar */}
         <div className="flex justify-between items-center gap-5 mb-2.5 flex-wrap">
           <div className="flex gap-2 flex-wrap">
+            {/* Reserva a linha dos filtros (texto invisível só dá a largura aproximada) */}
+            {categories.length === 0 && ['Todos', 'Tradicionais', 'Movimex', 'Óleos'].map(l => (
+              <span key={l} aria-hidden="true" className="px-[18px] py-2 rounded-full border border-line bg-line/40 text-[13px] font-bold text-transparent animate-pulse">{l}</span>
+            ))}
             {categories.map(c => (
               <button
                 key={c.id}
@@ -136,17 +133,20 @@ export default function ProdutosPage() {
           {loading ? 'Carregando...' : `${total} ${total === 1 ? 'produto encontrado' : 'produtos encontrados'}`}
         </div>
 
-        {loading ? (
-          <div className="py-[60px] text-center text-muted text-[15px]">Carregando produtos...</div>
+        {loading && products.length === 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {Array.from({ length: PER_PAGE }, (_, i) => <ProductCardSkeleton key={i} />)}
+          </div>
         ) : fetchError ? (
           <div className="py-[60px] text-center text-muted text-[15px]">Erro ao carregar produtos. Tente novamente.</div>
         ) : products.length === 0 ? (
           <div className="py-[60px] text-center text-muted text-[15px]">Nenhum produto encontrado com estes filtros.</div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {products.map(p => (
-              <ProductCard key={p.id} product={p} onClick={() => navigate(`/produtos/${p.id}`)} />
-            ))}
+          <div
+            aria-busy={loading}
+            className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 transition-opacity duration-150 ${loading ? 'opacity-50 pointer-events-none' : ''}`}
+          >
+            {products.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
         )}
 

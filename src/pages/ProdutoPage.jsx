@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
@@ -32,21 +32,25 @@ export default function ProdutoPage() {
   const [zoom,          setZoom]          = useState({ active: false, x: 50, y: 50 });
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retry, setRetry] = useState(0);
   const [related, setRelated] = useState([]);
 
   useEffect(() => {
     setLoading(true);
     setNotFound(false);
+    setLoadError(false);
     setOpenAccordion(null);
     fetch(`/api/products/${id}`)
       .then(r => {
         if (r.status === 404) { setNotFound(true); return null; }
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
       .then(data => { if (data) { setProduct(data); setMainImage(null); } })
-      .catch(() => setNotFound(true))
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, retry]);
 
   useEffect(() => {
     fetch('/api/products?random=true&per_page=9')
@@ -60,7 +64,40 @@ export default function ProdutoPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="py-[80px] text-center text-muted text-[15px]">Carregando produto...</div>;
+    return (
+      <div aria-busy="true" aria-label="Carregando produto" className="min-h-screen">
+        <Breadcrumb trail={[
+          { label: 'Home', to: '/' },
+          { label: 'Produtos', to: '/produtos' },
+          { label: '…' },
+        ]} />
+        <section className="max-w-content mx-auto px-4 md:px-10 mt-8 md:mt-11 mb-16 animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr] gap-8 md:gap-16 items-start">
+            <div className="aspect-square bg-line/50 border border-line rounded" />
+            <div>
+              <div className="h-9 w-2/3 bg-line rounded mb-[14px]" />
+              <div className="space-y-2 mb-7">
+                <div className="h-4 bg-line rounded" />
+                <div className="h-4 bg-line rounded" />
+                <div className="h-4 w-4/5 bg-line rounded" />
+              </div>
+              {[0, 1, 2].map(i => <div key={i} className="h-[52px] border-b border-line" />)}
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="py-[80px] text-center">
+        <p className="text-muted text-[15px] mb-4">Não foi possível carregar o produto.</p>
+        <button onClick={() => setRetry(n => n + 1)} className="text-orange font-bold text-[14px] underline">
+          Tentar novamente
+        </button>
+      </div>
+    );
   }
 
   if (notFound || !product) {
@@ -97,12 +134,12 @@ export default function ProdutoPage() {
         <div>
           <div className="[&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">{safe(p.modo_uso)}</div>
           {p.category_id === 'oleos' && (
-            <a
-              href={`/misturinhas?oleo=${p.id}`}
+            <Link
+              to={`/misturinhas?oleo=${p.id}`}
               className="inline-flex items-center gap-1.5 text-[13px] font-[700] text-orange hover:underline mt-4"
             >
               <span>✦</span> Ver dicas de misturinhas
-            </a>
+            </Link>
           )}
         </div>
       ),
@@ -112,7 +149,7 @@ export default function ProdutoPage() {
   return (
     <>
       <Helmet>
-        <title>{p.name} | Laboratório Sobral</title>
+        <title>{`${p.name} | Laboratório Sobral`}</title>
         <meta name="description" content={p.description ? stripTags(p.description).slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />
         <meta property="og:title" content={`${p.name} | Laboratório Sobral`} />
         <meta property="og:description" content={p.description ? stripTags(p.description).slice(0, 155) : `Conheça ${p.name}, produto do Laboratório Sobral.`} />

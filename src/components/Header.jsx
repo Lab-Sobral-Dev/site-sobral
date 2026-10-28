@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MobileDrawer, { HamburgerIcon } from './MobileDrawer';
+import { useCategories } from '../hooks/useCategories';
 
 function SearchIcon() {
   return (
@@ -65,7 +66,7 @@ function SearchBar({ query, setQuery, suggestions, showSuggestions, setShowSugge
   );
 }
 
-function NavDropdown({ id, label, items, open, onToggle, onNavigate }) {
+function NavDropdown({ id, label, items, open, onToggle }) {
   return (
     <div className={`nav-item relative ${open ? 'open' : ''}`}>
       <button
@@ -93,15 +94,15 @@ function NavDropdown({ id, label, items, open, onToggle, onNavigate }) {
             {it.label}
           </a>
         ) : (
-          <button
+          <Link
             key={it.label}
             role="menuitem"
-            type="button"
+            to={it.to}
             className="block w-full text-left px-4 py-2 text-[14px] font-semibold text-ink-light transition-all hover:bg-orange-50 hover:text-orange"
-            onClick={(e) => { e.stopPropagation(); onNavigate(it.to); onToggle(null); }}
+            onClick={(e) => { e.stopPropagation(); onToggle(null); }}
           >
             {it.label}
-          </button>
+          </Link>
         ))}
       </div>
     </div>
@@ -114,15 +115,8 @@ export default function Header() {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const categories = useCategories().filter(c => c.id !== 'all');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch('/api/categories')
-      .then(r => r.json())
-      .then(data => setCategories(Array.isArray(data) ? data.filter(c => c.id !== 'all') : []))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     const onClick = (e) => {
@@ -176,17 +170,14 @@ export default function Header() {
 
         <div className="flex items-center gap-4 lg:gap-6 max-w-content mx-auto px-4 md:px-10 py-[14px]">
           {/* Logo */}
-          <div
-            className="w-16 h-16 lg:w-[92px] lg:h-[92px] rounded-full flex-shrink-0 overflow-hidden cursor-pointer"
-            onClick={() => navigate('/')}
+          <Link
+            to="/"
+            className="block w-16 h-16 lg:w-[92px] lg:h-[92px] rounded-full flex-shrink-0 overflow-hidden"
             title="Laboratório Sobral — ir para a página inicial"
-            role="link"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/'); } }}
             aria-label="Laboratório Sobral — ir para a página inicial"
           >
             <img src="/images/logo.png" alt="Laboratório Sobral" width={92} height={92} className="w-full h-full object-cover rounded-full" />
-          </div>
+          </Link>
 
           {/* Busca — mobile, ao lado da logo */}
           <SearchBar
@@ -203,16 +194,15 @@ export default function Header() {
 
           {/* Nav — desktop */}
           <nav className="hidden lg:flex items-center gap-10 xl:gap-14 flex-1 justify-center">
-            <button
-              type="button"
-              onClick={() => navigate('/')}
+            <Link
+              to="/"
               className="font-bold text-[15px] py-2.5 text-ink transition-colors hover:text-orange"
             >
               Início
-            </button>
+            </Link>
             <NavDropdown
               id="sobral" label="O Sobral" open={openDropdown === 'sobral'}
-              onToggle={setOpenDropdown} onNavigate={navigate}
+              onToggle={setOpenDropdown}
               items={[
                 { label: 'Quem Somos', to: '/quem-somos' },
                 { label: 'Privacidade e Proteção de Dados', to: '/privacidade' },
@@ -221,7 +211,7 @@ export default function Header() {
             />
             <NavDropdown
               id="produtos" label="Produtos" open={openDropdown === 'produtos'}
-              onToggle={setOpenDropdown} onNavigate={navigate}
+              onToggle={setOpenDropdown}
               items={[
                 { label: 'Todos os produtos', to: '/produtos' },
                 ...categories.map(c => ({ label: c.label, to: `/produtos?cat=${c.id}` })),
@@ -230,7 +220,7 @@ export default function Header() {
             />
             <NavDropdown
               id="redes" label="Redes Sociais" open={openDropdown === 'redes'}
-              onToggle={setOpenDropdown} onNavigate={navigate}
+              onToggle={setOpenDropdown}
               items={[
                 { label: 'Instagram', to: 'https://instagram.com/labsobral', external: true },
                 { label: 'Facebook', to: 'https://facebook.com/labsobral', external: true },
@@ -241,7 +231,7 @@ export default function Header() {
             />
             <NavDropdown
               id="contato" label="Fale Conosco" open={openDropdown === 'contato'}
-              onToggle={setOpenDropdown} onNavigate={navigate}
+              onToggle={setOpenDropdown}
               items={[
                 { label: 'Fale Conosco', to: '/fale-conosco' },
                 { label: 'Relatório de Transparência Salarial', to: 'https://drive.google.com/file/d/1JWe_OkLG8Ro6jCGAaRdOBIsynoj3Rped/view', external: true },
