@@ -112,7 +112,6 @@ export default function HeroCarousel() {
     >
       {slide && (showMobileImage ? (
         <img
-          key={`m-${idx}`}
           src={slide.image_mobile_url}
           alt=""
           className="w-full h-auto block"
