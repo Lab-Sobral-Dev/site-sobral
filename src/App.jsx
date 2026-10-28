@@ -10,6 +10,7 @@ import ProdutoPage from './pages/ProdutoPage';
 import FaleConoscoPage from './pages/FaleConoscoPage';
 import PrivacidadePage from './pages/PrivacidadePage';
 import MisturinhasPage from './pages/MisturinhasPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // Rotas admin carregadas sob demanda (TipTap, dnd-kit e editores pesados ficam
 // em chunks separados que o visitante público nunca baixa).
@@ -150,6 +151,7 @@ const router = createBrowserRouter([
       { path: 'misturinhas',  element: <MisturinhasPage /> },
       { path: 'fale-conosco', element: <FaleConoscoPage /> },
       { path: 'privacidade',   element: <PrivacidadePage /> },
+      { path: '*',             element: <NotFoundPage /> },
     ],
   },
   { path: '/admin/login', element: admin(<AdminLoginPage />) },
