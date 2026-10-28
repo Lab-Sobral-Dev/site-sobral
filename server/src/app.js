@@ -56,9 +56,11 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json({ limit: '200kb' }));
 
-app.use(rateLimit({
+// Só na API: imagens e assets do build contariam dezenas de hits por página e
+// estourariam a cota de quem navega normalmente (ou divide IP num escritório).
+app.use('/api', rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Muitas requisições. Tente novamente em breve.' },
