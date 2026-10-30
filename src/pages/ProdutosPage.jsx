@@ -87,36 +87,21 @@ export default function ProdutosPage() {
         Produtos
       </div>
 
-      <section className="max-w-content mx-auto px-4 md:px-10 mt-9 pb-16">
+      <section className="max-w-content mx-auto px-4 md:px-10 mt-5 md:mt-9 pb-16">
         {/* Banner */}
-        <div className="bg-gradient-to-r from-[#F89B4D] via-orange to-[#E0580A] rounded flex items-center justify-between gap-6 p-[32px_40px] mb-8 shadow-[0_4px_18px_rgba(232,90,12,.2)]">
+        <div className="bg-gradient-to-r from-[#F89B4D] via-orange to-[#E0580A] rounded flex flex-row-reverse md:flex-row items-center justify-end md:justify-between gap-4 md:gap-6 p-4 md:p-[32px_40px] mb-5 md:mb-8 shadow-[0_4px_18px_rgba(232,90,12,.2)]">
           <div>
-            <h1 className="font-display text-[38px] font-[900] text-white mb-2 leading-[1.05] tracking-[-.5px]">Catálogo Sobral</h1>
-            <p className="text-[15px] opacity-95 m-0 max-w-[520px] text-white leading-[1.5]">
+            <h1 className="font-display text-[22px] md:text-[38px] font-[900] text-white mb-1 md:mb-2 leading-[1.05] tracking-[-.5px]">Catálogo Sobral</h1>
+            <p className="text-[13px] md:text-[15px] opacity-95 m-0 max-w-[520px] text-white leading-[1.4] md:leading-[1.5]">
               Suplementos alimentares de vitaminas e minerais, além de cosméticos.
             </p>
           </div>
-          <img src="/images/logo.png" alt="" className="w-[110px] h-[110px] rounded-full flex-shrink-0" />
+          <img src="/images/logo.png" alt="" className="w-14 h-14 md:w-[110px] md:h-[110px] rounded-full flex-shrink-0" />
         </div>
 
         {/* Toolbar */}
-        <div className="flex justify-between items-center gap-5 mb-2.5 flex-wrap">
-          <div className="flex gap-2 flex-wrap">
-            {/* Reserva a linha dos filtros (texto invisível só dá a largura aproximada) */}
-            {categories.length === 0 && ['Todos', 'Tradicionais', 'Movimex', 'Óleos'].map(l => (
-              <span key={l} aria-hidden="true" className="px-[18px] py-2 rounded-full border border-line bg-line/40 text-[13px] font-bold text-transparent animate-pulse">{l}</span>
-            ))}
-            {categories.map(c => (
-              <button
-                key={c.id}
-                className={`px-[18px] py-2 rounded-full border text-[13px] font-bold transition-all ${cat === c.id ? 'bg-orange border-orange text-white' : 'bg-white border-line text-ink-light hover:border-orange hover:text-orange'}`}
-                onClick={() => setCat(c.id)}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-          <div className="relative w-[240px]">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-5 mb-2.5">
+          <div className="relative w-full md:w-[240px] md:order-last">
             <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-muted pointer-events-none"><SearchIcon /></span>
             <input
               type="text"
@@ -124,8 +109,24 @@ export default function ProdutosPage() {
               placeholder="Buscar produto..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[13px] outline-none focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)]"
+              className="w-full py-[9px] pl-[38px] pr-4 rounded-full border border-line bg-white text-[16px] md:text-[13px] outline-none focus:border-orange focus:shadow-[0_0_0_3px_rgba(243,112,33,.12)]"
             />
+          </div>
+          {/* No mobile os filtros ficam numa linha só, com rolagem lateral até a borda da tela */}
+          <div className="flex gap-2 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {/* Reserva a linha dos filtros (texto invisível só dá a largura aproximada) */}
+            {categories.length === 0 && ['Todos', 'Tradicionais', 'Movimex', 'Óleos'].map(l => (
+              <span key={l} aria-hidden="true" className="flex-shrink-0 px-[18px] py-2 rounded-full border border-line bg-line/40 text-[13px] font-bold text-transparent animate-pulse">{l}</span>
+            ))}
+            {categories.map(c => (
+              <button
+                key={c.id}
+                className={`flex-shrink-0 whitespace-nowrap px-[18px] py-2 rounded-full border text-[13px] font-bold transition-all ${cat === c.id ? 'bg-orange border-orange text-white' : 'bg-white border-line text-ink-light hover:border-orange hover:text-orange'}`}
+                onClick={() => setCat(c.id)}
+              >
+                {c.label}
+              </button>
+            ))}
           </div>
         </div>
 
