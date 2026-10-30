@@ -199,9 +199,9 @@ export default function MisturinhasPage() {
                   <div className="absolute -bottom-[80px] -left-[80px] w-[220px] h-[220px] rounded-full border-[10px] border-orange/10 pointer-events-none" />
 
                   <button onClick={prev} aria-label="Anterior"
-                    className="absolute top-1/2 -translate-y-1/2 left-1.5 md:left-2 lg:left-6 w-9 h-9 md:w-[52px] md:h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange z-10 transition-all grid place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="left" /></button>
+                    className="hidden md:grid absolute top-1/2 -translate-y-1/2 md:left-2 lg:left-6 md:w-[52px] md:h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange z-10 transition-all place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="left" /></button>
                   <button onClick={next} aria-label="Próxima"
-                    className="absolute top-1/2 -translate-y-1/2 right-1.5 md:right-2 lg:right-6 w-9 h-9 md:w-[52px] md:h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange z-10 transition-all grid place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="right" /></button>
+                    className="hidden md:grid absolute top-1/2 -translate-y-1/2 md:right-2 lg:right-6 md:w-[52px] md:h-[52px] rounded-full border-none bg-white shadow-[0_6px_18px_rgba(0,0,0,.12)] text-orange z-10 transition-all place-items-center hover:bg-orange hover:text-white hover:scale-110"><ChevronIcon dir="right" /></button>
 
                   <div
                     key={`${tab}-${idx}`}
@@ -252,7 +252,10 @@ export default function MisturinhasPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-center gap-2 mt-4 md:mt-6">
+                {/* No mobile as setas ficam aqui, ao lado dos pontos, para não cobrir a receita */}
+                <div className="flex justify-center items-center gap-2 mt-4 md:mt-6">
+                  <button onClick={prev} aria-label="Anterior"
+                    className="md:hidden mr-2 w-9 h-9 rounded-full border-none bg-white shadow-[0_4px_12px_rgba(0,0,0,.12)] text-orange grid place-items-center transition-all active:bg-orange active:text-white"><ChevronIcon dir="left" /></button>
                   {list.map((_, i) => (
                     <button
                       key={i}
@@ -262,6 +265,8 @@ export default function MisturinhasPage() {
                         ${i === idx ? 'bg-orange w-8 rounded-[6px]' : 'bg-orange/25 w-2.5 hover:bg-orange/50'}`}
                     />
                   ))}
+                  <button onClick={next} aria-label="Próxima"
+                    className="md:hidden ml-2 w-9 h-9 rounded-full border-none bg-white shadow-[0_4px_12px_rgba(0,0,0,.12)] text-orange grid place-items-center transition-all active:bg-orange active:text-white"><ChevronIcon dir="right" /></button>
                 </div>
               </div>
             )}
