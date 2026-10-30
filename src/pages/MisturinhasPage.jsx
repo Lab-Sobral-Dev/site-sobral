@@ -302,7 +302,7 @@ export default function MisturinhasPage() {
         <div className="bg-gradient-to-r from-[#F89B4D] via-orange to-[#E0580A] rounded-[28px] p-10 lg:px-16 lg:py-14 text-center text-white shadow-[0_12px_32px_rgba(232,90,12,.28)] relative overflow-hidden">
           <div className="absolute -top-[80px] right-[40%] w-[280px] h-[280px] rounded-full bg-white/10 pointer-events-none" />
           <div className="relative z-[1]">
-            <h2 className="font-display text-[36px] lg:text-[46px] font-[900] leading-[1.05] m-0 tracking-[-1px]">
+            <h2 className="font-display text-[36px] lg:text-[46px] font-[900] text-white leading-[1.05] m-0 tracking-[-1px]">
               {content.cta_titulo}<br/><em className="italic">{content.cta_titulo_destaque}</em>
             </h2>
             <div className="flex justify-center mt-6">
