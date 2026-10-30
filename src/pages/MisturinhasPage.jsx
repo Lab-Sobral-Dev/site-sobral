@@ -221,7 +221,7 @@ export default function MisturinhasPage() {
                             <div className="w-[84px] h-[112px] md:w-[110px] md:h-[150px] bg-white rounded-[12px] md:rounded-[14px] grid place-items-center shadow-[0_6px_18px_rgba(232,90,12,.12)] p-2 md:p-3 mb-2 md:mb-2.5">
                               {p?.image && <img src={p.image} alt={ing.nome} className="max-w-full max-h-full object-contain" />}
                             </div>
-                            <div className="bg-orange text-white text-[10px] md:text-[11px] font-[900] px-2 md:px-2.5 py-1 rounded-full mb-1.5 tracking-[.3px]">{ing.qty}</div>
+                            <div className="bg-orange text-white text-[10px] md:text-[11px] font-[900] px-2 md:px-2.5 py-1 rounded-[12px] max-w-full text-center leading-tight text-balance mb-1.5 tracking-[.3px]">{ing.qty}</div>
                             <div className="text-[11px] md:text-[12px] font-bold text-ink text-center leading-tight text-balance">{ing.nome}</div>
                           </div>
                         );
