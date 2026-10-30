@@ -195,13 +195,10 @@ const PAGE_CONFIG = {
       {
         label: 'Chamada para o Instagram',
         fields: [
-          { key: 'cta_eyebrow',        label: 'Eyebrow (ex: SUA RECEITA · NOSSO INSTAGRAM)', type: 'text' },
           { key: 'cta_titulo',         label: 'Título (linha 1)',                             type: 'text' },
           { key: 'cta_titulo_destaque', label: 'Título (linha 2, em destaque)',                type: 'text' },
-          { key: 'cta_texto',          label: 'Texto de apoio',                               type: 'richtext' },
           { key: 'cta_botao_label',    label: 'Rótulo do botão',                              type: 'text' },
           { key: 'cta_botao_url',      label: 'Link do botão (Instagram)',                    type: 'text' },
-          { key: 'cta_imagem',         label: 'Imagem',                                       type: 'image' },
         ],
       },
     ],

@@ -24,13 +24,10 @@ const MISTURINHAS_DEFAULTS = {
   hero_subtitulo:       '<p>Combinações dos <strong>Óleos Sobral</strong> para turbinar sua rotina de pele e cabelo. Use sozinhos ou misturados — sua beleza agradece.</p>',
   guia_titulo:          '12 óleos. Uma rotina.',
   guia_subtitulo:       'Conheça rapidamente para que serve cada óleo da linha Sobral.',
-  cta_eyebrow:          'SUA RECEITA · NOSSO INSTAGRAM',
   cta_titulo:           'Faça a sua e marque',
   cta_titulo_destaque:  '@labsobral',
-  cta_texto:            'Mostre suas combinações no Instagram — quem sabe sua receita não vira a próxima dica oficial.',
   cta_botao_label:      '@labsobral no Instagram',
   cta_botao_url:        'https://instagram.com/labsobral',
-  cta_imagem:           '/images/misturinhas-hero-panel.png',
 };
 
 function ChevronIcon({ dir = 'left' }) {
@@ -302,25 +299,18 @@ export default function MisturinhasPage() {
 
       {/* CTA */}
       <section ref={refCta} className="reveal max-w-content mx-auto px-4 md:px-10 mt-[60px] mb-[60px]">
-        <div className="bg-gradient-to-r from-[#F89B4D] via-orange to-[#E0580A] rounded-[28px] p-10 lg:px-16 lg:py-14 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-10 items-center text-white shadow-[0_12px_32px_rgba(232,90,12,.28)] relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#F89B4D] via-orange to-[#E0580A] rounded-[28px] p-10 lg:px-16 lg:py-14 text-center text-white shadow-[0_12px_32px_rgba(232,90,12,.28)] relative overflow-hidden">
           <div className="absolute -top-[80px] right-[40%] w-[280px] h-[280px] rounded-full bg-white/10 pointer-events-none" />
           <div className="relative z-[1]">
-            <div className="text-[12px] tracking-[3px] font-[900] opacity-90 mb-3.5">{content.cta_eyebrow}</div>
-            <h2 className="font-display text-[36px] lg:text-[46px] font-[900] leading-[1.05] m-0 mb-4 tracking-[-1px]">
+            <h2 className="font-display text-[36px] lg:text-[46px] font-[900] leading-[1.05] m-0 tracking-[-1px]">
               {content.cta_titulo}<br/><em className="italic">{content.cta_titulo_destaque}</em>
             </h2>
-            <div className="text-[16px] leading-[1.55] opacity-95 max-w-[460px] [&_p]:m-0">
-              {safe(content.cta_texto)}
-            </div>
-            <div className="flex gap-3 flex-wrap mt-6">
+            <div className="flex justify-center mt-6">
               <a href={safeUrl(content.cta_botao_url)} target="_blank" rel="noreferrer"
                  className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-white text-orange font-[900] text-[14px] tracking-[.3px] transition-all hover:-translate-y-px hover:shadow-lg">
                 {content.cta_botao_label}
               </a>
             </div>
-          </div>
-          <div className="relative z-[1] rounded-[20px] overflow-hidden aspect-[3/4] shadow-[0_12px_32px_rgba(0,0,0,.18)] max-h-[320px] lg:max-h-none bg-[#F37021]">
-            <img src={content.cta_imagem} alt="" className="w-full h-full object-contain block" />
           </div>
         </div>
       </section>
